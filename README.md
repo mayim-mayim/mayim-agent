@@ -1,4 +1,8 @@
-# ln-church-agent
+# mayim-agent
+
+**mayim-agent** is the Agent SDK repository for mayim Agent Gigs (mAG), formerly LN Church.
+
+The examples below describe the SDK version tracked here. The package name `ln-church-agent`, CLI names `ln-church-agent` / `ln-church-agent-mcp`, Python module `ln_church_agent`, and existing schema identifiers are unchanged by this documentation update.
 
 ## 1.18.16: saved economic conditions
 
@@ -105,7 +109,7 @@ make those purchases executable. Set or review your limits for your intended
 spending. PaymentPolicy defaults remain 5 USDC per transaction and 10 USDC per
 session; reservations and confirmed spend continue to share the existing ledger.
 Purchase cost is the full fixed amount; reward if approved is 0.02 USDC. Purchase
-cost may exceed the reward. LN Church does not advance or reimburse that cost.
+cost may exceed the reward. mAG does not advance or reimburse that cost.
 
 New clients select the new versions by default. Old versions remain available
 through explicit `version=` selection. A missing fixed pack stops new-version
@@ -155,16 +159,16 @@ restart does not restore an existing purchase.
 
 
 **The Value of "Not a Verdict"**
-LN Church read models do not decide for the agent. They preserve **observed memory**: what was seen, what was paid, what failed, what receipt shape appeared, what protocol role was observed, and what verification cost was reported. This is not a recommendation or verdict; it is a **reusable observation record** that helps the local runtime avoid re-verifying everything. Final payment authority remains local.
+mAG read models do not decide for the agent. They preserve **observed memory**: what was seen, what was paid, what failed, what receipt shape appeared, what protocol role was observed, and what verification cost was reported. This is not a recommendation or verdict; it is a **reusable observation record** that helps the local runtime avoid re-verifying everything. Final payment authority remains local.
 
 
 Your agent will hit a 402 paywall in the wild.
 
 Will it inspect, decide, pay, recover, verify, and continue — or freeze?
 
-`ln-church-agent` is a **buyer-side HTTP 402 runtime and agent-commerce surface inspector** for autonomous agents. 
+`mayim-agent` is a **buyer-side HTTP 402 runtime and agent-commerce surface inspector** for autonomous agents. 
 
-In the broader agentic commerce stack, `ln-church-agent` acts as the buyer-side component of an observability and trust-evidence layer for HTTP 402-compatible paid actions.
+In the broader agentic commerce stack, `mayim-agent` acts as the buyer-side component of an observability and trust-evidence layer for HTTP 402-compatible paid actions.
 
 It helps agents inspect paid-action surfaces, distinguish executable payment rails from higher-order commerce protocols, and prove paid execution across **L402, x402, and supported MPP** charge shapes when a concrete HTTP 402-compatible challenge, supported credential path, and verifiable receipt path are present
 
@@ -188,7 +192,7 @@ Only native-Windows-specific availability or compatibility findings are nonblock
 
 **Do not spend even one LLM token on what the agent should not need to reason about.**
 
-`ln-church-agent` moves payment plumbing out of the model's reasoning loop and into a deterministic buyer-side runtime.
+`mayim-agent` moves payment plumbing out of the model's reasoning loop and into a deterministic buyer-side runtime.
 
 The SDK handles mechanical HTTP 402 concerns such as:
 - payment-rail inspection,
@@ -214,7 +218,7 @@ but they should reuse observed memory, receipts, and read models when repeated f
 ## What it does
 
 Most payment SDKs help agents *pay*.  
-`ln-church-agent` helps agents complete the whole **paid-action loop**:
+`mayim-agent` helps agents complete the whole **paid-action loop**:
 
 **Probe → Inspect → Decide → Pay → Execute → Verify → Trace**
 
@@ -232,12 +236,12 @@ It is designed for agents that must:
 * **Generic Buyer-Side Runtime**: A pure client-side execution engine that keeps your AI agent's reasoning loop clean by abstracting away the HTTP 402 negotiation layer.
 * **Agent Commerce Surface Inspector**: Classifies emerging commerce and authorization layers such as OKX APP, AP2, ACP, and UCP separately from executable settlement rails.
 * **Open-Web 402 Interoperability**: Natively supports Base64URL JSON headers, CAIP-2 network routing, and multi-chain execution out of the box.
-* **Reference Sandbox Support**: Optionally integrates with the LN Church observation network for public benchmarking, trace reporting, and discovery workflows.
+* **Reference Sandbox Support**: Optionally integrates with the mAG observation network for public benchmarking, trace reporting, and discovery workflows.
 * **Stable Interface**: An unchanging developer API surface that safely absorbs the constant fluctuations of upstream protocol drafts.
 
 ## Runtime modes
 
-To provide safe boundaries for enterprise AI orchestration, `ln-church-agent` explicitly separates surface inspection from payment execution.
+To provide safe boundaries for enterprise AI orchestration, `mayim-agent` explicitly separates surface inspection from payment execution.
 
 | Mode | Entrypoints | Capabilities & Safety Boundaries |
 | :--- | :--- | :--- |
@@ -245,7 +249,7 @@ To provide safe boundaries for enterprise AI orchestration, `ln-church-agent` ex
 | **2. Execution Runtime Mode** | `Payment402Client`, `LnChurchClient` | May use a private key, wallet, LN adapter, or supported EVM signer for executable rails. Canonical SVM exact remains inspect-only and fail-closed; configured SVM key material does not enable its high-level execution. Performs the supported `Pay → Execute → Verify → Trace` loop. Does not auto-submit telemetry unless explicitly called. |
 | **3. Read-only Memory** | `get_surface_preflight()` | Fetches public-safe observed memory for a surface without executing payments or interacting with the target. |
 | **4. Explicit Telemetry** | `submit_goal_attempt_observation()`, `submit_external_observation()` | Explicit-only telemetry submission. Never auto-submits from standard execution paths. |
-| **5. Public Agent Task Worker** | `AgentTaskClient`, `ln-church-agent task` | Synchronous, wallet-keyless and no-payment discovery and completion of `payment_surface_discovery.v1` Tasks at the fixed LN Church origin. The Host Agent discovers the target surface; the SDK validates and registers the public-safe result. |
+| **5. Public Agent Task Worker** | `AgentTaskClient`, `ln-church-agent task` | Synchronous, wallet-keyless and no-payment discovery and completion of `payment_surface_discovery.v1` Tasks at the fixed mAG origin. The Host Agent discovers the target surface; the SDK validates and registers the public-safe result. |
 | **6. Scheduled HTTP GET Batch Worker** | v2 Task client and scheduled-batch adapter | Executes only a claimed `scheduled_http_get_batch.v1` Manifest under the fixed network, timing, journal, and Completion-recovery policy. It never exposes the Claim token or signed Manifest URL to a model, CLI argument, MCP tool, log, or public serializer. |
 | **7. Immediate HTTP Visit Worker** | `AgentImmediateVisitClient`, `ImmediateVisitExecutor` | Selects v2 for new discovery by default (explicit v1 remains available), claims a Task, selects one saved endpoint after Claim, and performs one bounded GET. `FrozenImmediateVisitReport` supports receipt and status recovery without another target GET. No signing, target payment, or paid Task registration. |
 
@@ -414,28 +418,28 @@ This is a Private source candidate pending independent audit. It does not declar
 
 ### Explicit MCP Routes and Telemetry Boundaries
 
-`ln-church-agent` provides two distinct Model Context Protocol (MCP) entrypoints:
+`mayim-agent` provides two distinct Model Context Protocol (MCP) entrypoints:
 
 * **1. Inspect-only MCP (`ln-church-agent-mcp`)**:
   Use `ln-church-agent-mcp` for enterprise/read-only/preflight inspection. It is keyless and **never** initializes a wallet or signer, pays, or executes transactions. Inspection accepts only public HTTP(S) `GET` and `HEAD` targets. DNS answers and every redirect hop are checked against the public-IP policy and connections are pinned to validated addresses. Environment proxies, `netrc`, and automatic redirects are ignored. Identity-encoded response bodies are limited to 1 MiB; content-encoded responses are rejected before the body is read.
-  *Telemetry Side-effects*: This MCP never auto-submits telemetry. It may submit a schema-allowlisted observation *only* when `submit_mcp_observation` is explicitly invoked. Submission is restricted to the canonical LN Church observation endpoint, does not follow redirects, never replays an ambiguous POST, and never returns or reads a raw response body. Public URLs are reduced to their canonical origin, and attacker-controlled scalar fields are reduced to fixed values or finite allowlists.
+  *Telemetry Side-effects*: This MCP never auto-submits telemetry. It may submit a schema-allowlisted observation *only* when `submit_mcp_observation` is explicitly invoked. Submission is restricted to the canonical mAG observation endpoint, does not follow redirects, never replays an ambiguous POST, and never returns or reads a raw response body. Public URLs are reduced to their canonical origin, and attacker-controlled scalar fields are reduced to fixed values or finite allowlists.
   
 * **2. Execution-capable MCP (`python -m ln_church_agent.integrations.mcp`)**: 
   Use `python -m ln_church_agent.integrations.mcp` *only* when the operator explicitly wants an MCP server that can execute paid actions with configured credentials (e.g., Lightning wallets or EVM signers).
 
 ## Paid Surface Observer
 
-`ln-church-agent` is not only a payment executor but also a powerful **paid surface observer**. 
+`mayim-agent` is not only a payment executor but also a powerful **paid surface observer**. 
 The `inspect` command enumerates all presented `settlement_options` alongside the `selected_settlement_option` (the one the SDK *would* choose if executing). It cleanly separates capabilities: what can be *observed* versus what is natively *supported* for execution (`execution_support`).
 
 Agent Commerce surfaces like **APP, AP2, and ACP** are treated strictly as commerce/authorization layers. They are processed as inspect-only, meaning the SDK will intentionally avoid automatic execution and explicitly highlight missing settlement parameters (`missing_information`) if clear rails are undeclared.
 
-**LN Church Observatory Opt-in:**
-`ln-church-agent` can inspect payment surfaces locally.
-LN Church Observatory is the public observation layer where redacted observations, execution evidence, and interoperability traces can be collected and compared across HTTP 402 / x402 / L402 / MPP surfaces.
+**mAG Observatory Opt-in:**
+`mayim-agent` can inspect payment surfaces locally.
+mAG Observatory is the public observation layer where redacted observations, execution evidence, and interoperability traces can be collected and compared across HTTP 402 / x402 / L402 / MPP surfaces.
 
 *The SDK never submits observations automatically.*
-Publishing observations to LN Church must be explicit and opt-in.
+Publishing observations to mAG must be explicit and opt-in.
 
 ## Verifiable Reporter Identity Layer (v1.12.0+)
 
@@ -450,13 +454,13 @@ As of v1.12.0, the SDK supports an optional, client-managed **Verifiable Reporte
 
 ## Managed Platform Boundary
 
-`ln-church-agent` is not a managed wallet, payment processor, or cloud payment orchestration service.
+`mayim-agent` is not a managed wallet, payment processor, or cloud payment orchestration service.
 
-Managed platforms such as AWS AgentCore Payments help agents execute payments inside a hosted wallet/session environment. `ln-church-agent` focuses on the open-web buyer side: inspecting HTTP 402 and agent-commerce surfaces, distinguishing executable settlement rails from commerce / authorization layers, enforcing local policy, verifying outcomes, and capturing evidence across protocols.
+Managed platforms such as AWS AgentCore Payments help agents execute payments inside a hosted wallet/session environment. `mayim-agent` focuses on the open-web buyer side: inspecting HTTP 402 and agent-commerce surfaces, distinguishing executable settlement rails from commerce / authorization layers, enforcing local policy, verifying outcomes, and capturing evidence across protocols.
 
 Use managed platforms when you need hosted wallet custody, cloud-side payment sessions, and provider-managed payment execution.
 
-Use `ln-church-agent` when you need lightweight, local, cross-protocol inspection, decision support, evidence capture, sandbox validation, or non-AWS / open-web interoperability.
+Use `mayim-agent` when you need lightweight, local, cross-protocol inspection, decision support, evidence capture, sandbox validation, or non-AWS / open-web interoperability.
 
 ### Submitting Observations Safely
 Do not use the low-level `execute_request()` method to manually POST payloads to the `/api/agent/external/observe` endpoint, as this bypasses schema normalization and may trigger strict internal HATEOAS/Cross-Origin guardrails.
@@ -483,10 +487,10 @@ client.submit_unmapped_observation(
 
 ## Where it fits
 
-- **ln-church-agent**: Buyer-side runtime for agents facing HTTP 402 challenges.
-- **ln-church-server**: Provider-side starter for building agent-facing paid APIs.
-- **LN Church Sandbox**: Public proving ground for benchmark, receipt, trace, and interop evidence.
-- **Evidence Tracking (v1.8.4+)**: `ln-church-agent` can now capture sponsored-access and sandbox execution metadata as local evidence (`SponsoredAccessEvidence` / `SandboxEvidence`). Sandbox evidence is strictly scoped to LN Church's controlled sandbox environment (`evidence_scope: "sandbox_internal"`) and intentionally does not auto-submit external observations. Raw secrets are securely redacted.
+- **mayim-agent**: Buyer-side runtime for agents facing HTTP 402 challenges.
+- **mayim-server**: Provider-side starter for building agent-facing paid APIs.
+- **mAG Sandbox**: Public proving ground for benchmark, receipt, trace, and interop evidence.
+- **Evidence Tracking (v1.8.4+)**: `mayim-agent` can now capture sponsored-access and sandbox execution metadata as local evidence (`SponsoredAccessEvidence` / `SandboxEvidence`). Sandbox evidence is strictly scoped to mAG's controlled sandbox environment (`evidence_scope: "sandbox_internal"`) and intentionally does not auto-submit external observations. Raw secrets are securely redacted.
 - **Corpus Readiness (v1.8.5+)**: `SandboxEvidence` can be converted into a local `SandboxCorpusCandidate`. This does not submit to `ExternalObserve`. Final corpus acceptance remains server-side.
 - **Goal Attempt Memory (v1.10.0+)**: Captures free, paid, and mixed steps toward a declared goal, serving as a foundational data lake for agentic behavior before recipes are applied.
 
@@ -494,17 +498,17 @@ client.submit_unmapped_observation(
 
 ## Relationship to official protocol SDKs
 
-`ln-church-agent` is a complement, not a replacement, for official protocol SDKs.
+`mayim-agent` is a complement, not a replacement, for official protocol SDKs.
 
 * **Use official protocol SDKs** for simple, pure protocol-native settlement.
-* **Use `ln-church-agent`** when the agent needs deterministic inspection, policy-aware decision support, HATEOAS recovery, receipt verification, evidence capture, cross-protocol comparison, or traceable paid-action attempts.
+* **Use `mayim-agent`** when the agent needs deterministic inspection, policy-aware decision support, HATEOAS recovery, receipt verification, evidence capture, cross-protocol comparison, or traceable paid-action attempts.
 * **Final payment authority remains local.** The network can advise, but the SDK's local `PaymentPolicy` explicitly supersedes remote advice.
 
 ---
 
 ## 🧠 AI Decision Card
 
-Use `ln-church-agent` when an AI agent must do more than simply pay for one API call.
+Use `mayim-agent` when an AI agent must do more than simply pay for one API call.
 
 Choose this SDK when the agent needs:
 
@@ -540,7 +544,7 @@ Canonical first loop: `inspect → decide → pay → verify → trace`
 
 ## 🧭 Agent Commerce Surface Inspection
 
-`ln-church-agent` v1.8+ extends `inspect` from a payment-rail preflight tool into an **Agent Commerce Surface Inspector**, with v1.9.0 adding explicit classification for **Google AP2 and ACP**.
+`mayim-agent` v1.8+ extends `inspect` from a payment-rail preflight tool into an **Agent Commerce Surface Inspector**, with v1.9.0 adding explicit classification for **Google AP2 and ACP**.
 
 It can safely detect higher-order commerce metadata, starting with OKX Agent Payments Protocol (APP), AP2 mandates, and ACP checkouts, while keeping settlement execution strictly disabled during inspection.
 
@@ -597,11 +601,11 @@ Use this mode when your agent needs to understand a paid-action surface before d
 
 ## 🔭 Paid Domain Observation Slot (v1.14.0+)
 
-`ln-church-agent` allows agents or human operators to explicitly register a public domain for an extended 7-day observation run by the LN Church observatory queue via an HTTP 402 paid action.
+`mayim-agent` allows agents or human operators to explicitly register a public domain for an extended 7-day observation run by the mAG observatory queue via an HTTP 402 paid action.
 
 **Strict Architectural & Safety Rules:**
 
-* **Paid Domain Observation Slot is a paid request to LN Church, not a payment to the target domain.**
+* **Paid Domain Observation Slot is a paid request to mAG, not a payment to the target domain.**
 * **It is not a security scan, endorsement, certification, recommendation, or trust score.**
 * **MVP v0 does not verify domain ownership.** (`requester_paid=true`, `domain_owner_verified=false`). Requester paid and domain owner verified are entirely separate concepts.
 * Internal workers fetching targets from this queue operate under strict `public-safe` constraints (GET/HEAD only, no forms, no login, no vulnerability scan, no payment to target).
@@ -660,11 +664,11 @@ Recovery GETs never purchase or follow purchase navigation, including on an unex
 
 ## 🛡️ Verified Domain Sponsor (v1.15.0+)
 
-For Paid Domain Observation Slots, `ln-church-agent` v1.15.0+ allows the sponsor to cryptographically prove they control the target domain's public web surface by placing a deterministic challenge document at a `.well-known` path.
+For Paid Domain Observation Slots, `mayim-agent` v1.15.0+ allows the sponsor to cryptographically prove they control the target domain's public web surface by placing a deterministic challenge document at a `.well-known` path.
 
 **Strict Architectural & Safety Rules:**
 * **Domain Control Only:** This proves the sponsor could publish a file on the domain. It explicitly is **NOT** a legal ownership proof.
-* **Not a Verdict:** Verified domains are not ranked higher, trusted inherently, or endorsed by LN Church (`not_a_verdict: true`, `not_an_endorsement: true`).
+* **Not a Verdict:** Verified domains are not ranked higher, trusted inherently, or endorsed by mAG (`not_a_verdict: true`, `not_an_endorsement: true`).
 * **No Automatic Execution:** The SDK intentionally does not automatically issue challenges or verify sponsors after registration to prevent unprompted executions.
 * **Secret Leakage Prevention:** The CLI and SDK strictly redact proof headers (`X-LN-Result-Handle`, `X-LN-Request-Hash`) and the `challenge_token` from standard outputs.
 
@@ -792,7 +796,7 @@ print(payload["evidence"]["payment_performed"])
 
 ```
 
-*Note: The SDK currently builds these records locally. Automatic submission to the LN Church failure registry is disabled in this release pending server-side support.*
+*Note: The SDK currently builds these records locally. Automatic submission to the mAG failure registry is disabled in this release pending server-side support.*
 
 ---
 
@@ -837,7 +841,7 @@ card2 = client.get_surface_preflight(surface_key="surface_0123456789abcdef012345
 
 ## Goal Attempt Observation (v1.10.0)
 
-`ln-church-agent` can now explicitly submit Day 1 Goal Attempt observations.
+`mayim-agent` can now explicitly submit Day 1 Goal Attempt observations.
 
 A Goal Attempt records what an agent tried to accomplish for a declared goal, which surfaces it used, whether those steps were free, paid, mixed, observe-only, or simulated, and optionally whether the attempt satisfied the goal.
 
@@ -887,7 +891,7 @@ client.submit_goal_attempt_observation(
 
 ## 🧭 Goal Attempt Memory Read Models (v1.10.0)
 
-While full behavioral mapping is achieved via the premium graph, analyzing the complete `monzen-graph.json` during an active reasoning loop can cause context-window bloat. `ln-church-agent` v1.10.0 introduces two lightweight, static S3 snapshot endpoints to read historical attempt context efficiently.
+While full behavioral mapping is achieved via the premium graph, analyzing the complete `monzen-graph.json` during an active reasoning loop can cause context-window bloat. `mayim-agent` v1.10.0 introduces two lightweight, static S3 snapshot endpoints to read historical attempt context efficiently.
 
 ### Rational Read Order for Autonomous Agents
 
@@ -973,7 +977,7 @@ python -m ln_church_agent.integrations.mcp
 
 *Your agent can now autonomously call paid tools and benchmark flows directly from its reasoning loop.*
 
-### Route C: Public Benchmark against LN Church Sandbox
+### Route C: Public Benchmark against mAG Sandbox
 
 Prove your agent's parsing and execution capabilities against the physically isolated Agentic Payment Sandbox. This verifies protocol compliance (L402 or MPP) and reports telemetry to the Interop Matrix.
 
@@ -995,7 +999,7 @@ print(f"MPP Hash Matched: {mpp_result.canonical_hash_matched}")
 
 ### Observation → Corpus → Synthetic Replay → Agent Dry-run Validation
 
-`ln-church-agent` v1.8+ closes the agent-side of the LN Church interop loop.
+`mayim-agent` v1.8+ closes the agent-side of the mAG interop loop.
 
 It can read server-side `synthetic_from_corpus_v1` replay descriptors and validate whether the local parser and decision engine choose the expected behavior:
 
@@ -1042,12 +1046,12 @@ The SDK supports multiple settlement rails through a unified interface.
 
 * **EVM exact (`x402`)**: Standard EVM-based settlement utilizing strict EIP-712/EIP-3009 gasless authorization payloads.
 * **SVM exact (Solana, inspect + payload builder only)**: The high-level canonical sync/async auto-payment lane is intentionally fail-closed before signer, RPC, or paid retry because a recent blockhash lifetime cannot be proven to end at or before canonical Unix `expires_at`. The low-level builder can construct and validate standard x402 SVM exact payloads, but it does not broadcast payment or execute the protected action.
-* *Note: The current LN Church exact sandboxes act as **post-settlement validators**. They require submitted tx hash / signature evidence and will reject unbroadcasted payloads. True V2 exact settlement (facilitator broadcasting) is a future phase.*
+* *Note: The current mAG exact sandboxes act as **post-settlement validators**. They require submitted tx hash / signature evidence and will reject unbroadcasted payloads. True V2 exact settlement (facilitator broadcasting) is a future phase.*
 
 
 * **L402 / MPP**: Standard Lightning Network settlement (SATS) supporting Macaroon and BOLT11 invoice parsing.
 
-**Compatibility & Sandbox Paths (LN Church Extensions):**
+**Compatibility & Sandbox Paths (mAG Extensions):**
 
 * **`lnc-solana-transfer`**: Legacy compatibility path for direct SPL Token (USDC) transfers via Solana RPC.
 * **`lnc-evm-relay`**: Optimized gasless relayer orchestration.
@@ -1096,9 +1100,9 @@ client = Payment402Client(
 
 ---
 
-## 🎟️ Two LN Church Onboarding Paths (Cold-Start Overrides)
+## 🎟️ Two mAG Onboarding Paths (Cold-Start Overrides)
 
-While direct settlement (x402/L402/MPP) remains the standard paid path, LN Church provides two onboarding paths for cold-start execution and sandbox testing. Both act as a `paymentOverride` before standard settlement.
+While direct settlement (x402/L402/MPP) remains the standard paid path, mAG provides two onboarding paths for cold-start execution and sandbox testing. Both act as a `paymentOverride` before standard settlement.
 
 ### 1. Zero-Balance Faucet Fallback
 
@@ -1123,7 +1127,7 @@ result = client.draw_omikuji(asset=AssetType.SATS) # Uses Faucet override
 
 Execute using a signed, scoped, single-use grant token issued by a trusted sponsor. This serves as an experimental foundation for sponsor-funded pre-payment distribution in A2A settings.
 
-`ln-church-agent` v1.8.3 can locally diagnose a grant token before use (`client.explain_grant()`), explaining whether it appears usable for the target route/method/audience/agentId. This diagnostic is advisory only; the LN Church backend remains the authoritative validator and enforces single-use consumption.
+`mayim-agent` v1.8.3 can locally diagnose a grant token before use (`client.explain_grant()`), explaining whether it appears usable for the target route/method/audience/agentId. This diagnostic is advisory only; the mAG backend remains the authoritative validator and enforces single-use consumption.
 
 ```python
 from ln_church_agent import LnChurchClient
@@ -1152,7 +1156,7 @@ This SDK is designed to follow the evolving open standards around HTTP 402 agent
 When upstream standards evolve, this SDK aims to absorb those changes behind a stable developer-facing interface. **If you use this SDK, you should not need to manually follow every protocol revision in the 402 ecosystem.**
 
 **Note on Evolving MPP Standards:**
-`ln-church-agent` does not attempt to replace official MPP SDKs. Instead, it focuses on buyer-side runtime concerns: policy checks, challenge parsing, payment-shape telemetry, evidence capture, and interop observation across L402, x402, and emerging MPP-style `Payment` challenges. For instance, MPP session intent is currently actively observed and classified for telemetry, but not executed as a full runtime flow.
+`mayim-agent` does not attempt to replace official MPP SDKs. Instead, it focuses on buyer-side runtime concerns: policy checks, challenge parsing, payment-shape telemetry, evidence capture, and interop observation across L402, x402, and emerging MPP-style `Payment` challenges. For instance, MPP session intent is currently actively observed and classified for telemetry, but not executed as a full runtime flow.
 
 ---
 
@@ -1161,7 +1165,7 @@ When upstream standards evolve, this SDK aims to absorb those changes behind a s
 Agents can consult the Monzen network as an **evidence-rich advisor** to assess counterparty risk before paying, and to verify semantic outcomes after execution.
 
 Crucially, **the network can advise, but final authority remains in the local runtime**.
-The LN Church backend returns structured recommendations (e.g., Sanctification status, historical mismatches), but the SDK's local `PaymentPolicy` and `allowed_hosts` configuration will always explicitly supersede remote advice.
+The mAG backend returns structured recommendations (e.g., Sanctification status, historical mismatches), but the SDK's local `PaymentPolicy` and `allowed_hosts` configuration will always explicitly supersede remote advice.
 
 ---
 
