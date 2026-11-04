@@ -1,0 +1,24 @@
+{
+  "schema_version": "ln_church.task_offer_create_request.immediate_visit.v3_1",
+  "task_type": "immediate_http_visit.v3",
+  "task_definition_version": "3.1.0",
+  "plan_id": "C50",
+  "economic_terms": {
+    "economic_terms_revision": "immediate-A",
+    "plan_id": "C50",
+    "registration_amount_atomic": "1000000",
+    "capacity_total": 50,
+    "reward": {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "base_amount_atomic": "7500",
+      "bonus_amount_atomic": "7500",
+      "maximum_amount_atomic": "15000"
+    }
+  },
+  "repeat_policy": "allow",
+  "urls": [
+    "https://example.com/"
+  ]
+}

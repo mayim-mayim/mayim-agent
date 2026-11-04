@@ -2,11 +2,11 @@ import pytest
 import base64
 import json
 from unittest.mock import patch, MagicMock
-from ln_church_agent.cli import inspect_url
-from ln_church_agent.exceptions import PaymentChallengeError
+from mayim_agent.cli import inspect_url
+from mayim_agent.exceptions import PaymentChallengeError
 import httpx
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_inspect_alchemy_x402_body_accepts_detects_x402(mock_req):
     mock_res = MagicMock()
     mock_res.status_code = 402
@@ -27,7 +27,7 @@ def test_inspect_alchemy_x402_body_accepts_detects_x402(mock_req):
     assert "x402" in res.rails_detected
     assert res.diagnostic_class == "post_settlement_proof_required"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_inspect_www_authenticate_x402_detects_x402(mock_req):
     mock_res = MagicMock()
     mock_res.status_code = 402
@@ -40,7 +40,7 @@ def test_inspect_www_authenticate_x402_detects_x402(mock_req):
     assert res.ok is True
     assert "x402" in res.rails_detected
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_inspect_payment_lightning_normalizes_to_payment_and_mpp(mock_req):
     mock_res = MagicMock()
     mock_res.status_code = 402
@@ -58,7 +58,7 @@ def test_inspect_payment_lightning_normalizes_to_payment_and_mpp(mock_req):
     assert "Payment" in res.rails_detected
     assert "MPP" in res.rails_detected
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_inspect_payment_eip3009_normalizes_to_payment_and_x402(mock_req):
     mock_res = MagicMock()
     mock_res.status_code = 402
@@ -76,7 +76,7 @@ def test_inspect_payment_eip3009_normalizes_to_payment_and_x402(mock_req):
     assert "Payment" in res.rails_detected
     assert "x402" in res.rails_detected
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_inspect_invalid_flat_amount_is_typed_parse_failure(mock_req):
     mock_res = MagicMock()
     mock_res.status_code = 402
@@ -99,11 +99,11 @@ def test_inspect_invalid_flat_amount_is_typed_parse_failure(mock_req):
 
 def test_discovery_worker_uses_python_api_or_sys_executable():
     import sys
-    from ln_church_agent.cli import inspect_url
+    from mayim_agent.cli import inspect_url
     assert callable(inspect_url)
     assert sys.executable is not None
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_inspect_no_valid_402_returns_unsupported_challenge_shape(mock_req):
     """
     HTTP 402を返すが、ヘッダーにもボディにも有効なチャレンジが存在しない場合、
@@ -127,8 +127,8 @@ def test_inspect_no_valid_402_returns_unsupported_challenge_shape(mock_req):
     assert res.failure_class == "no_valid_challenge"
 
 
-@patch("ln_church_agent.challenges._parse_challenge_from_response")
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.challenges._parse_challenge_from_response")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_inspect_failed_parse_returns_invalid_payment_auth_request(mock_req, mock_parse):
     """
     パーサー内部で 'Failed to parse' を含むエラーが発生した場合、

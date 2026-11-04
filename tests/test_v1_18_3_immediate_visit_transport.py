@@ -6,7 +6,7 @@ import ssl
 
 import pytest
 
-from ln_church_agent.network_fetch import (
+from mayim_agent.network_fetch import (
     ControlledHTTPSConnector, FetchScope, FetchTimeouts,
     ImmediateVisitFetchError, IMMEDIATE_VISIT_BODY_LIMIT_BYTES,
     IMMEDIATE_VISIT_USER_AGENT, NetworkFetchError,
@@ -402,7 +402,7 @@ def test_public_fetch_errors_detach_private_exception_graph(stage, expected, mon
             raise RuntimeError(secret)
         harness.connector._resolver = resolver
     elif stage == "url":
-        from ln_church_agent import immediate_visit_contract
+        from mayim_agent import immediate_visit_contract
         def reject(_url):
             raise ValueError(secret)
         monkeypatch.setattr(immediate_visit_contract, "validate_endpoint_url", reject)

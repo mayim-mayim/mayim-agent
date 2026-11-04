@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.task_domain_observation_submission.v1"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "observed_domain": {
+      "description": "Canonical domain independently discovered by the Executor Agent.",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 253,
+      "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$"
+    },
+    "observed_urls": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "method",
+          "status_code",
+          "media_family",
+          "observed_at"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "maxLength": 2048
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "HEAD"
+            ]
+          },
+          "status_code": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599
+          },
+          "media_family": {
+            "type": "string",
+            "enum": [
+              "html",
+              "json",
+              "text",
+              "image",
+              "other",
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "discovered_surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "contains": {
+        "required": [
+          "status_code"
+        ],
+        "properties": {
+          "status_code": {
+            "const": 402
+          }
+        }
+      },
+      "minContains": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "method",
+          "status_code",
+          "surface_type",
+          "observed_at"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "maxLength": 2048
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "HEAD"
+            ]
+          },
+          "status_code": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599
+          },
+          "surface_type": {
+            "type": "string",
+            "enum": [
+              "http_402",
+              "x402",
+              "l402",
+              "mpp",
+              "agent_commerce",
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "stage",
+          "error_code",
+          "observed_at"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "maxLength": 2048
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "dns",
+              "connect",
+              "tls",
+              "request",
+              "response",
+              "validation"
+            ]
+          },
+          "error_code": {
+            "type": "string",
+            "enum": [
+              "timeout",
+              "dns_failure",
+              "connection_failure",
+              "tls_failure",
+              "http_error",
+              "response_too_large",
+              "unsupported_content",
+              "invalid_public_target",
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "safety_profile": {
+      "const": "public_safe_light"
+    },
+    "verification_cost_vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "http_requests",
+        "tool_calls",
+        "payment_attempts",
+        "personal_data_required",
+        "human_confirmation_required",
+        "irreversible_action_attempted",
+        "login_attempted",
+        "form_submission_attempted",
+        "vulnerability_scan_attempted"
+      ],
+      "properties": {
+        "http_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "tool_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "payment_attempts": {
+          "const": 0
+        },
+        "personal_data_required": {
+          "const": false
+        },
+        "human_confirmation_required": {
+          "type": "boolean"
+        },
+        "irreversible_action_attempted": {
+          "const": false
+        },
+        "login_attempted": {
+          "const": false
+        },
+        "form_submission_attempted": {
+          "const": false
+        },
+        "vulnerability_scan_attempted": {
+          "const": false
+        }
+      }
+    },
+    "no_payment_to_target": {
+      "const": true
+    },
+    "not_a_security_scan": {
+      "const": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "submission_id",
+    "observed_domain",
+    "observed_urls",
+    "discovered_surfaces",
+    "errors",
+    "safety_profile",
+    "verification_cost_vector",
+    "no_payment_to_target",
+    "not_a_security_scan"
+  ]
+}

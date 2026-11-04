@@ -1,10 +1,10 @@
 from unittest.mock import MagicMock
 from bolt11 import Bolt11, MilliSatoshi, Tag, TagChar, Tags, encode
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.models import (
+from mayim_agent.client import Payment402Client
+from mayim_agent.models import (
     ParsedChallenge, ChallengeSource, L402ExecutionReport
 )
-from ln_church_agent.crypto.protocols import L402Executor
+from mayim_agent.crypto.protocols import L402Executor
 
 
 def _signed_10_sat_invoice():
@@ -15,7 +15,7 @@ def _signed_10_sat_invoice():
         tags=Tags([
             Tag(TagChar.payment_hash, "11" * 32),
             Tag(TagChar.payment_secret, "22" * 32),
-            Tag(TagChar.description, "ln-church-agent test invoice"),
+            Tag(TagChar.description, "mayim-agent test invoice"),
         ]),
     )
     return encode(invoice, private_key="01".zfill(64))

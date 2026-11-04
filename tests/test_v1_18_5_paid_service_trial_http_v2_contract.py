@@ -8,14 +8,14 @@ from types import SimpleNamespace
 
 import pytest
 from eth_account import Account
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.crypto.evm import LocalKeyAdapter
-from ln_church_agent.paid_service_trial_models import (
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.crypto.evm import LocalKeyAdapter
+from mayim_agent.paid_service_trial_models import (
     PaidServiceTrialClaimV2, PaidServiceTrialTaskV2, PaidServiceTrialClaim,
     FrozenPaidServiceTrialReport, PurchaseTerms,
 )
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_transport import (
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_transport import (
     PaidServiceTrialTransport, PaidServiceTrialRawResponse, PaidServiceTrialAPIError,
     PaidServiceTrialTransportError,
 )
@@ -205,7 +205,7 @@ def test_error_reason_closed():
     '1e-'+'9'*16381,'0e'+'9'*16382,
 ])
 def test_c2_valid_extreme_exponent_public_preparation(body):
-    from ln_church_agent import prepare_paid_service_request
+    from mayim_agent import prepare_paid_service_request
     request=prepare_paid_service_request(dict(method='POST',url='https://seller.example.com/paid',body=body))
     assert request['body']=='0'
     assert request['body_sha256']==hashlib.sha256(b'0').hexdigest()

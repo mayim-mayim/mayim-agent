@@ -7,11 +7,11 @@ from unittest.mock import MagicMock, patch
 from bolt11 import Bolt11, MilliSatoshi, Tag, TagChar, Tags, encode
 from eth_account import Account
 
-from ln_church_agent.client import Payment402Client, _normalize_scheme
-from ln_church_agent.models import (
+from mayim_agent.client import Payment402Client, _normalize_scheme
+from mayim_agent.models import (
     SchemeType, ChallengeSource, ParsedChallenge, PaymentPolicy, ExecutionContext
 )
-from ln_church_agent.exceptions import PaymentExecutionError
+from mayim_agent.exceptions import PaymentExecutionError
 
 
 def _signed_10_sat_invoice():
@@ -22,7 +22,7 @@ def _signed_10_sat_invoice():
         tags=Tags([
             Tag(TagChar.payment_hash, "33" * 32),
             Tag(TagChar.payment_secret, "44" * 32),
-            Tag(TagChar.description, "ln-church-agent MPP test invoice"),
+            Tag(TagChar.description, "mayim-agent MPP test invoice"),
         ]),
     )
     return encode(invoice, private_key="02".zfill(64))
@@ -131,8 +131,8 @@ def test_parse_standard_x402_challenge():
     assert parsed.asset == "USDC"
     assert parsed.source == ChallengeSource.STANDARD_X402
 
-@patch("ln_church_agent.client.requests.request")
-@patch("ln_church_agent.crypto.evm.sign_standard_x402_evm")
+@patch("mayim_agent.client.requests.request")
+@patch("mayim_agent.crypto.evm.sign_standard_x402_evm")
 def test_flat_x402_execution_is_inspect_only_and_fails_closed(
     mock_sign_evm, mock_request
 ):
@@ -199,7 +199,7 @@ def test_parse_payment_required_respects_scheme():
     # ハードコードされた "x402" ではなく、サーバーが指定したスキームになること
     assert parsed.scheme == "CustomL2Scheme"
 
-@patch("ln_church_agent.client.LightningProvider")
+@patch("mayim_agent.client.LightningProvider")
 def test_protocol_purity_mpp_headers(MockLNProvider):
     """v1.5.6: MPP 決済時にボディを汚染せず、Authorization ヘッダーのみを使用するか確認"""
     mock_ln_adapter = MockLNProvider()
@@ -231,7 +231,7 @@ def test_protocol_purity_mpp_headers(MockLNProvider):
     assert "paymentAuth" not in original_payload
     assert original_payload == {"business_data": "important_value"}
 
-@patch("ln_church_agent.crypto.evm.sign_standard_x402_evm")
+@patch("mayim_agent.crypto.evm.sign_standard_x402_evm")
 def test_protocol_purity_x402_headers(mock_sign_evm):
     """v1.5.6: x402 決済時には正しく PAYMENT-SIGNATURE ヘッダーが生成されるか確認"""
     mock_sign_evm.return_value = "0xSignature123"

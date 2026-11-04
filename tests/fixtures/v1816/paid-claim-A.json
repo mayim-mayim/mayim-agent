@@ -1,0 +1,88 @@
+{
+  "schema_version": "ln_church.agent_task_claim_response.paid_service_trial.v3_1",
+  "task_id": "task_f19ae7e9aea006ccc946a2baf23e56fc",
+  "task_type": "paid_service_trial.v3",
+  "task_definition_version": "3.1.0",
+  "task_definition_digest": "48b478927f0c1bad45a1d89f74cc8990243e408d883479022b17d33e2427ef62",
+  "terms_digest": "7b3b9702a3f89d51cfbe552eef11bb18acfae028a5a523e2869fe68f3a92ecb1",
+  "request": {
+    "schema_version": "ln_church.paid_service_request.v2",
+    "method": "GET",
+    "url": "https://seller.example/data",
+    "content_type": null,
+    "body": null,
+    "body_sha256": null
+  },
+  "request_digest": "a966629c740f1e8021663d848c2e331d5381826cabab07be3cbdfe6855fb8217",
+  "purchase_terms_digest": "5154f6686596085ae1d6b2d712dd4b06a1b2dd50b658c8b52aae5cec726055a4",
+  "purchase_terms": {
+    "x402_version": 2,
+    "authorization_method": "EIP-3009",
+    "requirements": {
+      "scheme": "exact",
+      "network": "eip155:8453",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "amount": "10000",
+      "payTo": "0x0000000000000000000000000000000000000005",
+      "maxTimeoutSeconds": 300,
+      "extra": {
+        "name": "USD Coin",
+        "version": "2"
+      }
+    }
+  },
+  "repeat_policy": "ALLOW_REPEAT",
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "amount_atomic": "20000"
+  },
+  "economic_terms_revision": "paid-A",
+  "terms_snapshot": {
+    "request": {
+      "schema_version": "ln_church.paid_service_request.v2",
+      "method": "GET",
+      "url": "https://seller.example/data",
+      "content_type": null,
+      "body": null,
+      "body_sha256": null
+    },
+    "request_digest": "a966629c740f1e8021663d848c2e331d5381826cabab07be3cbdfe6855fb8217",
+    "purchase_terms_digest": "5154f6686596085ae1d6b2d712dd4b06a1b2dd50b658c8b52aae5cec726055a4",
+    "purchase_terms": {
+      "x402_version": 2,
+      "authorization_method": "EIP-3009",
+      "requirements": {
+        "scheme": "exact",
+        "network": "eip155:8453",
+        "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+        "amount": "10000",
+        "payTo": "0x0000000000000000000000000000000000000005",
+        "maxTimeoutSeconds": 300,
+        "extra": {
+          "name": "USD Coin",
+          "version": "2"
+        }
+      }
+    },
+    "plan_id": "C40",
+    "capacity_total": 40,
+    "registration_amount_atomic": "1000000",
+    "repeat_policy": "ALLOW_REPEAT",
+    "reward": {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "amount_atomic": "20000"
+    },
+    "economic_terms_revision": "paid-A"
+  },
+  "execution_id": "exec_524a0fd1aff33737f43fd0987479022a",
+  "claim_token": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "reward_address": "0x0000000000000000000000000000000000000003",
+  "reward_address_control_verified": false,
+  "claim_accepted_at": "2026-10-13T12:00:00.000Z",
+  "report_deadline": "2026-10-13T12:10:00.000Z",
+  "purchase_block_timestamp_exclusive_min": "1791892800"
+}

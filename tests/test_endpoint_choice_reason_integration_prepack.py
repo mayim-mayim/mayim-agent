@@ -6,13 +6,13 @@ from types import SimpleNamespace
 
 import pytest
 
-from ln_church_agent.access_quota import AccessQuotaPolicy, AccessQuotaError, ORIGIN
-from ln_church_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
-from ln_church_agent.endpoint_choice_reason_transport import EndpointChoiceTransport, EndpointChoiceAPIError
-from ln_church_agent.endpoint_choice_reason_transport import EndpointChoiceError
-from ln_church_agent.endpoint_choice_reason_requester import EndpointChoiceRequesterClient
-from ln_church_agent import endpoint_choice_reason_requester as requester
-from ln_church_agent.immediate_visit_transport import ImmediateVisitRawResponse
+from mayim_agent.access_quota import AccessQuotaPolicy, AccessQuotaError, ORIGIN
+from mayim_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
+from mayim_agent.endpoint_choice_reason_transport import EndpointChoiceTransport, EndpointChoiceAPIError
+from mayim_agent.endpoint_choice_reason_transport import EndpointChoiceError
+from mayim_agent.endpoint_choice_reason_requester import EndpointChoiceRequesterClient
+from mayim_agent import endpoint_choice_reason_requester as requester
+from mayim_agent.immediate_visit_transport import ImmediateVisitRawResponse
 from test_access_quota import NOW, Signer, challenge as quota_challenge, success, status as quota_status
 from test_endpoint_choice_reason_prepack import (
     synthetic_pack, journal, claim, task, raw, error, setup_answer, TASK, TOKEN,

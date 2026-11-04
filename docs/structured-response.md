@@ -73,7 +73,7 @@ saved economic revision and terms digest, including after CURRENT changes.
 
 Provision one 32-byte random key once, in a separate private directory outside
 any journal directory. Supply its absolute file path with
-`LN_CHURCH_STRUCTURED_RESPONSE_KEY_FILE` to every Python/MCP process that opens
+`MAG_STRUCTURED_RESPONSE_KEY_FILE` to every Python/MCP process that opens
 these journals. The key file contains raw bytes, not hex, a password or JSON.
 The SDK reads this file; it never creates, replaces or rotates a key implicitly.
 Read-only discovery does not need a key. Claim preparation does, before any
@@ -87,9 +87,9 @@ protected backup under the operator's control.
 import os
 from pathlib import Path
 
-key_root = (Path(os.environ['LOCALAPPDATA']) / 'ln-church-agent' / 'keys'
+key_root = (Path(os.environ['LOCALAPPDATA']) / 'mayim-agent' / 'keys'
             if os.name == 'nt'
-            else Path.home() / '.local' / 'share' / 'ln-church-agent' / 'keys')
+            else Path.home() / '.local' / 'share' / 'mayim-agent' / 'keys')
 key_root.mkdir(mode=0o700, parents=True, exist_ok=True)
 if os.name != 'nt':
     key_root.chmod(0o700)
@@ -99,7 +99,7 @@ with os.fdopen(fd, 'wb') as output:
     output.write(os.urandom(32))
     output.flush()
     os.fsync(output.fileno())
-os.environ['LN_CHURCH_STRUCTURED_RESPONSE_KEY_FILE'] = str(key_file)
+os.environ['MAG_STRUCTURED_RESPONSE_KEY_FILE'] = str(key_file)
 # Launch subsequent Python/MCP processes with this same environment setting.
 ```
 
@@ -108,7 +108,7 @@ setting it only in one terminated Python process does not persist configuration.
 On POSIX the key directory must be owned by the current account with mode0700,
 the key file mode0600, and journal directories should remain private mode0700.
 Symlinks, hard-linked keys, wrong lengths and keys inside the journal directory
-are rejected. On Windows use the account's `LOCALAPPDATA/ln-church-agent/keys`
+are rejected. On Windows use the account's `LOCALAPPDATA/mayim-agent/keys`
 directory and restrict its ACL and the journal ACL to that account. Native
 Windows ACL qualification remains a Release check.
 
@@ -144,9 +144,9 @@ Provisioning a first encryption key for a plaintext S2 file is distinct from
 restoring the original key for an encrypted S3 file. This is local compatibility
 for unpublished candidates, not a production-wide migration.
 
-The dedicated responder MCP command is `ln-church-agent-respond-mcp` (or
-`python -m ln_church_agent.integrations.mcp_structured_response`). Existing
-`ln-church-agent-mcp` remains inspect-only. The responder needs no payment key
+The dedicated responder MCP command is `mayim-agent-respond-mcp` (or
+`python -m mayim_agent.integrations.mcp_structured_response`). Existing
+`mayim-agent-mcp` remains inspect-only. The responder needs no payment key
 and does not silently enable paid access-quota purchases.
 
 | Python | MCP tool | Effect |
@@ -194,7 +194,7 @@ these interfaces do not expose or automatically execute the new recovery actions
 
 ```python
 from pathlib import Path
-from ln_church_agent import StructuredResponseClient, StructuredResponseJournal
+from mayim_agent import StructuredResponseClient, StructuredResponseJournal
 
 directory = Path("private-task-journals")
 directory.mkdir(mode=0o700, exist_ok=True)
@@ -221,9 +221,9 @@ with StructuredResponseClient() as client:
 
 The named task_id, agent_id, reward_address, claim_key and answers are caller
 inputs. Reuse the directory and journal handle on restart. On Windows use a
-directory beneath LOCALAPPDATA/ln-church-agent/claims. A Claim outcome-unknown error returns the saved journal handle; recover that
+directory beneath LOCALAPPDATA/mayim-agent/claims. A Claim outcome-unknown error returns the saved journal handle; recover that
 binding rather than generating another Claim key. MCP uses the configured
-`LN_CHURCH_TASK_JOURNAL_DIR` or platform default and returns an opaque handle.
+`MAG_TASK_JOURNAL_DIR` or platform default and returns an opaque handle.
 Tokens remain private and are omitted from repr, errors and tool output.
 
 If searching is impossible, explain that using an allowed status. If you
@@ -282,14 +282,14 @@ rather than waiting thirty minutes synchronously.
 
 最初に32 bytesのランダム鍵を一度だけ作成し、journalとは別の専用ディレクトリに
 保管します。上のPython例を使い、鍵ファイルの絶対pathを
-`LN_CHURCH_STRUCTURED_RESPONSE_KEY_FILE`で各Python/MCP processへ渡してください。
+`MAG_STRUCTURED_RESPONSE_KEY_FILE`で各Python/MCP processへ渡してください。
 raw32 bytesのファイルであり、hex文字列・password・JSONではありません。SDKは鍵を
 自動生成・置換・更新しません。鍵を再開processの起動設定へ引き継ぐ必要があります。
 読取discoveryは鍵なしで可能ですが、Claim準備はnetwork送信前に鍵を要求します。
 
 POSIXでは鍵ディレクトリ0700・鍵ファイル0600・現在account所有を要求し、journal
 ディレクトリも0700で保持します。symlink・hardlink・長さ不正・journal配下の鍵は
-拒否します。Windowsでは本人のLOCALAPPDATA/ln-church-agent/keys配下を使用し、
+拒否します。Windowsでは本人のLOCALAPPDATA/mayim-agent/keys配下を使用し、
 鍵・journalのACLを本人に制限してください。native Windows ACL確認はReleaseに残します。
 鍵の別の保護付きbackupと継続保管はoperatorが管理します。
 
@@ -374,4 +374,4 @@ profile本文は購入者・本人token・許可された内部ownerだけへ共
 prepareはローカル構造検証と保存のみ。確定した未受理の構造不正だけ、明示correction
 と新submission IDで補正します。受理済み・結果不明は置換不可。同じ回答の
 準備・再送・回復は同じID/bytesを保持します。WindowsはLOCALAPPDATA配下の
-ln-church-agent/claims、MCPは設定済みprivate directoryを用います。
+mayim-agent/claims、MCPは設定済みprivate directoryを用います。

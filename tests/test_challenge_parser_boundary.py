@@ -5,16 +5,16 @@ import httpx
 from pathlib import Path
 from unittest.mock import patch
 
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.models import ChallengeSource, PaymentPolicy
-from ln_church_agent.exceptions import (
+from mayim_agent.client import Payment402Client
+from mayim_agent.models import ChallengeSource, PaymentPolicy
+from mayim_agent.exceptions import (
     NoValidPaymentChallengeError,
     PaymentChallengeError,
     PaymentExecutionError,
 )
 
 # Test 1: direct parser import
-from ln_church_agent.challenges import (
+from mayim_agent.challenges import (
     parse_challenge_from_response,
     parse_www_authenticate,
 )
@@ -139,7 +139,7 @@ def test_parser_result_equivalence():
     assert parsed1.parameters.get("invoice") == parsed2.parameters.get("invoice")
 
 # Test 4: no execution behavior change
-@patch("ln_church_agent.client.LightningProvider")
+@patch("mayim_agent.client.LightningProvider")
 def test_no_execution_behavior_change(MockLNProvider):
     mock_ln_adapter = MockLNProvider()
     client = Payment402Client(ln_adapter=mock_ln_adapter, allow_legacy_payment_auth_fallback=False)

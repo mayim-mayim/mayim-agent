@@ -92,7 +92,10 @@ original body, signature and authorization; no new nonce is made by submission o
 recovery. On UNKNOWN, use `get_registration_challenge(task_type, operation_ref,
 payer)`, explicitly sign that read-only challenge, and call `read_registration(proof)`.
 The same proof serves repeated reads for 300 seconds. Refresh requires another
-explicit action for the same reference. `COMMITTED.result` is the saved registration
+explicit action for the same reference. Choice 2.4 and legacy Choice results use
+the contract of the saved inner result; the common read envelope remains v1.
+Changing current offers does not change the original result or require a new
+payment signature. `COMMITTED.result` is the saved registration
 snapshot; obtain current Task state separately. A STATUS/404/expiry does not mean
 unpaid and never triggers a purchase. `replay=True` is an explicit same-body,
 same-payment replay; it is not a fresh attempt. Caller-retained original private

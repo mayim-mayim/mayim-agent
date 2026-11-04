@@ -5,16 +5,16 @@ import json
 import pickle
 import pytest
 
-from ln_church_agent import endpoint_choice_reason_contract as c
-from ln_church_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
-from ln_church_agent.endpoint_choice_reason_journal import EndpointChoiceJournal
-from ln_church_agent.endpoint_choice_reason_models import EndpointChoiceEvaluation, EndpointChoiceTask, EndpointChoicePublicResults
-from ln_church_agent.endpoint_choice_reason_transport import EndpointChoiceTransport, EndpointChoiceError
-from ln_church_agent.endpoint_choice_reason_requester import (
+from mayim_agent import endpoint_choice_reason_contract as c
+from mayim_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
+from mayim_agent.endpoint_choice_reason_journal import EndpointChoiceJournal
+from mayim_agent.endpoint_choice_reason_models import EndpointChoiceEvaluation, EndpointChoiceTask, EndpointChoicePublicResults
+from mayim_agent.endpoint_choice_reason_transport import EndpointChoiceTransport, EndpointChoiceError
+from mayim_agent.endpoint_choice_reason_requester import (
     prepare_registration, registration_operation_ref, OfferResultsChallenge, _DOMAIN, _TYPES,
 )
-from ln_church_agent.immediate_visit_transport import ImmediateVisitRawResponse
-from ln_church_agent.task_journal import JournalError
+from mayim_agent.immediate_visit_transport import ImmediateVisitRawResponse
+from mayim_agent.task_journal import JournalError
 
 TASK='task_'+'1'*32
 EXEC='exec_'+'2'*32
@@ -259,6 +259,6 @@ def test_registration_reference_from_original_nonce_is_stable():
     assert registration_operation_ref(base64.b64encode(json.dumps(p).encode()).decode())==a
     assert len(a)==36 and a[14]=='4' and a[19]=='8'
 def test_url_normalization_preserves_immediate_query_rules():
-    from ln_church_agent.endpoint_choice_reason_contract import prepare_url
+    from mayim_agent.endpoint_choice_reason_contract import prepare_url
     assert prepare_url('https://EXAMPLE.com:443') == 'https://example.com/'
     assert prepare_url('https://example.com/?token=public-label') == 'https://example.com/?token=public-label'

@@ -4,10 +4,9 @@ import base64
 import httpx
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.cli import inspect_url, _extract_settlement_options
-from ln_church_agent.challenges import parse_challenge_from_response
-from ln_church_agent.integrations.mcp_inspect import build_mcp_observation_payload
-from ln_church_agent.failures import fingerprint_public_challenge_summary
+from mayim_agent.cli import inspect_url, _extract_settlement_options
+from mayim_agent.challenges import parse_challenge_from_response
+from mayim_agent.failures import fingerprint_public_challenge_summary
 
 def _create_mock_402(payload: dict) -> httpx.Response:
     b64_str = base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip('=')
@@ -16,7 +15,7 @@ def _create_mock_402(payload: dict) -> httpx.Response:
 # ==========================================
 # A. x402 accepts[] 複数候補の全列挙テスト
 # ==========================================
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_accepts_array_multiple_options_extracted(mock_req):
     payload = {
         "accepts": [
@@ -104,33 +103,11 @@ def test_prefer_svm_selection_reason():
 # ==========================================
 # D. MCP observation payload の network / asset 継承テスト
 # ==========================================
-def test_mcp_observation_payload_network_asset_inherited():
-    fake_inspect_result = {
-        "url": "http://public.example",
-        "method": "GET",
-        "status_code": 402,
-        "settlement_rails_detected": ["x402"],
-        "selected_settlement_option": {
-            "network": "eip155:8453",
-            "asset": "USDC",
-            "rail": "x402"
-        },
-        "settlement_options": [
-            {"network": "eip155:8453", "asset": "USDC", "rail": "x402", "selected": True}
-        ]
-    }
-    
-    payload = build_mcp_observation_payload(fake_inspect_result)
-    
-    assert payload["protocol"]["network"] == "eip155:8453"
-    assert payload["protocol"]["asset"] == "USDC"
-    # 💡 Nice to have: トップレベルに配置したことの確認
-    assert "settlement_options_summary" in payload
 
 # ==========================================
 # E. APP/AP2/ACP inspect-only safety test
 # ==========================================
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_app_ap2_acp_inspect_only_safety(mock_req):
     mock_res = MagicMock()
     mock_res.status_code = 402

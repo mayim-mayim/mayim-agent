@@ -1,0 +1,66 @@
+{
+  "schema_version": "ln_church.agent_task_source_bundle_manifest.v1",
+  "task_type": "endpoint_choice_reason.v2",
+  "task_definition_version": "2.4.0",
+  "task_definition_digest": "f79bcaf58e48857fcd5f9b95c09f522fa150b1f4dbe5a7be05c2ea4fed79fe7c",
+  "descriptor": {
+    "schema_version": "ln_church.task_definition_source_bundle.v1",
+    "source_repository": "mayim-mayim/LN_Church",
+    "specification_repository": "mayim-mayim/LN_Church_Development-Charter",
+    "specification_commit": "2577fd74cbdf8a40e0a1172f188fd021fd71f9fe",
+    "architecture_commit": "0575445002fde1d500575c06d08285587ccbff7a",
+    "task_type": "endpoint_choice_reason.v2",
+    "task_definition_version": "2.4.0",
+    "source_bundle_entries": [
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/SKILL.md",
+        "mode": "100644",
+        "blob": "822e58bb1dc803ce8345b426e171dde7d7b01761",
+        "sha256": "e368a3b3e721e59c90c0611a900cf3d57f6cd538499790a1c8b7f3be29b219b1"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/catalog-registration.schema.json",
+        "mode": "100644",
+        "blob": "c6845a8d256dffc59bdbc5486c9741cdc17e7301",
+        "sha256": "e944bc0c447e95044ddc08a43c3c3ede002b6ee1ae5218282a76cff3d3c719b0"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/definition.json",
+        "mode": "100644",
+        "blob": "696de5480334ba069357cd8a173413aaafd36cc3",
+        "sha256": "57a31a21114c12ae8ee4452eec6d739bc182813dd5df63c31b47276d20504351"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/economic-terms.schema.json",
+        "mode": "100644",
+        "blob": "9c63823a33f60c458f26ed90acf326ad73f2c568",
+        "sha256": "7c0dea9b16a082101517edff85f971c04c520fed38e8da31afbfe9aa81462247"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/evaluation-profile.json",
+        "mode": "100644",
+        "blob": "958041b11c95180f470b4d002b4ce448bd46b557",
+        "sha256": "51576d617be36f50ff2d071dea113b198a8255470c31c9f9d7c88e19017eaf07"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/requester-guide.md",
+        "mode": "100644",
+        "blob": "8674516ddc037716f615ab9f8192e90c6378706c",
+        "sha256": "b25ca80b43918abdec004c2e098a3169f315a6992facc81e50c830749225866a"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/semantic-fixtures.json",
+        "mode": "100644",
+        "blob": "495cae2c510cff8a56bbde6b19f7c8d8858c5b0d",
+        "sha256": "402b0d7d3053420b5c6111559ca6280985f24d540ced6eb03878b92d12fb526c"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.4.0/wire-contract.json",
+        "mode": "100644",
+        "blob": "184b18c220b937215969784f1da45a6ea7454fb0",
+        "sha256": "94f88b5349cd0894da851ae307293fe4b3810665ed9de8a8c74ba3dc0aa40e65"
+      }
+    ],
+    "activity_map_policy_id": "mag.activity-map.public.v1"
+  }
+}

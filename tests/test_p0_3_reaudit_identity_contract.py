@@ -13,12 +13,12 @@ from unittest.mock import patch
 
 import pytest
 
-from ln_church_agent import cli as cli_module
-from ln_church_agent import challenges as challenges_module
-from ln_church_agent import inspect_transport as transport
-from ln_church_agent.cli import inspect_url
-from ln_church_agent.exceptions import PaymentChallengeError
-from ln_church_agent.integrations import mcp_inspect
+from mayim_agent import cli as cli_module
+from mayim_agent import challenges as challenges_module
+from mayim_agent import inspect_transport as transport
+from mayim_agent.cli import inspect_url
+from mayim_agent.exceptions import PaymentChallengeError
+from mayim_agent.integrations import mcp_inspect
 
 
 AUTHORITY_MARKER = "b01-reflected-query-marker"
@@ -26,13 +26,11 @@ RAW_PARSE_MARKER = "DUMMY_UNEXPECTED_PARSER_DETAIL_P0_3"
 RAW_SEMANTIC_MARKER = "DUMMY_SEMANTIC_INVALID_DETAIL_P0_3"
 
 _FORBIDDEN_INSPECT_SIDE_EFFECTS = (
-    "ln_church_agent.integrations.mcp_inspect.submit_mcp_observation",
-    "ln_church_agent.client.Payment402Client.__init__",
-    "ln_church_agent.client.Payment402Client.execute_detailed",
-    "ln_church_agent.crypto.evm.sign_standard_x402_evm",
-    "ln_church_agent.crypto.solana.sign_standard_x402_solana",
-    "ln_church_agent.crypto.lightning.pay_lightning_invoice",
-    "ln_church_agent.inspect_transport._submit_observation_request",
+    "mayim_agent.client.Payment402Client.__init__",
+    "mayim_agent.client.Payment402Client.execute_detailed",
+    "mayim_agent.crypto.evm.sign_standard_x402_evm",
+    "mayim_agent.crypto.solana.sign_standard_x402_solana",
+    "mayim_agent.crypto.lightning.pay_lightning_invoice",
 )
 
 
@@ -130,22 +128,10 @@ def _assert_semantic_parse_failure(
             assert result[field] == []
         assert result["selected_settlement_option"] is None
 
-    payload = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    assert mcp_inspect._validate_observation_payload(payload) is None
-    assert payload["protocol"]["rail"] == "unknown"
-    assert payload["protocol"]["network"] == "unknown"
-    assert payload["protocol"]["asset"] == "unknown"
-    assert payload["protocol"]["payment_intent"] == "unknown"
-    assert payload["protocol"]["selected_settlement_option"] is None
-    assert payload["settlement_options_summary"] == []
-    assert payload["evidence"]["payment_performed"] is False
-    assert payload["evidence"]["payment_receipt_present"] is False
-
     serialized = json.dumps(
         {
             "cli": cli_result.model_dump(),
             "mcp": mcp_result,
-            "payload": payload,
         },
         sort_keys=True,
     )
@@ -164,74 +150,6 @@ def _complete_requirement(scheme="exact", **fields):
     )
 
 
-@pytest.mark.parametrize("terminal_status", [200, 500])
-def test_initial_origin_survives_cross_origin_redirect_in_every_public_boundary(
-    monkeypatch,
-    terminal_status,
-):
-    initial_url = (
-        "https://public.example/start?reflected=" + AUTHORITY_MARKER
-    )
-    redirect_url = (
-        "https://" + AUTHORITY_MARKER + ".redirect.example/final"
-    )
-    expected_public_url = "https://public.example/"
-
-    resolver_calls = _install_public_resolver(monkeypatch)
-    get_calls = _install_get_exchange(
-        monkeypatch,
-        [
-            _FakeResponse(302, headers={"Location": redirect_url}),
-            _FakeResponse(terminal_status),
-            _FakeResponse(302, headers={"Location": redirect_url}),
-            _FakeResponse(terminal_status),
-        ],
-    )
-
-    cli_result = inspect_url(initial_url)
-    mcp_result = mcp_inspect.inspect_paid_surface(initial_url)
-    payload = mcp_inspect.build_mcp_observation_payload(mcp_result)
-
-    assert cli_result.url == expected_public_url
-    assert mcp_result["url"] == expected_public_url
-    assert payload["targetUrl"] == expected_public_url
-    assert mcp_inspect._validate_observation_payload(payload) is None
-    assert cli_result.ok is (terminal_status == 200)
-    assert mcp_result["ok"] is (terminal_status == 200)
-
-    wire_bodies = []
-
-    def observation_exchange(target, address, timeout, body):
-        del target, address, timeout
-        wire_bodies.append(body)
-        return 204
-
-    monkeypatch.setattr(
-        transport,
-        "_exchange_observation_once",
-        observation_exchange,
-    )
-    submission = mcp_inspect.submit_mcp_observation(payload)
-
-    assert submission["status"] == "success"
-    assert submission["status_code"] == 204
-    assert len(wire_bodies) == 1
-    wire_payload = json.loads(wire_bodies[0].decode("utf-8"))
-    assert wire_payload["targetUrl"] == expected_public_url
-
-    serialized = json.dumps(
-        {
-            "cli_json": cli_result.model_dump_json(),
-            "mcp": mcp_result,
-            "payload": payload,
-            "wire": wire_payload,
-        },
-        sort_keys=True,
-    )
-    assert AUTHORITY_MARKER not in serialized
-    assert len(get_calls) == 4
-    assert ("public.example", 443) in resolver_calls
-    assert (AUTHORITY_MARKER + ".redirect.example", 443) in resolver_calls
 
 
 def test_transport_failure_cannot_replace_initial_public_identity(monkeypatch):
@@ -262,44 +180,6 @@ def test_transport_failure_cannot_replace_initial_public_identity(monkeypatch):
     assert AUTHORITY_MARKER not in serialized
 
 
-def test_real_malformed_ap2_body_is_typed_semantic_parse_failure(
-    monkeypatch,
-    caplog,
-):
-    caplog.set_level("DEBUG")
-    body = {
-        "protocol": "ap2",
-        "intent": "payment_mandate",
-        "accepts": [1],
-        "debug": RAW_PARSE_MARKER,
-    }
-    cli_result, mcp_result = _run_cli_and_mcp(
-        monkeypatch,
-        json.dumps(body).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-    )
-
-    _assert_parser_contract(
-        cli_result,
-        mcp_result,
-        failure_class="parse_failure",
-        diagnostic_class="invalid_payment_auth_request",
-        expected_ok=True,
-        expected_action="reject_invalid",
-    )
-    payload = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    assert mcp_inspect._validate_observation_payload(payload) is None
-    serialized = json.dumps(
-        {
-            "cli_json": cli_result.model_dump_json(),
-            "mcp": mcp_result,
-            "payload": payload,
-        },
-        sort_keys=True,
-    )
-    assert RAW_PARSE_MARKER not in serialized
-    assert RAW_PARSE_MARKER not in caplog.text
-    assert mcp_result["surfaces_detected"] == []
 
 _INVALID_BODY_DECLARATIONS = [
         {"accepts": []},
@@ -1416,64 +1296,6 @@ def test_valid_commerce_and_x402_coexistence_remains_observe_only(
     assert mcp_result["safety"]["payment_performed"] is False
 
 
-@pytest.mark.parametrize(
-    "exception,failure_class,diagnostic_class,expected_ok,expected_action",
-    [
-        (
-            RuntimeError(RAW_PARSE_MARKER),
-            "unexpected_error",
-            "x402_parse_error",
-            False,
-            "stop_safely",
-        ),
-        (
-            PaymentChallengeError(RAW_PARSE_MARKER),
-            "parse_failure",
-            "invalid_payment_auth_request",
-            True,
-            "reject_invalid",
-        ),
-    ],
-)
-def test_typed_parser_outcomes_preempt_valid_ap2_commerce(
-    monkeypatch,
-    caplog,
-    exception,
-    failure_class,
-    diagnostic_class,
-    expected_ok,
-    expected_action,
-):
-    caplog.set_level("DEBUG")
-    body = {
-        "protocol": "ap2",
-        "intent": "payment_mandate",
-        "mandate_id": "public-fixture",
-    }
-    cli_result, mcp_result = _run_cli_and_mcp(
-        monkeypatch,
-        json.dumps(body).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        parser_exceptions=[exception, exception],
-    )
-
-    _assert_parser_contract(
-        cli_result,
-        mcp_result,
-        failure_class=failure_class,
-        diagnostic_class=diagnostic_class,
-        expected_ok=expected_ok,
-        expected_action=expected_action,
-    )
-    payload = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    assert mcp_inspect._validate_observation_payload(payload) is None
-    serialized = json.dumps(
-        {"cli": cli_result.model_dump(), "mcp": mcp_result, "payload": payload},
-        sort_keys=True,
-    )
-    assert RAW_PARSE_MARKER not in serialized
-    assert RAW_PARSE_MARKER not in caplog.text
-    assert mcp_result["surfaces_detected"] == []
 
 
 def test_real_no_commerce_absence_retains_no_valid_challenge_contract(
@@ -1613,3 +1435,44 @@ def test_valid_commerce_only_absence_retains_observe_only(
     assert mcp_result["surfaces_detected"] == [expected_surface]
     assert mcp_result["will_execute_payment"] is False
     assert mcp_result["safety"]["payment_performed"] is False
+
+
+@pytest.mark.parametrize('terminal_status', [200, 500])
+def test_initial_origin_survives_cross_origin_redirect_in_every_public_boundary(monkeypatch, terminal_status):
+    initial_url = 'https://public.example/start?reflected=' + AUTHORITY_MARKER
+    redirect_url = 'https://' + AUTHORITY_MARKER + '.redirect.example/final'
+    expected_public_url = 'https://public.example/'
+    resolver_calls = _install_public_resolver(monkeypatch)
+    get_calls = _install_get_exchange(monkeypatch, [_FakeResponse(302, headers={'Location': redirect_url}), _FakeResponse(terminal_status), _FakeResponse(302, headers={'Location': redirect_url}), _FakeResponse(terminal_status)])
+    cli_result = inspect_url(initial_url)
+    mcp_result = mcp_inspect.inspect_paid_surface(initial_url)
+    assert cli_result.url == expected_public_url
+    assert mcp_result['url'] == expected_public_url
+    assert cli_result.ok is (terminal_status == 200)
+    assert mcp_result['ok'] is (terminal_status == 200)
+    serialized = json.dumps({'cli_json': cli_result.model_dump_json(), 'mcp': mcp_result}, sort_keys=True)
+    assert AUTHORITY_MARKER not in serialized
+    assert len(get_calls) == 4
+    assert ('public.example', 443) in resolver_calls
+    assert (AUTHORITY_MARKER + '.redirect.example', 443) in resolver_calls
+
+def test_real_malformed_ap2_body_is_typed_semantic_parse_failure(monkeypatch, caplog):
+    caplog.set_level('DEBUG')
+    body = {'protocol': 'ap2', 'intent': 'payment_mandate', 'accepts': [1], 'debug': RAW_PARSE_MARKER}
+    cli_result, mcp_result = _run_cli_and_mcp(monkeypatch, json.dumps(body).encode('utf-8'), headers={'Content-Type': 'application/json'})
+    _assert_parser_contract(cli_result, mcp_result, failure_class='parse_failure', diagnostic_class='invalid_payment_auth_request', expected_ok=True, expected_action='reject_invalid')
+    serialized = json.dumps({'cli_json': cli_result.model_dump_json(), 'mcp': mcp_result}, sort_keys=True)
+    assert RAW_PARSE_MARKER not in serialized
+    assert RAW_PARSE_MARKER not in caplog.text
+    assert mcp_result['surfaces_detected'] == []
+
+@pytest.mark.parametrize('exception,failure_class,diagnostic_class,expected_ok,expected_action', [(RuntimeError(RAW_PARSE_MARKER), 'unexpected_error', 'x402_parse_error', False, 'stop_safely'), (PaymentChallengeError(RAW_PARSE_MARKER), 'parse_failure', 'invalid_payment_auth_request', True, 'reject_invalid')])
+def test_typed_parser_outcomes_preempt_valid_ap2_commerce(monkeypatch, caplog, exception, failure_class, diagnostic_class, expected_ok, expected_action):
+    caplog.set_level('DEBUG')
+    body = {'protocol': 'ap2', 'intent': 'payment_mandate', 'mandate_id': 'public-fixture'}
+    cli_result, mcp_result = _run_cli_and_mcp(monkeypatch, json.dumps(body).encode('utf-8'), headers={'Content-Type': 'application/json'}, parser_exceptions=[exception, exception])
+    _assert_parser_contract(cli_result, mcp_result, failure_class=failure_class, diagnostic_class=diagnostic_class, expected_ok=expected_ok, expected_action=expected_action)
+    serialized = json.dumps({'cli': cli_result.model_dump(), 'mcp': mcp_result}, sort_keys=True)
+    assert RAW_PARSE_MARKER not in serialized
+    assert RAW_PARSE_MARKER not in caplog.text
+    assert mcp_result['surfaces_detected'] == []

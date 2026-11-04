@@ -7,16 +7,16 @@ from types import SimpleNamespace
 
 import pytest
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2, V2TaskTransport
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.models import PaymentPolicy
-from ln_church_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.paid_service_trial_models import PurchaseTerms
-from ln_church_agent.paid_service_trial_network import (
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.models import PaymentPolicy
+from mayim_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.paid_service_trial_models import PurchaseTerms
+from mayim_agent.paid_service_trial_network import (
     PaidTrialHTTPResponse, PaidServiceTrialHTTPS, current_v2_terms, PaidServiceTrialTermsError,
 )
-from ln_church_agent.task_journal import JournalPersistenceError
+from mayim_agent.task_journal import JournalPersistenceError
 
 
 def terms_response(wire,body=b'',conditions=None):
@@ -230,7 +230,7 @@ def test_v2_guards_prevent_signing_and_paid_send(wire_v2,lane_v2,monkeypatch,bou
 
 def test_invalid_saved_request_fails_before_dns(wire_v2):
     def no_dns(*args,**kwargs):pytest.fail('Invalid R reached DNS')
-    from ln_church_agent.network_fetch import NetworkFetchError
+    from mayim_agent.network_fetch import NetworkFetchError
     http=PaidServiceTrialHTTPS(resolver=no_dns)
     for key,value in [('method','DELETE'),('body','{}'),('body_sha256','f'*64),('url','https://localhost/')]:
         invalid=dict(wire_v2.request);invalid[key]=value

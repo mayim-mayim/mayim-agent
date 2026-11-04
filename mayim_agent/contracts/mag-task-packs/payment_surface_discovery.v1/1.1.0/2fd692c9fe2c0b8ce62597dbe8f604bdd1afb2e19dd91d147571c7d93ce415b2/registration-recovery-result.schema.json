@@ -1,0 +1,206 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "operation_ref",
+    "kind",
+    "result",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.registration_read_result.v1"
+    },
+    "profile": {
+      "const": "V17_STRICT_TASK_OFFER"
+    },
+    "operation_ref": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "kind": {
+      "enum": [
+        "COMMITTED",
+        "STATUS"
+      ]
+    },
+    "result": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "schema_version": {
+              "const": "ln_church.task_offer_create_response.v1"
+            },
+            "task_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+            },
+            "task_type": {
+              "const": "payment_surface_discovery.v1"
+            },
+            "status": {
+              "const": "OPEN"
+            },
+            "task_url": {
+              "type": "string",
+              "pattern": "^/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            }
+          },
+          "required": [
+            "schema_version",
+            "task_id",
+            "task_type",
+            "status",
+            "task_url"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "status": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "payment_state",
+            "business_commit_state",
+            "recovery_mode"
+          ],
+          "properties": {
+            "payment_state": {
+              "enum": [
+                "UNPAID",
+                "AUTHORIZATION_BOUND",
+                "SETTLING",
+                "CONFIRMING",
+                "ATTEMPT_REVERTED_AUTHORIZATION_LIVE",
+                "UNKNOWN",
+                "UNKNOWN_EXHAUSTED",
+                "CONFIRMED",
+                "FAILED",
+                "EXPIRED_UNPAID"
+              ]
+            },
+            "business_commit_state": {
+              "enum": [
+                "PRIVATE",
+                "COMMIT_DUE",
+                "COMMIT_BLOCKED"
+              ]
+            },
+            "recovery_mode": {
+              "enum": [
+                "TERMINAL_NEW_ATTEMPT_AVAILABLE",
+                "READBACK_ONLY"
+              ]
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "COMMITTED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "result": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "schema_version": {
+                "const": "ln_church.task_offer_create_response.v1"
+              },
+              "task_id": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+              },
+              "task_type": {
+                "const": "payment_surface_discovery.v1"
+              },
+              "status": {
+                "const": "OPEN"
+              },
+              "task_url": {
+                "type": "string",
+                "pattern": "^/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+              }
+            },
+            "required": [
+              "schema_version",
+              "task_id",
+              "task_type",
+              "status",
+              "task_url"
+            ]
+          },
+          "status": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "result": {
+            "type": "null"
+          },
+          "status": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "payment_state",
+              "business_commit_state",
+              "recovery_mode"
+            ],
+            "properties": {
+              "payment_state": {
+                "enum": [
+                  "UNPAID",
+                  "AUTHORIZATION_BOUND",
+                  "SETTLING",
+                  "CONFIRMING",
+                  "ATTEMPT_REVERTED_AUTHORIZATION_LIVE",
+                  "UNKNOWN",
+                  "UNKNOWN_EXHAUSTED",
+                  "CONFIRMED",
+                  "FAILED",
+                  "EXPIRED_UNPAID"
+                ]
+              },
+              "business_commit_state": {
+                "enum": [
+                  "PRIVATE",
+                  "COMMIT_DUE",
+                  "COMMIT_BLOCKED"
+                ]
+              },
+              "recovery_mode": {
+                "enum": [
+                  "TERMINAL_NEW_ATTEMPT_AVAILABLE",
+                  "READBACK_ONLY"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

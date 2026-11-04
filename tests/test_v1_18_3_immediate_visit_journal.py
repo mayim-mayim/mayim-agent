@@ -10,13 +10,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 
-from ln_church_agent.immediate_visit import ImmediateVisitExecutor
-from ln_church_agent.immediate_visit_journal import ImmediateVisitJournal
-from ln_church_agent.immediate_visit_models import FrozenImmediateVisitReport, ImmediateVisitClaimCredential, ImmediateVisitCompletionResult
-from ln_church_agent.network_fetch import ImmediateVisitFetchResponse, ImmediateVisitFetchError
-from ln_church_agent.task_journal import JournalError, JournalPersistenceError
-import ln_church_agent.immediate_visit as worker
-import ln_church_agent.immediate_visit_journal as storage
+from mayim_agent.immediate_visit import ImmediateVisitExecutor
+from mayim_agent.immediate_visit_journal import ImmediateVisitJournal
+from mayim_agent.immediate_visit_models import FrozenImmediateVisitReport, ImmediateVisitClaimCredential, ImmediateVisitCompletionResult
+from mayim_agent.network_fetch import ImmediateVisitFetchResponse, ImmediateVisitFetchError
+from mayim_agent.task_journal import JournalError, JournalPersistenceError
+import mayim_agent.immediate_visit as worker
+import mayim_agent.immediate_visit_journal as storage
 
 
 def claim_value(count=10):

@@ -1,6 +1,6 @@
 import pytest
-from ln_church_agent.capabilities import get_capability_matrix
-from ln_church_agent.cli import inspect_url
+from mayim_agent.capabilities import get_capability_matrix
+from mayim_agent.cli import inspect_url
 from unittest.mock import patch, MagicMock
 import json
 import base64
@@ -32,7 +32,7 @@ def test_inspect_outputs_remain_non_executing():
             # For executing rails, inspect must not execute
             assert "executed_in_inspect" in row["inspect_behavior"] or row["inspect_behavior"] == "supported_but_not_executed_in_inspect"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_no_execution_behavior_changed(mock_req):
     mock_res = MagicMock()
     mock_res.status_code = 402
@@ -57,7 +57,7 @@ def test_capability_matrix_is_readonly_and_static():
     assert len(matrix) > 0
     assert isinstance(matrix[0], dict)
 
-from ln_church_agent import get_capability_matrix
+from mayim_agent import get_capability_matrix
 
 def test_capability_matrix_public_import():
     matrix = get_capability_matrix()
@@ -66,7 +66,7 @@ def test_capability_matrix_public_import():
 
 def test_capability_matrix_new_boundary_fields():
     """Ensure the capability matrix clearly separates inspect_only and execution_runtime boundaries."""
-    from ln_church_agent.capabilities import get_capability_matrix
+    from mayim_agent.capabilities import get_capability_matrix
     matrix = get_capability_matrix()
     
     # Executable Settlement Rail
@@ -92,7 +92,7 @@ def test_capability_matrix_new_boundary_fields():
 
 def test_capability_matrix_credential_and_grant_semantics():
     """Ensure Lightning rails do not require private keys and Grant does not execute payments."""
-    from ln_church_agent.capabilities import get_capability_matrix
+    from mayim_agent.capabilities import get_capability_matrix
     matrix = get_capability_matrix()
     
     # L402 Semantics
@@ -143,7 +143,7 @@ def test_capability_matrix_marks_canonical_svm_exact_non_executable():
 
 def test_capability_matrix_payment_draft_semantics():
     """Ensure Payment draft challenge is conditional and does not generate JSON credentials."""
-    from ln_church_agent.capabilities import get_capability_matrix
+    from mayim_agent.capabilities import get_capability_matrix
     matrix = get_capability_matrix()
 
     # Payment draft challenge の検証
@@ -167,10 +167,11 @@ def test_capability_matrix_payment_draft_semantics():
 
 def test_capability_matrix_observation_semantics():
     """Ensure observation and memory layers explicitly declare they are reusable records, not verdicts."""
-    from ln_church_agent.capabilities import get_capability_matrix
+    from mayim_agent.capabilities import get_capability_matrix
     matrix = get_capability_matrix()
 
-    memory_layers = ["surface_preflight", "goal_attempt_observation", "external_observation", "sandbox_evidence"]
+    memory_layers = ["external_observation"]
+    assert not {"surface_preflight", "goal_attempt_observation", "sandbox_evidence"} & {row["id"] for row in matrix}
     
     for layer_id in memory_layers:
         layer = next(row for row in matrix if row["id"] == layer_id)

@@ -4,15 +4,15 @@ import json
 
 import pytest
 from unittest.mock import patch, MagicMock
-from ln_church_agent.client import LnChurchClient
-from ln_church_agent.exceptions import NavigationGuardrailError
-from ln_church_agent.models import ExecutionContext
+from mayim_agent.client import MagClient
+from mayim_agent.exceptions import NavigationGuardrailError
+from mayim_agent.models import ExecutionContext
 from test_paid_result_connection import response, transport
 
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_submit_unmapped_observation_payload_shape(mock_execute):
     """Test A: Payload shape validation for unmapped observation"""
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     target_url = "https://example.com/api/endpoint"
     client.submit_unmapped_observation(
@@ -35,10 +35,10 @@ def test_submit_unmapped_observation_payload_shape(mock_execute):
     assert payload["evidence"]["payment_receipt_present"] is False
     assert "payment_scheme_unmapped" in payload["missing_information"]
 
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_unsupported_challenge_shape_normalization(mock_execute):
     """Test B: unsupported_challenge_shape is normalized properly"""
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     client.submit_unmapped_observation(
         target_url="https://example.com/api/endpoint",
@@ -50,10 +50,10 @@ def test_unsupported_challenge_shape_normalization(mock_execute):
     assert payload["protocol"]["rail"] == "unknown"
     assert payload["evidence"]["verification_status"] == "unverified"
 
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_unknown_rail_normalization(mock_execute):
     """Test C: unknown_rail normalization and missing_info mapping"""
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     client.submit_unmapped_observation(
         target_url="https://example.com/api/endpoint",
@@ -65,10 +65,10 @@ def test_unknown_rail_normalization(mock_execute):
     assert "unknown_rail" in payload["missing_information"]
     assert "settlement_rail_not_declared" in payload["missing_information"]
 
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_secret_stripping_applied(mock_execute):
     """Test D: Secret stripping is applied to extra_protocol"""
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     unsafe_protocol = {
         "some_safe_key": "safe_value",
@@ -93,7 +93,7 @@ def test_secret_stripping_applied(mock_execute):
 
 def test_guardrail_remains_unchanged():
     """Test G: Guardrail remains completely unchanged"""
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001", auto_navigate=True)
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001", auto_navigate=True)
 
     with patch("requests.request") as mock_req:
         resp_cross_origin = MagicMock()
@@ -105,10 +105,10 @@ def test_guardrail_remains_unchanged():
         with pytest.raises(NavigationGuardrailError, match="(?i).*Cross-origin.*|.*Stopped unsafe.*"):
             client.execute_detailed("GET", "/first")
 
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_nested_secret_stripping_applied(mock_execute):
     """Test D-2: Nested secret stripping is applied recursively"""
-    client = LnChurchClient(private_key="0x" + "1" * 64)
+    client = MagClient(private_key="0x" + "1" * 64)
 
     client.submit_unmapped_observation(
         target_url="https://example.com/api/endpoint",
@@ -156,7 +156,7 @@ def test_unmapped_public_wire_redacts_purchaser_proof_without_changing_input(
         "sdk_version": "test-version",
     }
     original = deepcopy(inputs)
-    client = LnChurchClient(agent_id="unmapped-test", base_url="https://observer.test")
+    client = MagClient(agent_id="unmapped-test", base_url="https://observer.test")
     send = transport(monkeypatch, client, async_mode, [response(200, {"status": "accepted"})])
     assert send.call_count == 0
     if async_mode:

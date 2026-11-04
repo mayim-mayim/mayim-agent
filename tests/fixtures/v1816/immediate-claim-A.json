@@ -1,0 +1,61 @@
+{
+  "schema_version": "ln_church.agent_task_claim_response.immediate_visit.v3_1",
+  "task_id": "task_0fb0c314547a3c75713fc560735d496a",
+  "task_type": "immediate_http_visit.v3",
+  "execution_id": "exec_d5228ded5b3dbd3e1711d03c3b2ca595",
+  "claim_token": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "claimed_at": "2026-10-13T12:00:00.000Z",
+  "report_deadline": "2026-10-13T12:10:00.000Z",
+  "reward_address": "0x0000000000000000000000000000000000000003",
+  "reward_address_control_verified": false,
+  "profile_id": "immediate_visit_utf8.v3",
+  "endpoints": [
+    {
+      "endpoint_id": "ep_0f115db062b7c0dd030b16878c99dea5c354b49dc37b38eb8846179c7783e9d7",
+      "url": "https://example.com/"
+    }
+  ],
+  "repeat_policy": "allow",
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "base_amount_atomic": "7500",
+    "bonus_amount_atomic": "7500",
+    "maximum_amount_atomic": "15000"
+  },
+  "economic_terms_revision": "immediate-A",
+  "terms_digest": "26539e514cb4be536311a529849b68c9ddfa19d2e88eefbe78bda503fde496b4",
+  "terms_snapshot": {
+    "task_type": "immediate_http_visit.v3",
+    "plan_id": "C50",
+    "repeat_policy": "allow",
+    "urls": [
+      "https://example.com/"
+    ],
+    "economic_terms_revision": "immediate-A",
+    "registration_amount_atomic": "1000000",
+    "capacity_total": 50,
+    "reward": {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "base_amount_atomic": "7500",
+      "bonus_amount_atomic": "7500",
+      "maximum_amount_atomic": "15000"
+    },
+    "maximum_reward_principal_atomic": "750000",
+    "profile_id": "immediate_visit_utf8.v3",
+    "definition_version": "3.1.0",
+    "task_definition_digest": "9591ae9d321993c9e101693f02985b87dce59ebaf1f83f580994e8f3442dfb43",
+    "endpoints": [
+      {
+        "endpoint_id": "ep_0f115db062b7c0dd030b16878c99dea5c354b49dc37b38eb8846179c7783e9d7",
+        "url": "https://example.com/"
+      }
+    ],
+    "listing_seconds": 604800,
+    "claim_seconds": 600,
+    "reward_policy_id": "IMMEDIATE_VISIT_REWARD_V1"
+  }
+}

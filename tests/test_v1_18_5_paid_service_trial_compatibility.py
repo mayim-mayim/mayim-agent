@@ -7,9 +7,9 @@ import runpy
 import pytest
 
 from test_v1_18_5_paid_service_trial_contract import wire
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.immediate_visit_models import ImmediateVisitTask
-from ln_church_agent.task_models import AgentTask
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.immediate_visit_models import ImmediateVisitTask
+from mayim_agent.task_models import AgentTask
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -23,27 +23,27 @@ def test_metadata_support_and_entry_points_unchanged(monkeypatch):
     import setuptools
     captured={};monkeypatch.setattr(setuptools,'setup',lambda **kwargs:captured.update(kwargs))
     monkeypatch.chdir(ROOT);runpy.run_path(str(ROOT/'setup.py'))
-    assert captured['version']=='1.18.17' and captured['python_requires']=='>=3.8.1'
-    assert 'contracts/v185-paid-service-trial/*' in captured['package_data']['ln_church_agent']
+    assert captured['version']=='2.0.0' and captured['python_requires']=='>=3.8.1'
+    assert 'contracts/v185-paid-service-trial/*' in captured['package_data']['mayim_agent']
     assert captured['entry_points']=={'console_scripts':[
-        'ln-church-agent=ln_church_agent.cli:main','lnc-agent=ln_church_agent.cli:main',
-        'ln-church-agent-mcp=ln_church_agent.integrations.mcp_inspect:main',
-        'ln-church-agent-respond-mcp=ln_church_agent.integrations.mcp_structured_response:main']}
+        'mayim-agent=mayim_agent.cli:main',
+        'mayim-agent-mcp=mayim_agent.integrations.mcp_inspect:main',
+        'mayim-agent-respond-mcp=mayim_agent.integrations.mcp_structured_response:main']}
     manifest=json.loads((ROOT/'server.json').read_text())
-    assert manifest['version']=='1.18.17' and manifest['packages'][0]['version']=='1.18.17'
+    assert manifest['version']=='2.0.0' and manifest['packages'][0]['version']=='2.0.0'
     # New source retains the existing minimum Python grammar; runtime/platform
     # qualification beyond the existing support tier is not claimed.
-    for path in (ROOT/'ln_church_agent').glob('paid_service_trial*.py'):
+    for path in (ROOT/'mayim_agent').glob('paid_service_trial*.py'):
         ast.parse(path.read_text(),feature_version=(3,8))
 
 
 def test_native_python_exports_resolve_without_contract_side_effects():
-    from ln_church_agent import PaidServiceTrialTaskClient, PaidServiceTrialExecutor, PaidServiceTrialJournal, export_purchase_import_descriptor
+    from mayim_agent import PaidServiceTrialTaskClient, PaidServiceTrialExecutor, PaidServiceTrialJournal, export_purchase_import_descriptor
     assert all(callable(x) for x in (PaidServiceTrialTaskClient,PaidServiceTrialExecutor,PaidServiceTrialJournal,export_purchase_import_descriptor))
 
 
 def test_formal_backend_bundle_identity():
-    root=ROOT/'ln_church_agent/contracts/v185-paid-service-trial'
+    root=ROOT/'mayim_agent/contracts/v185-paid-service-trial'
     if not root.exists():
         pytest.skip('CONTRACT_BUNDLE_SYNC_PENDING: Backend candidate pack not supplied')
     bundle=c.load_contract_bundle()

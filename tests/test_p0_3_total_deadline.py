@@ -13,7 +13,7 @@ import time
 
 import pytest
 
-from ln_church_agent import inspect_transport as transport
+from mayim_agent import inspect_transport as transport
 
 
 TOTAL_TIMEOUT = 0.15
@@ -199,33 +199,6 @@ def test_redirect_hops_share_the_original_total_deadline(
     ]
 
 
-def test_observation_slow_headers_are_ambiguous_and_post_is_never_replayed(
-    synthetic_deadline_server,
-):
-    target = _target(synthetic_deadline_server)
-    wire_body = b'{"observation":"bounded"}'
-    started = time.monotonic()
-
-    with pytest.raises(transport.InspectTransportError) as caught:
-        transport._exchange_observation_once(
-            target,
-            "127.0.0.1",
-            TOTAL_TIMEOUT,
-            wire_body,
-        )
-
-    elapsed = time.monotonic() - started
-    assert caught.value.stage == "transport"
-    assert caught.value.code == "observation_delivery_unknown"
-    assert elapsed <= TOTAL_TIMEOUT + ELAPSED_TOLERANCE
-    assert elapsed < SLOW_HEADER_DURATION / 2.0
-
-    # There is no background I/O worker.  Waiting briefly also proves that no
-    # delayed retry appears after the caller has received the ambiguous result.
-    time.sleep(0.05)
-    assert synthetic_deadline_server.calls == [
-        ("POST", "/slow", wire_body),
-    ]
 
 
 def test_initial_dns_budget_exhaustion_is_transport_timeout(monkeypatch):

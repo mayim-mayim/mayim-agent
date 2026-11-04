@@ -16,10 +16,10 @@ import requests
 from test_v1_18_14_b3_integration import (
     LocalExchange, answers, register_followup_blind, tick, wallet,
 )
-from ln_church_agent import structured_response_contract as c
-from ln_church_agent.structured_response_client import StructuredResponseClient
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent.structured_response_transport import (
+from mayim_agent import structured_response_contract as c
+from mayim_agent.structured_response_client import StructuredResponseClient
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent.structured_response_transport import (
     StructuredResponseError, StructuredResponseTransport,
 )
 
@@ -127,7 +127,7 @@ def test_actual_b4_pack_explicit_answer_and_original_binding(b4_venue, tmp_path,
     assert blind.participation == {'mode': 'EXCLUDE', 'source_task_id': None,
         'source_visibility': 'withheld_for_blind'}
     assert blind.context_id != task.context_id
-    from ln_church_agent.integrations import mcp_structured_response as m
+    from mayim_agent.integrations import mcp_structured_response as m
     monkeypatch.setattr(m, 'StructuredResponseClient', lambda: StructuredResponseClient(transport=transport))
     monkeypatch.setattr(m, '_directory', lambda: tmp_path)
     class Registry:

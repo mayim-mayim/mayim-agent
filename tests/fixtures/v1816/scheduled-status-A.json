@@ -1,0 +1,29 @@
+{
+  "schema_version": "ln_church.agent_task_reward_status.v2_1",
+  "economic_terms_revision": "scheduled-A",
+  "terms_digest": "9c30b73fad41541792329bbaf4bc0f802f9f3ca54f28d2e3b27b46898e8846e2",
+  "task_id": "task_e61739e3eb3641d331d064e0119b4131",
+  "task_type": "scheduled_http_get_batch.v1",
+  "task_definition_version": "1.1.0",
+  "task_definition_digest": "1e0331dfe9ff1ca63b1002e9ccd530e2de8cf0b0dc751704c0190093d19227a7",
+  "manifest_sha256": "37da1e495370ae87e301c7124311f276be29f29d9775dc1074bc6d47e059eeb6",
+  "submission_id": "sub_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "report_id": "report_A",
+  "report_sha256": "07ff139b5c32bf4e12b599eb8b4feaa0b46a735e829e2fffeba267e300bb31a1",
+  "accepted_at": "2026-08-20T03:00:01Z",
+  "receipt_state": "DURABLY_ACCEPTED",
+  "evaluation": {
+    "state": "APPROVED"
+  },
+  "base_reward": {
+    "entitlement_state": "DUE",
+    "settlement_state": "DUE"
+  },
+  "reference_bonus": {
+    "candidate": true,
+    "decision_state": "AWARDED",
+    "settlement_state": "DUE"
+  },
+  "terminal": false,
+  "retry_after_seconds": 15
+}

@@ -7,13 +7,13 @@ import pytest
 
 from discovery_fixtures import cursor,page
 from test_discovery import Exchange
-from ln_church_agent.access_quota import AccessQuotaError
+from mayim_agent.access_quota import AccessQuotaError
 
 
 def invoke(client,argv):
-    from ln_church_agent.cli import main
-    with patch('ln_church_agent.task_client.AgentTaskClient',lambda:client):
-        with patch.object(sys,'argv',['ln-church-agent','task']+argv):
+    from mayim_agent.cli import main
+    with patch('mayim_agent.task_client.AgentTaskClient',lambda:client):
+        with patch.object(sys,'argv',['mayim-agent','task']+argv):
             main()
 
 

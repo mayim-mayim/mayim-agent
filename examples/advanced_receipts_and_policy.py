@@ -5,8 +5,8 @@ Demonstrates the use of strict PaymentPolicies, the NWC Adapter (via Bridge),
 and leveraging SettlementReceipts for agentic decision-making.
 """
 import os
-from ln_church_agent import Payment402Client, PaymentPolicy
-from ln_church_agent.adapters.nwc import NWCAdapter
+from mayim_agent import Payment402Client, PaymentPolicy
+from mayim_agent.adapters.nwc import NWCAdapter
 
 def main():
     print("🛡️ Initializing Agent with Strict Policies & Remote NWC Wallet...")

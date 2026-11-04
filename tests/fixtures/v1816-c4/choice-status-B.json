@@ -1,0 +1,31 @@
+{
+  "task_id": "task_0bb7edaf2d4c3ccfe55cadf7ceab9e66",
+  "execution_id": "exec_07a3e1e5dd74387aa9ca699074f138e0",
+  "submission_id": "sub_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "terms_digest": "1098c95588371d49eac534f7c07bb4e4462d6665f3c7e133f1603b58e60c38dd",
+  "report_sha256": "a3308c31437e87b7ca790bf64bb50f394edeaa51148b7e8e543679fbfb9e3970",
+  "received_at": "2026-10-20T00:00:00.000Z",
+  "evaluation_deadline": "2026-10-20T00:30:00.000Z",
+  "schema_version": "ln_church.task_submission_status.endpoint_choice_reason.v2_3",
+  "selected_candidate_id": "a",
+  "evaluation": {
+    "state": "GRADED",
+    "is_correct": true,
+    "q": "1",
+    "applied_coefficient": "1",
+    "reward_basis": "FULL_REWARD_LINE",
+    "base_amount_atomic": "30000",
+    "approved_amount_atomic": "30000",
+    "evaluated_at": "2026-10-20T00:00:00.000Z"
+  },
+  "payout": {
+    "state": "pending",
+    "transaction_hash": null,
+    "transaction_url": null,
+    "confirmed_paid_amount_atomic": null,
+    "paid_confirmed_at": null
+  },
+  "updated_at": "2026-10-20T00:00:00.000Z",
+  "answer_reason": "Synthetic answer",
+  "correct_candidate_ids": null
+}

@@ -1,5 +1,5 @@
 import argparse
-from ln_church_agent import LnChurchClient
+from mayim_agent import MagClient
 
 def main():
     parser = argparse.ArgumentParser(description="Auto-submit external observations to LN Church")
@@ -19,7 +19,7 @@ def main():
             "unsupported_rail"
         ])
 
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     # Simulate an inspection loop result
     mock_inspection_results = [

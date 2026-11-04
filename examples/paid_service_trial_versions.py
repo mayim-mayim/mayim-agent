@@ -1,11 +1,11 @@
 """Explicit versioned Paid client use; no I/O or signing runs on import.
 
-Unreleased 1.18.15 v3 support includes the DC-fixed producer pack. Purchase cost may exceed
-0.02 USDC reward; existing PaymentPolicy limits/permissions still apply.
+Use version="v3_2" for DC-fixed Paid 3.2; existing versions stay selectable.
+Purchase cost may exceed the saved reward; existing PaymentPolicy limits apply.
 """
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.paid_service_trial_contract import version_of
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.paid_service_trial_contract import version_of
 
 
 def discover(*, version='v3', access_quota=None, cursor=None):

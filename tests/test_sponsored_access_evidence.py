@@ -1,7 +1,7 @@
 import pytest
 import json
-from ln_church_agent.evidence import build_sponsored_access_evidence
-from ln_church_agent.models import GrantDiagnostics
+from mayim_agent.evidence import build_sponsored_access_evidence
+from mayim_agent.models import GrantDiagnostics
 
 def test_sponsored_access_evidence_success():
     """Grant成功レスポンスからEvidenceを構築し、Raw tokenが含まれないことを確認"""

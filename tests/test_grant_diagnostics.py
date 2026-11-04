@@ -2,7 +2,7 @@ import pytest
 import time
 import base64
 import json
-from ln_church_agent.grants import diagnose_grant_token
+from mayim_agent.grants import diagnose_grant_token
 
 def create_mock_grant(claims: dict) -> str:
     header = base64.urlsafe_b64encode(b'{"alg":"EdDSA"}').decode().rstrip('=')

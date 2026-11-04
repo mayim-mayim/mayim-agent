@@ -4,10 +4,10 @@ import json
 import httpx
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.challenges import parse_challenge_from_response
-from ln_church_agent.exceptions import PaymentExecutionError
-from ln_church_agent.models import ChallengeSource
+from mayim_agent.client import Payment402Client
+from mayim_agent.challenges import parse_challenge_from_response
+from mayim_agent.exceptions import PaymentExecutionError
+from mayim_agent.models import ChallengeSource
 
 def _create_mock_response(headers):
     return httpx.Response(402, headers=headers)
@@ -117,7 +117,7 @@ def test_4_relayer_endpoint_survives_parsing():
     # The inner should override or the outer should be present
     assert parsed.parameters.get("relayer_endpoint") in ["https://example.com/relay", "https://example.com/relay_inner"]
 
-@patch("ln_church_agent.crypto.evm.LocalKeyAdapter.generate_eip3009_payload_atomic")
+@patch("mayim_agent.crypto.evm.LocalKeyAdapter.generate_eip3009_payload_atomic")
 @patch("eth_account.Account.recover_message")
 def test_5_evm_exact_signer_receives_correct_amount_semantics(mock_recover, mock_gen):
     client = Payment402Client(private_key="0x" + "1"*64)

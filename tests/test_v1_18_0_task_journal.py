@@ -5,8 +5,8 @@ import stat
 
 import pytest
 
-from ln_church_agent.task_contract import jcs_canonical_bytes
-from ln_church_agent.task_journal import (
+from mayim_agent.task_contract import jcs_canonical_bytes
+from mayim_agent.task_journal import (
     JOURNAL_CHECKSUM_DOMAIN,
     JOURNAL_SCHEMA_VERSION,
     JournalError,
@@ -14,7 +14,7 @@ from ln_church_agent.task_journal import (
     TaskJournal,
     derive_local_execution_id,
 )
-from ln_church_agent.task_v2_models import (
+from mayim_agent.task_v2_models import (
     ScheduledCompletionAcknowledgement,
     ScheduledCompletionReport,
     ScheduledRewardStatus,

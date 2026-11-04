@@ -24,7 +24,7 @@ def _structured_response_test_key(request, tmp_path_factory, monkeypatch):
     path.write_bytes(os.urandom(32))
     if os.name != 'nt':
         path.chmod(0o600)
-    monkeypatch.setenv('LN_CHURCH_STRUCTURED_RESPONSE_KEY_FILE', str(path))
+    monkeypatch.setenv('MAG_STRUCTURED_RESPONSE_KEY_FILE', str(path))
 
 
 _LEGACY_INSPECT_TEST_MODULES = frozenset(
@@ -47,7 +47,7 @@ _LEGACY_INSPECT_TEST_MODULES = frozenset(
 @pytest.fixture(autouse=True)
 def _deterministic_public_redirect_dns(monkeypatch):
     monkeypatch.setattr(
-        "ln_church_agent.client.resolve_host_addresses",
+        "mayim_agent.client.resolve_host_addresses",
         lambda _host, _port: ("93.184.216.34",),
     )
 
@@ -61,6 +61,6 @@ def _deterministic_legacy_inspect_dns(request, monkeypatch):
         return
 
     monkeypatch.setattr(
-        "ln_church_agent.inspect_transport._resolve_addresses",
+        "mayim_agent.inspect_transport._resolve_addresses",
         lambda _host, _port: ("93.184.216.34",),
     )

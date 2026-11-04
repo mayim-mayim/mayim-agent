@@ -1,11 +1,11 @@
 import pytest
 from unittest.mock import patch
-from ln_church_agent import LnChurchClient, AssetType
+from mayim_agent import MagClient, AssetType
 
-@patch("ln_church_agent.client.Payment402Client.execute_request")
+@patch("mayim_agent.client.Payment402Client.execute_request")
 def test_draw_omikuji_default_scheme_is_standard(mock_execute_request):
     """
-    LnChurchClientのコンビニエンスメソッドが、独自仕様(lnc-evm-relay等)ではなく、
+    MagClientのコンビニエンスメソッドが、独自仕様(lnc-evm-relay等)ではなく、
     標準仕様(x402 / L402)をデフォルトとしてペイロードを構築することを担保する。
     """
     # モックの戻り値を設定（Pydanticの型バリデーションを完全に通過する型に修正）
@@ -25,7 +25,7 @@ def test_draw_omikuji_default_scheme_is_standard(mock_execute_request):
     }
 
     # ダミー鍵でクライアント初期化
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     # 1. 引数なし（デフォルト）の場合 -> SATS + L402 になるべき
     client.draw_omikuji()

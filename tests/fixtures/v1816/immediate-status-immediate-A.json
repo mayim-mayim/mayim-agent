@@ -1,0 +1,18 @@
+{
+  "schema_version": "ln_church.task_submission_status.immediate_visit.v3_1",
+  "task_id": "task_0fb0c314547a3c75713fc560735d496a",
+  "execution_id": "exec_d5228ded5b3dbd3e1711d03c3b2ca595",
+  "submission_id": "sub_33333333333333333333333333333333",
+  "endpoint_id": "ep_0f115db062b7c0dd030b16878c99dea5c354b49dc37b38eb8846179c7783e9d7",
+  "profile_id": "immediate_visit_utf8.v3",
+  "report_sha256": "ddb383e28adb6d8b52743f445e2efa80ff127b4dbfcc452a2e569833d1c47882",
+  "received_at": "2026-10-13T12:00:00.000Z",
+  "evaluation_state": "base_bonus_approved",
+  "decision_at": "2026-10-13T12:00:00.000Z",
+  "approved_amount_atomic": "15000",
+  "bonus_approved": true,
+  "payment_state": "pending",
+  "transaction_hash": null,
+  "reason": null,
+  "updated_at": "2026-10-13T12:00:00.000Z"
+}

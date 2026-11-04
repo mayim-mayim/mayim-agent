@@ -7,9 +7,9 @@ import sys
 from pathlib import Path
 import pytest
 from test_immediate_visit_fixed_pack import MAPPED
-from ln_church_agent import immediate_visit_versions as iv, paid_service_trial_contract as pc, endpoint_choice_reason_contract as ec
-from ln_church_agent.immediate_visit_models import FrozenImmediateVisitReport
-from ln_church_agent.offer_registration import _request
+from mayim_agent import immediate_visit_versions as iv, paid_service_trial_contract as pc, endpoint_choice_reason_contract as ec
+from mayim_agent.immediate_visit_models import FrozenImmediateVisitReport
+from mayim_agent.offer_registration import _request
 
 PACK=iv.load_pack('v3')
 ROWS=[r for r in json.loads(PACK['wire-fixtures.json'])['fixtures'] if r['schema'] in {*MAPPED,'registration.schema.json','submission.schema.json'}]
@@ -40,10 +40,10 @@ def test_modified_pack_refused(module,pin,loader,monkeypatch):
 
 def test_v3_public_types_lazy_and_explicit_imports():
     source='''import sys
-import ln_church_agent as sdk
-assert 'ln_church_agent.paid_service_trial_models' not in sys.modules
-from ln_church_agent import PaidServiceTrialTaskV3, PaidServiceTrialClaimV3, PaidServiceTrialReportV3, PaidServiceTrialCompletionReceiptV3, PaidServiceTrialSubmissionStatusV3
-from ln_church_agent import PaidServiceTrialTaskV2, PaidServiceRequest
+import mayim_agent as sdk
+assert 'mayim_agent.paid_service_trial_models' not in sys.modules
+from mayim_agent import PaidServiceTrialTaskV3, PaidServiceTrialClaimV3, PaidServiceTrialReportV3, PaidServiceTrialCompletionReceiptV3, PaidServiceTrialSubmissionStatusV3
+from mayim_agent import PaidServiceTrialTaskV2, PaidServiceRequest
 assert PaidServiceTrialTaskV3 is not PaidServiceTrialTaskV2
 for suffix in ['Task','Claim','Report','CompletionReceipt','SubmissionStatus']:
  name='PaidServiceTrial'+suffix+'V3'

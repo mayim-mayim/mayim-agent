@@ -4,9 +4,9 @@ import base64
 import json
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.client import Payment402Client, _b64url_decode
-from ln_church_agent.models import PaymentPolicy
-from ln_church_agent.exceptions import PaymentExecutionError
+from mayim_agent.client import Payment402Client, _b64url_decode
+from mayim_agent.models import PaymentPolicy
+from mayim_agent.exceptions import PaymentExecutionError
 
 # ==========================================
 # 1. Accepts 配列からの動的ネットワーク選択テスト
@@ -61,8 +61,8 @@ def test_v2_raw_to_human_amount_normalization():
 # ==========================================
 # 3. Exact V2 Envelope 構造のデコードテスト
 # ==========================================
-@patch("ln_church_agent.client.requests.request")
-@patch("ln_church_agent.crypto.evm.LocalKeyAdapter.generate_eip3009_payload")
+@patch("mayim_agent.client.requests.request")
+@patch("mayim_agent.crypto.evm.LocalKeyAdapter.generate_eip3009_payload")
 def test_v2_exact_envelope_construction_and_extension_echo(mock_gen_payload, mock_request):
     """exact スキーム時、x402Versionやextensionsを含む正しいV2エンベロープが構築・送信されるか確認"""
     mock_gen_payload.return_value = {"signature": "0xDummySignature", "authorization": {}}
@@ -136,10 +136,10 @@ def test_v2_contract_address_fallback_to_logical_symbol():
 # ==========================================
 # 5. eth_gasPrice RPC Fix と On-Chain Transfer テスト
 # ==========================================
-@patch("ln_church_agent.crypto.evm.requests.post")
+@patch("mayim_agent.crypto.evm.requests.post")
 def test_v1_6_2_eth_gas_price_rpc_call(mock_post):
     """直接送金(lnc-evm-transfer)時に、無効なeth_priceではなくeth_gasPriceが呼ばれることを確認"""
-    from ln_church_agent.crypto.evm import LocalKeyAdapter
+    from mayim_agent.crypto.evm import LocalKeyAdapter
     
     # RPCコールのモック (eth_getTransactionCount -> eth_gasPrice -> eth_sendRawTransaction)
     mock_res_nonce = MagicMock()

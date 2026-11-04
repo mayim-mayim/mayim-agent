@@ -1,6 +1,6 @@
 import pytest
-from ln_church_agent.client import _normalize_scheme
-from ln_church_agent.models import SchemeType
+from mayim_agent.client import _normalize_scheme
+from mayim_agent.models import SchemeType
 
 def test_legacy_alias_normalization():
     """旧語彙（レガシーエイリアス）が正しいcanonical名に変換されることを確認"""

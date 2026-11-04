@@ -1,0 +1,2697 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "mAG Activity Map API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/agent/activity-map/v1/manifest": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "manifest",
+        "operationId": "mag_manifest",
+        "parameters": [
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/manifest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/summary": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "summary",
+        "operationId": "mag_summary",
+        "parameters": [
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/summary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/agents": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "agents",
+        "operationId": "mag_agents",
+        "parameters": [
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/page"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/agents/{public_id}": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "agents history",
+        "operationId": "mag_agents_history",
+        "parameters": [
+          {
+            "name": "public_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]+_[a-f0-9]{64}$"
+            }
+          },
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/page"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/sites": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "sites",
+        "operationId": "mag_sites",
+        "parameters": [
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/page"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/sites/{public_id}": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "sites history",
+        "operationId": "mag_sites_history",
+        "parameters": [
+          {
+            "name": "public_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]+_[a-f0-9]{64}$"
+            }
+          },
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/page"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/relations": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "relations",
+        "operationId": "mag_relations",
+        "parameters": [
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/page"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/relations/{public_id}": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "relations history",
+        "operationId": "mag_relations_history",
+        "parameters": [
+          {
+            "name": "public_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]+_[a-f0-9]{64}$"
+            }
+          },
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/page"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/activities": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "activities",
+        "operationId": "mag_activities",
+        "parameters": [
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/page"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/activities/{public_id}": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "detail",
+        "operationId": "mag_detail",
+        "parameters": [
+          {
+            "name": "public_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z]+_[a-f0-9]{64}$"
+            }
+          },
+          {
+            "name": "generation",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "today",
+                "7d",
+                "30d"
+              ],
+              "default": "7d"
+            }
+          },
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/detail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/purchases": {
+      "post": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "purchases",
+        "operationId": "mag_purchases",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Saved operation with original rail challenge; store the journal before settlement",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MagRecovery": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase_request"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/purchases/recover": {
+      "post": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "purchases recover",
+        "operationId": "mag_purchases_recover",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Original payment remains unconfirmed; do not pay again",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MagRecovery": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/recovery_request"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/purchases/{id}": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "purchases id",
+        "operationId": "mag_purchases_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MagRecovery": []
+          }
+        ]
+      }
+    },
+    "/api/agent/activity-map/v1/purchases/{id}/manifest": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "purchases id manifest",
+        "operationId": "mag_purchases_id_manifest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exact immutable manifest bytes",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/manifest"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MagRecovery": []
+          }
+        ]
+      }
+    },
+    "/api/agent/activity-map/v1/purchases/{id}/parts/{part_id}": {
+      "get": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "purchases id parts part id",
+        "operationId": "mag_purchases_id_parts_part_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          },
+          {
+            "name": "part_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exact immutable UTF-8 part bytes. Verify SHA-256 and byte length from the manifest/catalog before saving.",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MagRecovery": []
+          }
+        ]
+      }
+    },
+    "/api/agent/activity-map/v1/purchases/{id}/complete": {
+      "post": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "purchases id complete",
+        "operationId": "mag_purchases_id_complete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MagRecovery": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/complete_request"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/agent/activity-map/v1/purchases/{id}/replacement": {
+      "post": {
+        "tags": [
+          "mAG Activity Map"
+        ],
+        "summary": "purchases id replacement",
+        "operationId": "mag_purchases_id_replacement",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current authorized result",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/purchase"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credential or operation scope mismatch",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Generation, cursor, purchase or terminal state changed",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit; honor Retry-After",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Not generated, coverage pending or temporary control/delivery failure",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "const": "private, no-store"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "MagRecovery": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json#/$defs/replacement_request"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "MagRecovery": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "MAG-Recovery followed by a space and the independent 256-bit lowercase hexadecimal recovery secret. Never place it in a URL or log. Payment headers are separate."
+      }
+    }
+  }
+}

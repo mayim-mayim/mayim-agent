@@ -13,13 +13,13 @@ from pathlib import Path
 
 import pytest
 
-from ln_church_agent import structured_response_contract as c
-from ln_church_agent.structured_response_client import StructuredResponseClient
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent.structured_response_models import StructuredResponseTask
-from ln_church_agent.structured_response_transport import StructuredResponseTransport,StructuredResponseError
-from ln_church_agent.immediate_visit_transport import ImmediateVisitRawResponse
-from ln_church_agent.task_journal import JournalError
+from mayim_agent import structured_response_contract as c
+from mayim_agent.structured_response_client import StructuredResponseClient
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent.structured_response_models import StructuredResponseTask
+from mayim_agent.structured_response_transport import StructuredResponseTransport,StructuredResponseError
+from mayim_agent.immediate_visit_transport import ImmediateVisitRawResponse
+from mayim_agent.task_journal import JournalError
 
 TASK='task_sdk_prepack'
 EXEC='exec_'+'a'*32
@@ -299,7 +299,15 @@ def test_same_prepare_preserves_id_and_assumptions(tmp_path,fixture_pack):
 
 def test_aps_empty_search_vs_not_performed_and_axis5(tmp_path,fixture_pack):
     definitions=[item('a1_3',kind='report',axis=1),item('a5_1',axis=5)]
-    cli,j,v=connected(tmp_path,fixture_pack,task(definitions))
+    # Fixed answer specification c1 §3 requires saved profile + original bank,
+    # not the item ID alone. Keep the prepack adapter, bind the APS fixture.
+    pack=c.load_contract_pack();bank=json.loads(pack['resources']['question-bank.json'])
+    value=task(definitions)
+    value.update(evaluation_profile_id='aps-blind.v1',aps_kind='BLIND',
+        question_bank_version=bank['version'],question_bank_digest=c.digest(bank),
+        evaluation_profile_digest=c.digest(json.loads(pack['resources']['evaluation-profile.json'])))
+    value['terms_digest']=c.digest({k:value[k] for k in c._TERM_FIELDS if k in value})
+    cli,j,v=connected(tmp_path,fixture_pack,value)
     r=cli.prepare_answer(journal=j,shared_assumptions=ASSUMPTIONS,items=[
         dict(answer('a5_1',value='Cannot pay from this environment.'),evidence_mode='specification_review'),
         answer('a1_3',value={'candidates':[],'method':'Searched available sources.'})])
@@ -326,7 +334,7 @@ def test_exception_graph_has_no_private_payload(tmp_path,fixture_pack):
 
 
 def test_mcp_names_and_outputs_no_token():
-    from ln_church_agent.integrations.mcp_structured_response import register_tools
+    from mayim_agent.integrations.mcp_structured_response import register_tools
     class Registry:
         tools={}
         def tool(self):
@@ -338,7 +346,7 @@ def test_mcp_names_and_outputs_no_token():
 
 
 def test_v21_namespace_is_distinct_and_legacy_packs_remain():
-    from ln_church_agent import endpoint_choice_reason_contract as ec
+    from mayim_agent import endpoint_choice_reason_contract as ec
     assert ec.schema('agent_task','v2_1')=='ln_church.agent_task.endpoint_choice_reason.v2_1'
     assert ec.version_of(dict(task_type='endpoint_choice_reason.v2',task_definition_version='2.1.0'))=='v2_1'
     assert ec.load_contract_pack('v1')['manifest']['task_definition_version']=='1.0.0'
@@ -421,8 +429,8 @@ def test_quality_rejection_and_compensation_stay_distinct(tmp_path,fixture_pack)
 
 
 def test_choice_unknown_namespace_reads_without_old_execution():
-    from ln_church_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
-    from ln_church_agent.endpoint_choice_reason_transport import EndpointChoiceTransport
+    from mayim_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
+    from mayim_agent.endpoint_choice_reason_transport import EndpointChoiceTransport
     p=dict(task_id=TASK,task_type='endpoint_choice_reason.v2',task_definition_version='2.1.0',
            schema_version='ln_church.agent_task.endpoint_choice_reason.v2_1',task_definition_digest=DEF)
     cli=AgentEndpointChoiceReasonClient(version='v2',transport=EndpointChoiceTransport(version='v2',exchange=lambda *a:raw(p)))
@@ -431,7 +439,7 @@ def test_choice_unknown_namespace_reads_without_old_execution():
 
 
 def test_explicit_mcp_sequence_uses_same_saved_handle(tmp_path,fixture_pack,monkeypatch):
-    from ln_church_agent.integrations import mcp_structured_response as m
+    from mayim_agent.integrations import mcp_structured_response as m
     v=Venue();transport=StructuredResponseTransport(exchange=v)
     monkeypatch.setattr(m,'StructuredResponseClient',lambda:StructuredResponseClient(transport=transport))
     monkeypatch.setattr(m,'_directory',lambda:tmp_path)

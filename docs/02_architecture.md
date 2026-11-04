@@ -1,6 +1,6 @@
 # Architecture & Core Capabilities
 
-The `ln-church-agent` SDK is designed to handle the complex "Settlement Negotiation" process triggered by HTTP 402 errors.
+The `mayim-agent` SDK is designed to handle the complex "Settlement Negotiation" process triggered by HTTP 402 errors.
 It abstracts machine-to-machine (M2M) payments, allowing AI agents to focus on reasoning rather than cryptographic transaction handling.
 
 ## 🧩 Technical Abstractions
@@ -13,7 +13,7 @@ The client automatically intercepts 402 challenges, executes supported payment r
 
 * **x402 (Standard Path)**: Natively handles the standard x402 settlement contract, including Base64URL JSON payloads and CAIP-2-aware routing in the core negotiation loop. The strongest validated standard path today is EVM-based settlement (EIP-712 / EIP-3009), while LN Church-specific `lnc-*` routes remain available for optimized relay and ecosystem-specific flows.
 * **SVM exact (Solana)**: The client recognizes CAIP-2 `solana:<genesisHash>` exact challenges, but canonical high-level sync/async auto-payment is inspect-only and fail-closed. Recent-blockhash validity cannot be mechanically proven to end at or before canonical Unix `expires_at`, so the runtime halts before signer invocation, Solana RPC access, or the paid HTTP retry.
-  * **Architecture Boundary:** The retained local builder and validator are low-level payload construction and interoperability tooling only. They emit and validate official-format `VersionedTransaction` payloads but do not make the canonical high-level lane executable. LN Church exact sandboxes remain *post-settlement validators*: they accept submitted transaction hash or Solana signature evidence and do not broadcast unsubmitted payloads.
+  * **Architecture Boundary:** The retained local builder and validator are low-level payload construction and interoperability tooling only. They emit and validate official-format `VersionedTransaction` payloads but do not make the canonical high-level lane executable. The retired Sandbox services are not part of the 2.0 SDK.
 * **L402 & MPP (Lightning Network)**: Fully compatible with Lightning Labs' L402 protocol and the emerging Machine Payments Protocol (MPP). It manages macaroon extraction, Bolt11 invoice parsing, and preimage submission.
 * **LN Church Optimized Routings (`lnc-*`)**: For interacting specifically with the LN Church testbed, agents can opt-in to custom canonical routes:
   * `lnc-evm-relay`: Optimized gasless relayer orchestration.
@@ -60,8 +60,8 @@ To enable truly autonomous M2M economic loops, the SDK provides a "Decide & Veri
 
 **Example Usage:**
 ```python
-from ln_church_agent import Payment402Client
-from ln_church_agent.models import TrustDecision, OutcomeSummary
+from mayim_agent import Payment402Client
+from mayim_agent.models import TrustDecision, OutcomeSummary
 
 # Decide: Evaluate the counterparty before paying
 def strict_evaluator(url, challenge, context):
@@ -96,7 +96,7 @@ It also exposes a delegate-compatible `L402Executor` interface, allowing the exe
 
 The bundled `LightningLabsL402Executor` is an experimental compatibility simulator: it reproduces the expected behavior of external delegated L402 executors, including MAC reuse, token caching, and BOLT11 fulfillment, but it does not directly vendor or wrap Lightning Labs' official `L402sdk`.
 
-This architecture respects separation of concerns: the **Executor (Delegate)** handles settlement mechanics and cache behavior, while `ln-church-agent` remains the **Buyer-Side Final Judge** for spend limits, trust evaluation, outcome verification, and evidence generation.
+This architecture respects separation of concerns: the **Executor (Delegate)** handles settlement mechanics and cache behavior, while `mayim-agent` remains the **Buyer-Side Final Judge** for spend limits, trust evaluation, outcome verification, and evidence generation.
 
 ### 10. Agent Commerce Surface Inspection (v1.15+)
 The SDK formally distinguishes between **Executable Settlement Rails** (e.g., L402, x402, MPP) and higher-order **Agent Commerce Surfaces** (e.g., Google AP2, ACP, OKX APP).
@@ -109,7 +109,7 @@ The SDK formally distinguishes between **Executable Settlement Rails** (e.g., L4
 ## 🔮 Future Protocol Evolution (Monitoring & Roadmap)
 *(As of April 21, 2026 — synced with `STANDARDS_WATCHLIST.md`)*
 
-The `ln-church-agent` SDK is designed to absorb standards drift behind a stable developer-facing interface.  
+The `mayim-agent` SDK is designed to absorb standards drift behind a stable developer-facing interface.
 The following items are already treated as implemented in the current 1.15.x line:
 
 - x402 Foundation alignment and CAIP-2-aware core negotiation
@@ -127,7 +127,7 @@ The items below are **not** treated as frozen public contract yet. They remain u
 
 ### 2. x402 Bazaar / Discovery & MCP Compatibility
 * **Observation:** API discovery, MCP-native payment surfaces, and facilitator-aware runtime metadata are evolving quickly across the x402 ecosystem.
-* **SDK Stance:** `ln-church-agent` currently supports its own reference discovery path (Monzen / LN Church) and ecosystem-specific relays, while treating Bazaar / MCP compatibility as a monitored interoperability surface rather than a fixed contract.
+* **SDK Stance:** `mayim-agent` currently supports Task discovery and explicit External observations and ecosystem-specific relays, while treating Bazaar / MCP compatibility as a monitored interoperability surface rather than a fixed contract.
 * **Why Deferred:** Discovery and MCP payment conventions are still stabilizing, and locking a public abstraction too early would create avoidable churn.
 
 ### Design Prep
@@ -153,7 +153,7 @@ The items below are **not** treated as frozen public contract yet. They remain u
 * **Why Deferred:** It is still over-spec for the current reference runtime and would add complexity without near-term interoperability benefit.
 
 ### Practical Guidance for 1.15.x Users
-If you are building on `ln-church-agent` today, you should treat the current stable contract as:
+If you are building on `mayim-agent` today, you should treat the current stable contract as:
 - standard x402 / L402 / Payment / MPP negotiation
 - stable developer-facing execution loop
 - fallback-compatible legacy absorption where needed

@@ -9,9 +9,9 @@ import sys
 import argparse
 from urllib.parse import urlparse
 from pprint import pprint
-from ln_church_agent import LnChurchClient
-from ln_church_agent.adapters.l402_delegate import LightningLabsL402Executor
-from ln_church_agent.crypto.lightning import LegacyLNAdapter
+from mayim_agent import MagClient
+from mayim_agent.adapters.l402_delegate import LightningLabsL402Executor
+from mayim_agent.crypto.lightning import LegacyLNAdapter
 
 def run_verification(mode: str, ln_adapter, target_url: str, debug: bool):
     print(f"\n==================================================")
@@ -24,10 +24,10 @@ def run_verification(mode: str, ln_adapter, target_url: str, debug: bool):
     allowed_hosts = [target_domain]
     
     if mode == "native":
-        client = LnChurchClient(ln_adapter=ln_adapter)
+        client = MagClient(ln_adapter=ln_adapter)
     else:
         ll_executor = LightningLabsL402Executor(ln_adapter=ln_adapter)
-        client = LnChurchClient(
+        client = MagClient(
             ln_adapter=ln_adapter,
             l402_executor=ll_executor,
             prefer_lightninglabs_l402=True,

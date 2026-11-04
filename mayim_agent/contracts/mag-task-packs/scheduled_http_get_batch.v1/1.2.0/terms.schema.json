@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "registration_intent_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "task_definition_digest": {
+      "type": "string"
+    },
+    "origin_control_id": {
+      "type": "string"
+    },
+    "origin": {
+      "type": "string"
+    },
+    "manifest_object_version": {
+      "type": "string"
+    },
+    "manifest_sha256": {
+      "type": "string"
+    },
+    "admission_reservation_id": {
+      "type": "string"
+    },
+    "admission_reservation_sha256": {
+      "type": "string"
+    },
+    "reservation_window_start": {
+      "type": "string"
+    },
+    "reservation_window_end": {
+      "type": "string"
+    },
+    "reservation_expires_at": {
+      "type": "string"
+    },
+    "scheduled_at": {
+      "type": "string"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "network": {
+      "type": "string"
+    },
+    "asset": {
+      "type": "string"
+    },
+    "registration_amount_atomic": {
+      "type": "string"
+    },
+    "pay_to": {
+      "type": "string"
+    },
+    "base_reward_each_atomic": {
+      "type": "string"
+    },
+    "maximum_base_reward_atomic": {
+      "type": "string"
+    },
+    "reference_bonus_atomic": {
+      "type": "string"
+    },
+    "refund_policy_version": {
+      "type": "string"
+    },
+    "architecture_policy_version": {
+      "type": "string"
+    },
+    "economic_terms_revision": {
+      "type": "string"
+    },
+    "activity_map_epoch": {
+      "type": "string"
+    },
+    "terms_schema": {
+      "const": "ln_church.task_offer_registration_terms.v1_2"
+    },
+    "task_type": {
+      "const": "scheduled_http_get_batch.v1"
+    },
+    "task_definition_version": {
+      "const": "1.2.0"
+    },
+    "paid_method": {
+      "const": "POST"
+    },
+    "paid_resource": {
+      "const": "/api/bazaar/task-offers"
+    },
+    "origin_control_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "capacity": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "economic_terms": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "economic_terms_revision",
+        "plan_id",
+        "registration_amount_atomic",
+        "capacity_total",
+        "reward"
+      ],
+      "properties": {
+        "economic_terms_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._~-]+$"
+        },
+        "plan_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._~-]+$"
+        },
+        "registration_amount_atomic": {
+          "type": "string",
+          "pattern": "^[1-9][0-9]*$",
+          "maxLength": 78,
+          "description": "Canonical uint256 decimal atomic units; validate <= 2^256-1 with integer arithmetic."
+        },
+        "capacity_total": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "reward": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "network",
+            "asset",
+            "asset_address",
+            "base_amount_atomic",
+            "reference_amount_atomic"
+          ],
+          "properties": {
+            "network": {
+              "const": "eip155:8453"
+            },
+            "asset": {
+              "const": "USDC"
+            },
+            "asset_address": {
+              "type": "string",
+              "enum": [
+                "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+                "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913"
+              ]
+            },
+            "base_amount_atomic": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 78,
+              "description": "Canonical uint256 decimal atomic units; validate <= 2^256-1 with integer arithmetic."
+            },
+            "reference_amount_atomic": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]*$",
+              "maxLength": 78,
+              "description": "Canonical uint256 decimal atomic units; validate <= 2^256-1 with integer arithmetic."
+            }
+          }
+        }
+      }
+    },
+    "activity_map_policy_id": {
+      "const": "mag.activity-map.public.v1"
+    },
+    "activity_map_origin": {
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "required": [
+    "registration_intent_id",
+    "task_id",
+    "task_definition_digest",
+    "origin_control_id",
+    "origin",
+    "manifest_object_version",
+    "manifest_sha256",
+    "admission_reservation_id",
+    "admission_reservation_sha256",
+    "reservation_window_start",
+    "reservation_window_end",
+    "reservation_expires_at",
+    "scheduled_at",
+    "plan_id",
+    "network",
+    "asset",
+    "registration_amount_atomic",
+    "pay_to",
+    "base_reward_each_atomic",
+    "maximum_base_reward_atomic",
+    "reference_bonus_atomic",
+    "refund_policy_version",
+    "architecture_policy_version",
+    "economic_terms_revision",
+    "activity_map_epoch",
+    "terms_schema",
+    "task_type",
+    "task_definition_version",
+    "paid_method",
+    "paid_resource",
+    "origin_control_version",
+    "capacity",
+    "economic_terms",
+    "activity_map_policy_id",
+    "activity_map_origin"
+  ]
+}

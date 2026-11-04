@@ -3,9 +3,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.exceptions import NavigationGuardrailError
-from ln_church_agent.models import ExecutionContext, PaymentPolicy
+from mayim_agent.client import Payment402Client
+from mayim_agent.exceptions import NavigationGuardrailError
+from mayim_agent.models import ExecutionContext, PaymentPolicy
 
 
 def _response(status, *, location=None, body=None):
@@ -32,7 +32,7 @@ def _response(status, *, location=None, body=None):
 def test_unsafe_redirect_is_rejected_before_second_transport(target, error):
     client = Payment402Client(base_url="https://public.test")
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_response(302, location=target),
     ) as transport:
         with pytest.raises(NavigationGuardrailError, match=error):
@@ -47,7 +47,7 @@ def test_mixed_public_private_dns_answers_fail_closed():
         "10.0.0.7",
     )
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_response(302, location="https://other.test/next"),
     ) as transport:
         with pytest.raises(NavigationGuardrailError, match="non-public"):
@@ -66,7 +66,7 @@ def test_redirect_loop_is_rejected_before_revisiting_initial_url():
         _response(302, location="/start"),
     ]
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=responses
+        "mayim_agent.client.requests.request", side_effect=responses
     ) as transport:
         with pytest.raises(NavigationGuardrailError, match="loop"):
             client.execute_detailed("GET", "/start")
@@ -80,7 +80,7 @@ def test_redirect_hop_limit_is_checked_before_extra_transport():
         _response(302, location="/three"),
     ]
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=responses
+        "mayim_agent.client.requests.request", side_effect=responses
     ) as transport:
         with pytest.raises(NavigationGuardrailError, match="hop limit"):
             client.execute_detailed("GET", "/start")
@@ -91,7 +91,7 @@ def test_same_origin_keeps_wire_idempotency_but_strips_payment_credentials():
     client = Payment402Client(base_url="https://public.test", max_hops=2)
     responses = [_response(302, location="/two"), _response(200)]
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=responses
+        "mayim_agent.client.requests.request", side_effect=responses
     ) as transport:
         client.execute_detailed(
             "GET",
@@ -116,7 +116,7 @@ def test_cross_origin_derives_key_and_never_forwards_source_credentials():
         _response(200),
     ]
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=responses
+        "mayim_agent.client.requests.request", side_effect=responses
     ) as transport:
         client.execute_detailed(
             "GET",
@@ -141,7 +141,7 @@ def test_redirect_target_local_host_policy_is_rechecked_before_transport():
     policy = PaymentPolicy(allowed_hosts=["public.test"])
     client = Payment402Client(base_url="https://public.test", policy=policy)
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_response(302, location="https://other.test/two"),
     ) as transport:
         with pytest.raises(NavigationGuardrailError, match="allowed_hosts"):
@@ -166,7 +166,7 @@ def test_redirect_transport_uses_public_dns_pin_with_original_host_and_sni():
     ]
 
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=responses
+        "mayim_agent.client.requests.request", side_effect=responses
     ) as transport:
         client.execute_detailed("GET", "/start", context=context)
 

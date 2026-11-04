@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.agent_task_completion_request.v1"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "observation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "submission_id",
+    "observation_id"
+  ]
+}

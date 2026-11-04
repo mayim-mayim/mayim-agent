@@ -2,13 +2,13 @@ import json
 
 import pytest
 
-from ln_church_agent.task_v2_contract import (
+from mayim_agent.task_v2_contract import (
     CLAIM_TOKEN_HEADER,
     IDEMPOTENCY_KEY_HEADER,
     TASK_DETAIL_QUERY,
     TASK_LIST_QUERY,
 )
-from ln_church_agent.task_v2_transport import (
+from mayim_agent.task_v2_transport import (
     ClaimOutcomeUnknownError,
     CompletionOutcomeUnknownError,
     TaskV2APIError,

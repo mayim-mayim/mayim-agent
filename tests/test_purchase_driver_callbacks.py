@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.models import EvidenceRepository, ExecutionContext, OutcomeSummary, TrustDecision
+from mayim_agent.client import Payment402Client
+from mayim_agent.models import EvidenceRepository, ExecutionContext, OutcomeSummary, TrustDecision
 from _p0_2_fixture import configure_contract_clock, contract_response, load_contract_fixture, success_response
 
 

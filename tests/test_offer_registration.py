@@ -10,14 +10,14 @@ from pathlib import Path
 import pytest
 from eth_account import Account
 from eth_account.messages import encode_typed_data
-from ln_church_agent.crypto.evm import LocalKeyAdapter
-from ln_church_agent.offer_registration import (
+from mayim_agent.crypto.evm import LocalKeyAdapter
+from mayim_agent.offer_registration import (
     OfferRegistrationClient,OfferRegistrationError,RegistrationReadResult,RegistrationReadChallenge,
     DOMAIN,TYPES,PATH,READ_PATH,_resource,
 )
-from ln_church_agent import endpoint_choice_reason_contract as c
-from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-from ln_church_agent.immediate_visit_transport import ImmediateVisitTransport,ImmediateVisitRawResponse
+from mayim_agent import endpoint_choice_reason_contract as c
+from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+from mayim_agent.immediate_visit_transport import ImmediateVisitTransport,ImmediateVisitRawResponse
 
 # Public synthetic fixture identity, never funded or used against external services.
 SEED='17'*32
@@ -180,9 +180,9 @@ def test_immediate_convenience_uses_selected_version(version,bridge):
 
 @pytest.mark.parametrize('version',['v1','v2','v3'])
 def test_actual_immediate_worker_preserves_original_version_and_report(version,bridge,tmp_path,monkeypatch):
-    from ln_church_agent.immediate_visit_models import FrozenImmediateVisitReport
-    from ln_church_agent.immediate_visit_journal import ImmediateVisitJournal
-    from ln_church_agent.immediate_visit import ImmediateVisitExecutor
+    from mayim_agent.immediate_visit_models import FrozenImmediateVisitReport
+    from mayim_agent.immediate_visit_journal import ImmediateVisitJournal
+    from mayim_agent.immediate_visit import ImmediateVisitExecutor
     cli=client(bridge);op=signed(cli,'immediate_http_visit.'+version);registered=cli.submit_registration(op)
     worker=AgentImmediateVisitClient(version=version,transport=ImmediateVisitTransport(exchange=bridge, version='v2'))
     task=worker.get_task(registered['task_id']);claim=worker.claim_task(task.task_id,'fixture',op.payer,idempotency_key='worker')

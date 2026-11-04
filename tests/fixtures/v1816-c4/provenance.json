@@ -1,0 +1,13 @@
+{
+  "backend_commit": "68d93c859b46f9e4b76c34743d44f4dc0488fbe6",
+  "producer": "tests/test_v1_18_16_c4_execution_http.py",
+  "scope": "Actual c4 registration, Claim, evaluation and status; local SQLite; provider/finality/Jev external doubles.",
+  "claim_token_replacement": "A repeated 43 times; original credential omitted",
+  "historical_c2": "../v1816 unchanged",
+  "files": {
+    "choice-claim-A.json": "8632a5da13d2a492e2ea0e6fb9faba9659957e285c6af350a7c8ff5652be591c",
+    "choice-claim-B.json": "42b9c8f970b1188fd824821048e0015b2415e0aa4a53cf51222f24f0060cf510",
+    "choice-status-A-after-B.json": "02cb3de75300fbbfa6dab1117842090e929024fe79fc74699a2aa40052e24326",
+    "choice-status-B.json": "d0b34b9ea5dc858fb946e0e865d6cb9b9b3a09b6ec4006346213da3bb741c548"
+  }
+}

@@ -29,7 +29,7 @@ execution before payment signing. The HTTP request schema inside Paid v3 remains
 `ln_church.paid_service_request.v2`.
 
 
-This matrix defines the strict boundaries of what the `ln-church-agent` SDK can execute versus what it only inspects, observes, or halts on.
+This matrix defines the strict boundaries of what the `mayim-agent` SDK can execute versus what it only inspects, observes, or halts on.
 
 | Capability / Surface | Layer | Mode | Req. Private Key | Req. Payment Cred. | Credential Requirement | Exec. Payment | Auth. Access | Submit Telemetry | Auto Submit |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -89,6 +89,7 @@ The low-level SVM transaction builder remains available for payload construction
 * **`verified`** requires cryptographic proof, submitted tx evidence, L402 preimage, or a signed provider receipt.
 * **AP2 / ACP / OKX APP** are not settlement rails.
 * **Grant** is an access override / sponsored entitlement, not a settlement rail.
+  The mAG adapter retains the ritual exception; Graph acquisition does not accept Grants.
 * **batch-settlement voucher** is not a final settlement proof.
 * **auth-capture authorization signature** is not final settlement proof.
 * **capture / void / refund / reclaim lifecycle state** must not be collapsed into a single verified payment state.
@@ -118,7 +119,7 @@ The explicit v1 Immediate path and saved v1 Claim/Report continue under their
 original profile. The normal v2 path uses a dedicated Claim request schema.
 Neither path silently converts unknown profiles or re-fetches lost target results.
 
-The public `ln-church-agent-mcp` entry point and Registry package remain keyless,
+The public `mayim-agent-mcp` entry point and Registry package remain keyless,
 inspect-only. Separately imported execution-capable Python clients retain their
 explicit execution authority. AP2, ACP, APP and unsupported MPP shapes do not
 become executable through these documentation changes.
@@ -146,3 +147,18 @@ New tuple execution requires the received fixed definition digest. Unsupported
 tuples remain read-only with an update indication. No new requester SDK,
 attribute collection, automatic Claim, answer generation or automatic submission.
 See the [EN/JP respondent Guide](structured-response.md) for all ten operations.
+
+
+## mAG 2.0 explicit version selectors
+
+| Family | Selector | Fixed definition |
+| --- | --- | --- |
+| Choice | `version="v2_4"` | 2.4.0 |
+| Immediate | `version="v3_2"` | 3.2.0 |
+| Paid | `version="v3_2"` | 3.2.0, Backend c2 |
+| Structured | `definition_version="3.2.0"` | 3.2.0 |
+
+All retain the Activity Map policy/epoch and economic conditions of the saved
+Task/Claim. Existing defaults and versioned journals are retained. Graph
+acquisition is exposed through the explicit Python, CLI and execution MCP
+surfaces described in [Activity Map acquisition](activity-map.md).

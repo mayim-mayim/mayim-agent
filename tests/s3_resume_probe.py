@@ -3,11 +3,11 @@ import hashlib
 import json
 import sys
 
-from ln_church_agent import structured_response_contract as c
-from ln_church_agent.structured_response_client import StructuredResponseClient
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent.structured_response_transport import StructuredResponseTransport
-from ln_church_agent.task_journal import JournalError
+from mayim_agent import structured_response_contract as c
+from mayim_agent.structured_response_client import StructuredResponseClient
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent.structured_response_transport import StructuredResponseTransport
+from mayim_agent.task_journal import JournalError
 from test_v1_18_14_b3_integration import LocalExchange
 
 

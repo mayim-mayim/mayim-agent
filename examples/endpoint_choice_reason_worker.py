@@ -8,7 +8,7 @@ alive while an access purchase is unresolved. The journal does not persist it.
 Read docs/endpoint-choice-reason.md before answering: the reason becomes public
 after intake closes and is sent through Cloudflare/TypeSafe for evaluation.
 """
-from ln_church_agent import EndpointChoiceJournal
+from mayim_agent import EndpointChoiceJournal
 
 
 def open_claim_journal(directory, *, task_id, agent_id, reward_address, claim_key, version="v2"):

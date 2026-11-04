@@ -1,0 +1,54 @@
+{
+  "schema_version": "ln_church.agent_task_source_bundle_manifest.v1",
+  "task_type": "paid_service_trial.v3",
+  "task_definition_version": "3.2.0",
+  "task_definition_digest": "8c44c115574b593274869091d418f4a6e4e086e55893450bf6e91a2b0a6242af",
+  "descriptor": {
+    "schema_version": "ln_church.task_definition_source_bundle.v1",
+    "source_repository": "mayim-mayim/LN_Church",
+    "specification_repository": "mayim-mayim/LN_Church_Development-Charter",
+    "specification_commit": "2577fd74cbdf8a40e0a1172f188fd021fd71f9fe",
+    "architecture_commit": "0575445002fde1d500575c06d08285587ccbff7a",
+    "task_type": "paid_service_trial.v3",
+    "task_definition_version": "3.2.0",
+    "source_bundle_entries": [
+      {
+        "path": "frontend/agent-task-specs/paid_service_trial.v3/3.2.0/SKILL.md",
+        "mode": "100644",
+        "blob": "f52b8c882d54d8359013764574eb45b5d18c2ef9",
+        "sha256": "d8bab6458691875ae7e1b5f676b3aa35482eb8a163bba6c93b9a275439beadcb"
+      },
+      {
+        "path": "frontend/agent-task-specs/paid_service_trial.v3/3.2.0/definition.json",
+        "mode": "100644",
+        "blob": "deb2f39a96f69b65772b5509e910636a5ee38473",
+        "sha256": "92c3f33d236a7bb8964d210b6717ad065c0f010ba2759b93d56f7c1bf3d05a10"
+      },
+      {
+        "path": "frontend/agent-task-specs/paid_service_trial.v3/3.2.0/economic-terms.schema.json",
+        "mode": "100644",
+        "blob": "ceae64a644e9b4cfafb5377429d0cafc45a2fd25",
+        "sha256": "d78263448f6efd321ff37211947f646ad4d05d41f3922c7af7425cf0d75b196f"
+      },
+      {
+        "path": "frontend/agent-task-specs/paid_service_trial.v3/3.2.0/requester-guide.md",
+        "mode": "100644",
+        "blob": "574a05fd7a7648cb9775bdf27380cc57349b75e1",
+        "sha256": "5ff17aa40c33c805aa63adbf510d384c2ecf5d56aa965e3b0e4786e814afc757"
+      },
+      {
+        "path": "frontend/agent-task-specs/paid_service_trial.v3/3.2.0/v18-5-paid-service-trial-contract-v3.json",
+        "mode": "100644",
+        "blob": "ffbdf71378f6f4de1c80634c718309e9258e3fbb",
+        "sha256": "037d87641d2138e43b1df69aa78433065119035f18518a47f4f9748951d66732"
+      },
+      {
+        "path": "frontend/agent-task-specs/paid_service_trial.v3/3.2.0/wire-contract.json",
+        "mode": "100644",
+        "blob": "f2e9c61754bfa5f0ba61b4290c911cda2ec6308b",
+        "sha256": "09a6d2350c245917e7ddb7499fdea7f84c4f208d6acc11674670d7bea53d1779"
+      }
+    ],
+    "activity_map_policy_id": "mag.activity-map.public.v1"
+  }
+}

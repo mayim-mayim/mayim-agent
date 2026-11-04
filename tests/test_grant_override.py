@@ -4,7 +4,7 @@ import time
 import base64
 import json
 from unittest.mock import patch
-from ln_church_agent import LnChurchClient, AssetType
+from mayim_agent import MagClient, AssetType
 
 def create_mock_grant(claims: dict) -> str:
     header = base64.urlsafe_b64encode(b'{"alg":"EdDSA"}').decode().rstrip('=')
@@ -13,7 +13,7 @@ def create_mock_grant(claims: dict) -> str:
     return f"{header}.{payload}.{signature}"
 
 def test_grant_evaluation_and_priority():
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001", base_url="https://mock.shrine")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001", base_url="https://mock.shrine")
     
     valid_claims = {
         "jti": "mock_jti_123",              # <- 追加
@@ -71,7 +71,7 @@ def test_grant_evaluation_and_priority():
 def test_public_access_priority_and_diagnostic(async_mode, valid, faucet, expected):
     import asyncio
     from unittest.mock import AsyncMock
-    client = LnChurchClient(agent_id="grant-test", base_url="https://mock.shrine")
+    client = MagClient(agent_id="grant-test", base_url="https://mock.shrine")
     client.set_grant_token(create_mock_grant({
         "jti": "mock_jti_123", "asset": "GRANT_CREDIT", "iss": "https://issuer.test",
         "sub": client.agent_id, "aud": client.base_url, "exp": int(time.time()) + 3600,
@@ -98,7 +98,7 @@ def test_public_access_priority_and_diagnostic(async_mode, valid, faucet, expect
 
 
 def test_graceful_fallback_no_exceptions():
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001", base_url="https://mock.shrine")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001", base_url="https://mock.shrine")
     invalid_claims = {
         "jti": "mock_jti_123", "asset": "GRANT_CREDIT", "iss": "https://trusted-issuer", 
         "sub": "wrong_agent", "aud": "https://mock.shrine", "exp": int(time.time()) + 3600, 

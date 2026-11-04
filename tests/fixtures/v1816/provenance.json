@@ -1,0 +1,221 @@
+{
+  "backend_commit": "dbd2cf7adf962a3e4b3cc49c8fdffdf4ab7eaca7",
+  "files": [
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/choice-claim-A.json",
+      "blob": "3d0e5a195315c733def9ef05b1315c5c91ef99d4",
+      "fixture": "choice-claim-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/choice-claim-B.json",
+      "blob": "48b6c381575bb01afc04b4ee2687f2f1ce3f4e9c",
+      "fixture": "choice-claim-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/choice-status-A-after-B.json",
+      "blob": "4ddb44a9d43158404e90ae005354eb1beeb884ac",
+      "fixture": "choice-status-A-after-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/choice-status-B.json",
+      "blob": "0108e135eca336f3ab9c4b10cce8c30d45b5336a",
+      "fixture": "choice-status-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/choice-terms-A.json",
+      "blob": "4e0f732039533d829f094def6b45cae1bb71ef7c",
+      "fixture": "choice-terms-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/choice-terms-B.json",
+      "blob": "3b492f0741da7d190065deee9752221d44e1f8ad",
+      "fixture": "choice-terms-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-claim-A.json",
+      "blob": "94c5907e55d546c4c2d4dfbed2ea3ef14f972671",
+      "fixture": "immediate-claim-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-claim-B.json",
+      "blob": "851c101850cf0b5a7dfb6a99fcfea342f121641f",
+      "fixture": "immediate-claim-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-registration-A.json",
+      "blob": "81ae990eeb0cfa5cc874cc64911ab43c24c69dd3",
+      "fixture": "immediate-registration-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-registration-B.json",
+      "blob": "8dc0b08d14c68cb20ef864c4dc851c7a89762c0b",
+      "fixture": "immediate-registration-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-request-A.json",
+      "blob": "9305254a4bffb7fe0c0102e2c667bf9382439b0c",
+      "fixture": "immediate-request-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-request-B.json",
+      "blob": "64cdcb561084cb6e8b28b036f9cdb2de0579dd65",
+      "fixture": "immediate-request-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-status-immediate-A.json",
+      "blob": "dcb23008eb8019373f0a40293587400528e185a2",
+      "fixture": "immediate-status-immediate-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-status-immediate-B.json",
+      "blob": "a604332c867c3b20b70513e307782047c47ad0a7",
+      "fixture": "immediate-status-immediate-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-task-A.json",
+      "blob": "9a587fe526ddb76982d3d39c683d8b4f88a80d21",
+      "fixture": "immediate-task-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-task-B.json",
+      "blob": "af7c075a7d0e9f51d4814dc4547fa6a1eed82b22",
+      "fixture": "immediate-task-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-task-get-A.json",
+      "blob": "9a587fe526ddb76982d3d39c683d8b4f88a80d21",
+      "fixture": "immediate-task-get-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/immediate-task-get-B.json",
+      "blob": "af7c075a7d0e9f51d4814dc4547fa6a1eed82b22",
+      "fixture": "immediate-task-get-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-claim-A.json",
+      "blob": "6c4ce6d6adc2ec7e609e01fe7b1b56df10854a07",
+      "fixture": "paid-claim-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-claim-B.json",
+      "blob": "a76c52f2a23e4f878d4da4fb59af6760724977a1",
+      "fixture": "paid-claim-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-registration-A.json",
+      "blob": "7a214f47bda34a5912d7b3b9bda0841c0d133ebd",
+      "fixture": "paid-registration-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-registration-B.json",
+      "blob": "9d4975fc05b8ebefd970caa086913a743448a34d",
+      "fixture": "paid-registration-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-request-A.json",
+      "blob": "4ea6473632e20a0b41f557dd6e864ec10a610c3f",
+      "fixture": "paid-request-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-request-B.json",
+      "blob": "74c82391a1fce1298d77d8ce22e4a70206a999e0",
+      "fixture": "paid-request-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-status-paid-A.json",
+      "blob": "f0bb4ac281bb8ee392875b400f8180f16c0b66dd",
+      "fixture": "paid-status-paid-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-status-paid-B.json",
+      "blob": "17fd1639f36f78302076a7a256ad6bb490ec5d8b",
+      "fixture": "paid-status-paid-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-task-get-A.json",
+      "blob": "961610eea5fd1bd9e328abb3eefbaa202fc02df4",
+      "fixture": "paid-task-get-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/paid-task-get-B.json",
+      "blob": "78628a9bb8e7e6a23d792521d9a68af8a5906258",
+      "fixture": "paid-task-get-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-claim-A.json",
+      "blob": "a698e90d25d0162eb7991f0c32afabe920e5c1a7",
+      "fixture": "scheduled-claim-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-claim-B.json",
+      "blob": "ace6f2edd4b1401ad604e6b644200b94d2c3a059",
+      "fixture": "scheduled-claim-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-receipt-A.json",
+      "blob": "07cd3b87bc1fb58e13ffa375a5c071c530575605",
+      "fixture": "scheduled-receipt-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-receipt-B.json",
+      "blob": "b5f81f91eb579ea6ed8d191d92220baa23bdd4b0",
+      "fixture": "scheduled-receipt-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-status-A.json",
+      "blob": "33e904a5834da1ca2abe1c267deae6d78807436b",
+      "fixture": "scheduled-status-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-status-B.json",
+      "blob": "45b8228a155c3811942f9b4364185b5464769bea",
+      "fixture": "scheduled-status-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-task-A.json",
+      "blob": "a95ee62314414567afc2e4506798b73da273bfd3",
+      "fixture": "scheduled-task-A.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    },
+    {
+      "path": "tests/evidence/template-survey-sharing-backend-c2/dtos/scheduled-task-B.json",
+      "blob": "4a72251b95153be9288ae3c0af2444bd8877f543",
+      "fixture": "scheduled-task-B.json",
+      "transformations": "DTO envelope removed; synthetic token A*43; Scheduled redacted URL replaced with fixed-host synthetic URL, no fetch"
+    }
+  ]
+}

@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from ln_church_agent.task_v2_contract import (
+from mayim_agent.task_v2_contract import (
     CONTRACT_FIXTURE_SHA256,
     ManifestContractError,
     TASK_DETAIL_QUERY,

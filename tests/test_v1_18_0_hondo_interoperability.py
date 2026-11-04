@@ -12,10 +12,10 @@ from urllib.parse import urlsplit
 import pytest
 from pydantic import ValidationError
 
-from ln_church_agent.task_journal import TaskJournal
-from ln_church_agent.task_v2_contract import canonical_completion_bytes
-from ln_church_agent.task_v2_client import AgentTaskV2Client
-from ln_church_agent.task_v2_models import (
+from mayim_agent.task_journal import TaskJournal
+from mayim_agent.task_v2_contract import canonical_completion_bytes
+from mayim_agent.task_v2_client import AgentTaskV2Client
+from mayim_agent.task_v2_models import (
     ManifestFetchResult,
     ScheduledCompletionAcknowledgement,
     ScheduledCompletionReceipt,
@@ -26,7 +26,7 @@ from ln_church_agent.task_v2_models import (
     ScheduledTaskClaimResponse,
     ScheduledTaskReadiness,
 )
-from ln_church_agent.task_v2_transport import (
+from mayim_agent.task_v2_transport import (
     TaskV2RawResponse,
     TaskV2Transport,
 )

@@ -1,0 +1,17 @@
+{
+  "schema_version": "ln_church.agent_task_completion_receipt.v2_1",
+  "economic_terms_revision": "scheduled-B",
+  "terms_digest": "a8c10b6746539aca5a8838f7c5bf7a04ea6fd96f0914f04fc9a003ee3ac722cf",
+  "task_id": "task_7928711c9db214a084f50a248a1e7c3c",
+  "task_type": "scheduled_http_get_batch.v1",
+  "task_definition_version": "1.1.0",
+  "task_definition_digest": "1e0331dfe9ff1ca63b1002e9ccd530e2de8cf0b0dc751704c0190093d19227a7",
+  "manifest_sha256": "37da1e495370ae87e301c7124311f276be29f29d9775dc1074bc6d47e059eeb6",
+  "submission_id": "sub_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "report_id": "report_B",
+  "report_sha256": "5acf919483c778cf05144710410ccaa41fb6c8116e7f2bcf5dcd617831d0408a",
+  "completion_id": "completion_B",
+  "accepted_at": "2026-08-20T03:00:01Z",
+  "receipt_state": "DURABLY_ACCEPTED",
+  "evaluation_state": "PENDING"
+}

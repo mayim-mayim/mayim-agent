@@ -11,14 +11,14 @@ from decimal import Decimal
 from types import SimpleNamespace
 import pytest
 from test_offer_registration import Bridge, SEED
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.crypto.evm import LocalKeyAdapter
-from ln_church_agent.models import PaymentPolicy
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor
-from ln_church_agent.paid_service_trial_network import PaidTrialHTTPResponse
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.crypto.evm import LocalKeyAdapter
+from mayim_agent.models import PaymentPolicy
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor
+from mayim_agent.paid_service_trial_network import PaidTrialHTTPResponse
 
 
 class PaidBridge(Bridge):

@@ -12,7 +12,7 @@ This document provides rules on how to interpret `STANDARDS_WATCHLIST.md` and es
 
 ## Rules for Future AI Coding Agents
 
-To maintain the safety and focus of the `ln-church-agent` SDK, **DO NOT** implement the following features under any circumstances until they are removed from the "Deferred" list:
+To maintain the safety and focus of the `mayim-agent` SDK, **DO NOT** implement the following features under any circumstances until they are removed from the "Deferred" list:
 
 * **AP2 / ACP / APP Payment Execution**: Do not implement mandate signing, broker negotiation calls, or ACP checkout completions. They remain strictly `observe_only`.
 * **auth-capture Execution**: Do not implement EIP-3009 / Permit2 signing, capture, void, refund, reclaim, contract simulation, or fee-policy enforcement until the scheme is stable across official SDKs and production facilitators. Keep it strictly inspect-only.
@@ -30,7 +30,6 @@ To maintain the safety and focus of the `ln-church-agent` SDK, **DO NOT** implem
   * Do not rank or recommend surfaces based on grant-like signals.
   * Grant-like signal detection is inspect-only and sidecar-only.
 * **Domain Sponsor Verification**:
-  * Do not treat `/.well-known/ln-church-domain-sponsor.json` as an AI discovery standard, ARD, A2A Agent Card, or standard compliance proof. It is strictly an LN Church domain-control challenge path.
   * Do not use `domain_owner_verified` as a primary semantic; it is a legacy compatibility field for `domain_control_verified`.  
 
 ### 1. Payment-Receipt Semantics & Cache Rules

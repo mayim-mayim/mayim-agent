@@ -1,8 +1,8 @@
 import pytest
 # 1. 完全に Public Stable な概念のみトップレベルからインポート
-from ln_church_agent import (
+from mayim_agent import (
     Payment402Client,
-    LnChurchClient,
+    MagClient,
     ParsedChallenge,
     ExecutionResult,
     ExecutionContext,
@@ -12,7 +12,7 @@ from ln_church_agent import (
     ChallengeSource
 )
 # 2. Experimental な概念は .models から明示的にインポート
-from ln_church_agent.models import PaymentEvidenceRecord, EvidenceRepository
+from mayim_agent.models import PaymentEvidenceRecord, EvidenceRepository
 
 def test_public_api_imports_and_instantiation():
     """トップレベルからインポートした Stable なモデルがスキーマエラーなく生成できるか確認"""
@@ -82,20 +82,20 @@ def package_metadata():
     """Use the installed distribution's public metadata."""
     import importlib.metadata
 
-    return importlib.metadata.distribution("ln-church-agent")
+    return importlib.metadata.distribution("mayim-agent")
 
 
 def test_current_package_and_runtime_identity(package_metadata):
     import importlib.metadata
     import json
     from pathlib import Path
-    from ln_church_agent import client
+    from mayim_agent import client
 
     version = package_metadata.version
-    assert importlib.metadata.version("ln-church-agent") == version
+    assert importlib.metadata.version("mayim-agent") == version
     assert client.get_sdk_version() == version
     assert client.SDK_VERSION == version
-    assert client.CUSTOM_USER_AGENT == "ln-church-agent/" + version
+    assert client.CUSTOM_USER_AGENT == "mayim-agent/" + version
     server = json.loads(
         (Path(__file__).resolve().parents[1] / "server.json").read_text("utf-8")
     )
@@ -123,15 +123,15 @@ socket.socket.connect = unexpected_io
 Account.from_key = unexpected_io
 version = importlib.metadata.version
 def missing(name):
-    if name == 'ln-church-agent':
+    if name == 'mayim-agent':
         raise importlib.metadata.PackageNotFoundError(name)
     return version(name)
 importlib.metadata.version = missing
-import ln_church_agent
-from ln_church_agent import client
-from ln_church_agent.task_contract import to_eip55_checksum_address
+import mayim_agent
+from mayim_agent import client
+from mayim_agent.task_contract import to_eip55_checksum_address
 assert to_eip55_checksum_address("0x" + "1" * 40) == "0x" + "1" * 40
-assert ln_church_agent.LnChurchClient is client.LnChurchClient
+assert mayim_agent.MagClient is client.MagClient
 print(json.dumps([client.get_sdk_version(), client.SDK_VERSION,
                   client.CUSTOM_USER_AGENT]))
 """
@@ -142,7 +142,7 @@ print(json.dumps([client.get_sdk_version(), client.SDK_VERSION,
     )
     import json
     version = package_metadata.version
-    assert json.loads(result.stdout) == [version, version, "ln-church-agent/" + version]
+    assert json.loads(result.stdout) == [version, version, "mayim-agent/" + version]
 
 
 def test_package_declares_existing_crypto_and_optional_mcp(package_metadata):
@@ -162,19 +162,12 @@ def test_package_declares_existing_crypto_and_optional_mcp(package_metadata):
         assert mcp[0].specifier == SpecifierSet(">=1.2.0,<2.0.0")
     scripts = {entry.name: entry for entry in package_metadata.entry_points
                if entry.group == "console_scripts"}
-    from ln_church_agent import cli
-    assert scripts["ln-church-agent"].load() is cli.main
-    assert scripts["lnc-agent"].load() is cli.main
-    assert callable(scripts["ln-church-agent-mcp"].load())
+    from mayim_agent import cli
+    assert scripts["mayim-agent"].load() is cli.main
+    assert "lnc-agent" not in scripts
+    assert callable(scripts["mayim-agent-mcp"].load())
 
 
-def test_mcp_observation_uses_current_public_identity(package_metadata):
-    from ln_church_agent.integrations.mcp_inspect import build_mcp_observation_payload
-
-    observation = build_mcp_observation_payload({
-        "url": "https://public.example/", "method": "GET", "status_code": 200,
-    })
-    assert observation["sdk_version"] == package_metadata.version
 
 
 @pytest.mark.parametrize("arguments", [
@@ -186,14 +179,14 @@ def test_mcp_observation_uses_current_public_identity(package_metadata):
 ])
 def test_public_cli_help_needs_no_client_initialization(monkeypatch, capsys, arguments):
     import sys
-    from ln_church_agent import cli, LnChurchClient, AgentTaskClient, AgentTaskV2Client
+    from mayim_agent import cli, MagClient, AgentTaskClient, AgentTaskV2Client
 
     def no_client(*args, **kwargs):
         pytest.fail("CLI help must not initialize a client")
 
-    for client_type in (LnChurchClient, AgentTaskClient, AgentTaskV2Client):
+    for client_type in (MagClient, AgentTaskClient, AgentTaskV2Client):
         monkeypatch.setattr(client_type, "__init__", no_client)
-    monkeypatch.setattr(sys, "argv", ["ln-church-agent", *arguments, "--help"])
+    monkeypatch.setattr(sys, "argv", ["mayim-agent", *arguments, "--help"])
     with pytest.raises(SystemExit) as caught:
         cli.main()
     assert caught.value.code == 0
@@ -212,7 +205,7 @@ def test_public_cli_help_needs_no_client_initialization(monkeypatch, capsys, arg
     "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb",
 ])
 def test_task_checksum_canonicalizes_known_eip55_vectors(canonical):
-    from ln_church_agent.task_contract import to_eip55_checksum_address
+    from mayim_agent.task_contract import to_eip55_checksum_address
 
     for value in (canonical, canonical.lower(), "0x" + canonical[2:].upper()):
         assert to_eip55_checksum_address(value) == canonical
@@ -226,7 +219,7 @@ def test_task_checksum_canonicalizes_known_eip55_vectors(canonical):
     "0x52908400098527886e0F7030069857D2E4169EE7",
 ])
 def test_task_checksum_rejects_inputs_outside_address_contract(address):
-    from ln_church_agent.task_contract import to_eip55_checksum_address
+    from mayim_agent.task_contract import to_eip55_checksum_address
 
     with pytest.raises(ValueError, match=r"^Invalid reward_address\.$"):
         to_eip55_checksum_address(address)

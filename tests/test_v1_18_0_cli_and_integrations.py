@@ -13,10 +13,11 @@ from types import SimpleNamespace
 
 import pytest
 
-import ln_church_agent
-from ln_church_agent import cli
-from ln_church_agent.scheduled_http_get_batch import ScheduledExecutionContext
-from ln_church_agent.task_v2_models import (
+import mayim_agent
+from mayim_agent import cli
+import test_v1_17_0_task_venue_sdk as task_v1_fixtures
+from mayim_agent.scheduled_http_get_batch import ScheduledExecutionContext
+from mayim_agent.task_v2_models import (
     ScheduledTaskClaimCredential,
     ScheduledTaskReadiness,
 )
@@ -28,6 +29,226 @@ SIGNED_MANIFEST_URL = (
     "https://tasks-release.mayim-mayim.com/manifests/task_cli.json"
     "?Key-Pair-Id=SIGNED_QUERY_SENTINEL&Signature=SIGNED_VALUE_SENTINEL"
 )
+
+
+def _c7_files(tmp_path, checkpoint_state=None):
+    """Real private files with the existing v1 wire fixtures and stable IDs."""
+    credential = task_v1_fixtures._credential()
+    credential_path = tmp_path / "private-claim.json"
+    credential_path.write_text(json.dumps(credential._to_private_file_payload()))
+    credential_path.chmod(0o600)
+    checkpoint_path = tmp_path / "checkpoint.json"
+    if checkpoint_state:
+        checkpoint = (task_v1_fixtures._pending_checkpoint() if checkpoint_state == "pending"
+                      else task_v1_fixtures._registered_checkpoint())
+        with_checkpoint = cli._TaskCheckpointFile(str(checkpoint_path))
+        try:
+            with_checkpoint.write_payload(checkpoint.model_dump(mode="json", exclude_none=True))
+        finally:
+            with_checkpoint.close()
+    content = json.dumps(task_v1_fixtures._submission_payload(
+        include_submission_id=checkpoint_state is None)).encode()
+    observation = tmp_path / "observation.json"
+    observation.write_bytes(content)
+    return credential_path, checkpoint_path, observation, content
+
+
+def _c7_cli(monkeypatch, credential_path, checkpoint_path, observation, responses):
+    from mayim_agent import task_client
+    transport = task_v1_fixtures._FakeTransport(responses)
+    client = task_v1_fixtures.AgentTaskClient(_transport=transport)
+    monkeypatch.setattr(task_client, "AgentTaskClient", lambda: client)
+    monkeypatch.setattr(cli._task_sys, "argv", [
+        "mayim-agent", "task", "submit-complete", "task_example",
+        "--credential-file", str(credential_path), "--file", str(observation),
+        "--checkpoint-file", str(checkpoint_path), "--json",
+    ])
+    return transport
+
+
+@pytest.mark.skipif(not sys.platform.startswith("linux"), reason="Linux real-file boundary")
+@pytest.mark.parametrize("variant,code", [
+    ("ancestor-0775", "TASK_CREDENTIAL_INVALID"),
+    ("missing", "TASK_CREDENTIAL_INVALID"),
+    ("missing-parent", "TASK_CREDENTIAL_INVALID"),
+    ("empty-path", "TASK_CREDENTIAL_INVALID"),
+    ("nul-path", "TASK_CREDENTIAL_INVALID"),
+    ("symlink-file", "TASK_CREDENTIAL_INVALID"),
+    ("symlink-parent", "TASK_CREDENTIAL_INVALID"),
+    ("directory", "TASK_CREDENTIAL_INVALID"),
+    ("oversize", "TASK_CREDENTIAL_INVALID"),
+    ("unreadable", "TASK_CREDENTIAL_INVALID"),
+    ("identity-replaced", "TASK_CREDENTIAL_INVALID"),
+    ("malformed-json", "TASK_RESPONSE_INVALID"),
+    ("duplicate-key", "TASK_RESPONSE_INVALID"),
+    ("nan", "TASK_RESPONSE_INVALID"),
+    ("invalid-utf8", "TASK_RESPONSE_INVALID"),
+    ("array", "TASK_RESPONSE_INVALID"),
+    ("invalid-content", "TASK_RESPONSE_INVALID"),
+])
+def test_c7_submit_complete_file_errors_preserve_stage_and_no_io(
+    tmp_path, monkeypatch, capsys, variant, code
+):
+    credential, checkpoint, observation, content = _c7_files(tmp_path)
+    if variant == "ancestor-0775":
+        ancestor = tmp_path / "group-writable"
+        leaf = ancestor / "private-leaf"
+        leaf.mkdir(parents=True); ancestor.chmod(0o775); leaf.chmod(0o700)
+        observation = leaf / "observation.json"; observation.write_bytes(content)
+    elif variant == "missing":
+        observation.unlink()
+    elif variant == "missing-parent":
+        observation = tmp_path / "absent" / "observation.json"
+    elif variant == "empty-path":
+        observation = ""
+    elif variant == "nul-path":
+        observation = "invalid\x00path"
+    elif variant == "symlink-file":
+        link = tmp_path / "link.json"; link.symlink_to(observation); observation = link
+    elif variant == "symlink-parent":
+        real = tmp_path / "real"; real.mkdir(); (real / "input.json").write_bytes(content)
+        link = tmp_path / "link"; link.symlink_to(real, target_is_directory=True)
+        observation = link / "input.json"
+    elif variant == "directory":
+        observation.unlink(); observation.mkdir()
+    elif variant == "oversize":
+        observation.write_bytes(b" " * (cli._TASK_FILE_MAX_BYTES + 1))
+    elif variant == "unreadable":
+        observation.chmod(0)
+        # Qualify the actual process's DAC behavior; privileged bypass is not
+        # evidence of an unreadable-file test.
+        with pytest.raises(PermissionError): observation.read_bytes()
+    elif variant == "identity-replaced":
+        read = cli.read_bounded
+        def replaced(fd, limit):
+            result = read(fd, limit)
+            if os.fstat(fd).st_ino == observation.stat().st_ino:
+                replacement = tmp_path / "replacement.json"
+                replacement.write_bytes(content); os.replace(replacement, observation)
+            return result
+        monkeypatch.setattr(cli, "read_bounded", replaced)
+    elif variant == "malformed-json":
+        observation.write_bytes(b'{"private":"' + CLAIM_TOKEN.encode())
+    elif variant == "duplicate-key":
+        observation.write_text(json.dumps({"private": CLAIM_TOKEN})[:-1] + ',"private":0}')
+    elif variant == "nan":
+        observation.write_text('{"value":NaN}')
+    elif variant == "invalid-utf8":
+        observation.write_bytes(b'\xff' + CLAIM_TOKEN.encode())
+    elif variant == "array":
+        observation.write_text('["' + CLAIM_TOKEN + '"]')
+    elif variant == "invalid-content":
+        observation.write_text(json.dumps({"unexpected": CLAIM_TOKEN}))
+    transport = _c7_cli(monkeypatch, credential, checkpoint, observation, [])
+    with pytest.raises(SystemExit) as caught:
+        cli.main()
+    assert caught.value.code == 2
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == f"Task error: {code}\n"
+    assert str(tmp_path) not in captured.err and CLAIM_TOKEN not in captured.err
+    assert transport.calls == []  # No Claim, Observation, Completion, or payment.
+    assert not checkpoint.exists()
+    assert list(tmp_path.glob(".*.tmp")) == []
+
+
+@pytest.mark.skipif(not sys.platform.startswith("linux"), reason="Linux real-file boundary")
+@pytest.mark.parametrize("state", [None, "pending", "registered"])
+def test_c7_local_rejection_then_safe_same_content_resumes_same_operation(
+    tmp_path, monkeypatch, capsys, state
+):
+    credential, checkpoint, observation, content = _c7_files(tmp_path, state)
+    old_checkpoint = checkpoint.read_bytes() if checkpoint.exists() else None
+    ancestor = tmp_path / "unsafe"; leaf = ancestor / "private-leaf"
+    leaf.mkdir(parents=True); ancestor.chmod(0o775); leaf.chmod(0o700)
+    unsafe = leaf / "observation.json"; unsafe.write_bytes(content)
+    transport = _c7_cli(monkeypatch, credential, checkpoint, unsafe, [])
+    with pytest.raises(SystemExit) as caught: cli.main()
+    assert caught.value.code == 2
+    assert capsys.readouterr().err == "Task error: TASK_CREDENTIAL_INVALID\n"
+    assert transport.calls == []
+    assert (checkpoint.read_bytes() if checkpoint.exists() else None) == old_checkpoint
+    # Simulate the caller moving the same input to an already-safe directory.
+    assert observation.read_bytes() == unsafe.read_bytes() == content
+    responses = ([] if state == "registered" else [task_v1_fixtures._register_response()])
+    responses += [task_v1_fixtures._completion_response()]
+    transport = _c7_cli(monkeypatch, credential, checkpoint, observation, responses)
+    cli.main()
+    captured = capsys.readouterr(); result = json.loads(captured.out)
+    assert captured.err == "" and CLAIM_TOKEN not in captured.out
+    saved = json.loads(checkpoint.read_bytes())
+    assert saved["state"] == "REGISTERED"
+    assert saved["task_id"] == "task_example"
+    assert saved["submission_id"] == task_v1_fixtures.SUBMISSION_ID
+    assert saved["observation_id"] == task_v1_fixtures.OBSERVATION_ID
+    assert result["completion_receipt"] == task_v1_fixtures._completion_response()
+    assert [path.rsplit("/", 1)[-1] for _, path, _ in transport.calls] == (
+        ["completion"] if state == "registered" else ["domain-observations", "completion"])
+    if old_checkpoint:
+        old = json.loads(old_checkpoint)
+        for key in ("credential_fingerprint", "task_id", "submission_id", "submission_sha256"):
+            assert saved[key] == old[key]
+        if state == "registered": assert checkpoint.read_bytes() == old_checkpoint
+
+
+@pytest.mark.skipif(not sys.platform.startswith("linux"), reason="Linux sticky-path boundary")
+def test_c7_existing_sticky_exception_still_allows_normal_submission(tmp_path, monkeypatch, capsys):
+    credential, checkpoint, observation, content = _c7_files(tmp_path)
+    sticky = tmp_path / "sticky"; sticky.mkdir(); sticky.chmod(0o1777)
+    observation = sticky / "input.json"; observation.write_bytes(content)
+    transport = _c7_cli(monkeypatch, credential, checkpoint, observation,
+        [task_v1_fixtures._register_response(), task_v1_fixtures._completion_response()])
+    cli.main()
+    assert json.loads(capsys.readouterr().out)["completion_receipt"]["accepted"] is True
+    assert len(transport.calls) == 2
+
+
+@pytest.mark.parametrize("variant,code", [
+    ("api", "TASK_API_ERROR"),
+    ("unsent-timeout", "TASK_TIMEOUT"),
+    ("unknown-delivery", "SUBMISSION_OUTCOME_UNKNOWN"),
+])
+def test_c7_api_task_error_code_is_preserved(tmp_path, monkeypatch, capsys, variant, code):
+    from mayim_agent.task_transport import TaskAPIError, TaskError
+    credential, checkpoint, observation, _ = _c7_files(tmp_path)
+    error = (TaskAPIError(status_code=409, public_error_code="task_not_open")
+             if variant == "api" else TaskError(
+                 "TASK_TIMEOUT", request_bytes_sent=False if variant == "unsent-timeout" else None))
+    transport = _c7_cli(monkeypatch, credential, checkpoint, observation,
+        [error])
+    with pytest.raises(SystemExit) as caught: cli.main()
+    assert caught.value.code == 2
+    captured = capsys.readouterr()
+    assert captured.out == "" and captured.err == f"Task error: {code}\n"
+    assert len(transport.calls) == 1
+    assert json.loads(checkpoint.read_bytes())["state"] == "REGISTER_PENDING"
+
+
+def test_c7_fresh_missing_submission_id_keeps_first_bound_identity(tmp_path, monkeypatch, capsys):
+    from mayim_agent import task_contract
+    credential, checkpoint, observation, _ = _c7_files(tmp_path)
+    observation.write_text(json.dumps(task_v1_fixtures._submission_payload(
+        include_submission_id=False)))
+    generated = []
+    token_hex = task_contract.secrets.token_hex
+    def new_id(size):
+        if sys._getframe(1).f_code is not task_contract.generate_submission_id.__code__:
+            return token_hex(size)
+        assert size == 16
+        generated.append(f"{len(generated):032x}")
+        return generated[-1]
+    monkeypatch.setattr(task_contract.secrets, "token_hex", new_id)
+    transport = _c7_cli(monkeypatch, credential, checkpoint, observation,
+        [task_v1_fixtures._register_response(), task_v1_fixtures._completion_response()])
+    cli.main()
+    assert capsys.readouterr().err == ""
+    # Internal owned-model reconstruction may evaluate discarded defaults;
+    # only the first bound identity may reach storage or either API operation.
+    assert generated[0] == task_v1_fixtures.SUBMISSION_ID[4:]
+    assert json.loads(checkpoint.read_bytes())["submission_id"] == task_v1_fixtures.SUBMISSION_ID
+    assert len(transport.calls) == 2
+    assert all(call[2]["json_body"]["submission_id"] == task_v1_fixtures.SUBMISSION_ID
+               for call in transport.calls)
 
 
 def _credential():
@@ -84,7 +305,7 @@ def _write_private_credential(path, credential):
 
 
 def _manifest_fetch_started_journal(path, credential, *, fault_hook=None):
-    from ln_church_agent.task_journal import TaskJournal
+    from mayim_agent.task_journal import TaskJournal
 
     credential_handle = credential.local_claim_credential_handle
     journal = TaskJournal(
@@ -104,7 +325,7 @@ def _manifest_fetch_started_journal(path, credential, *, fault_hook=None):
 
 
 def _forbid_scheduled_connector_io(monkeypatch, calls):
-    from ln_church_agent.network_fetch import ControlledHTTPSConnector
+    from mayim_agent.network_fetch import ControlledHTTPSConnector
 
     def fail_manifest(*args, **kwargs):
         calls["manifest"] += 1
@@ -121,7 +342,7 @@ def _forbid_scheduled_connector_io(monkeypatch, calls):
 
 
 def _v2_raw_response(status, payload):
-    from ln_church_agent.task_v2_transport import TaskV2RawResponse
+    from mayim_agent.task_v2_transport import TaskV2RawResponse
 
     return TaskV2RawResponse(
         status_code=status,
@@ -131,7 +352,7 @@ def _v2_raw_response(status, payload):
 
 
 def _v2_receipt(credential, report_bytes):
-    from ln_church_agent.task_v2_models import ScheduledCompletionReport
+    from mayim_agent.task_v2_models import ScheduledCompletionReport
 
     report = ScheduledCompletionReport.model_validate_json(report_bytes)
     return {
@@ -189,8 +410,8 @@ def _v2_status(credential, report_bytes, *, terminal=False):
 
 
 def _real_v2_client_factory(exchange):
-    from ln_church_agent.task_v2_client import AgentTaskV2Client
-    from ln_church_agent.task_v2_transport import TaskV2Transport
+    from mayim_agent.task_v2_client import AgentTaskV2Client
+    from mayim_agent.task_v2_transport import TaskV2Transport
 
     clients = []
 
@@ -217,7 +438,7 @@ def _official_v2_invocation(
     monkeypatch,
 ):
     if official_path == "cli":
-        from ln_church_agent import task_v2_client
+        from mayim_agent import task_v2_client
 
         monkeypatch.setattr(
             task_v2_client, "AgentTaskV2Client", client_type
@@ -226,7 +447,7 @@ def _official_v2_invocation(
             cli._task_sys,
             "argv",
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "run-scheduled-http-get-batch",
                 "--credential-file",
@@ -249,8 +470,8 @@ def _invoke_official_v2_path(*args):
 
 
 def _freeze_interrupted_report(journal_path, credential):
-    from ln_church_agent.task_v2_client import AgentTaskV2Client
-    from ln_church_agent.task_v2_transport import TaskV2Transport
+    from mayim_agent.task_v2_client import AgentTaskV2Client
+    from mayim_agent.task_v2_transport import TaskV2Transport
 
     journal = _manifest_fetch_started_journal(journal_path, credential)
     client = AgentTaskV2Client(
@@ -271,7 +492,7 @@ def _freeze_interrupted_report(journal_path, credential):
 
 
 def _acknowledged_journal(journal_path, credential, *, terminal=False):
-    from ln_church_agent.task_v2_models import (
+    from mayim_agent.task_v2_models import (
         ScheduledCompletionAcknowledgement,
         ScheduledCompletionReceipt,
         ScheduledRewardStatus,
@@ -337,12 +558,12 @@ def test_v18_public_exports_are_lazy_complete_and_owned_by_v18_modules():
         "TaskJournal",
         "JournalError",
     }
-    assert expected.issubset(set(ln_church_agent.__all__))
+    assert expected.issubset(set(mayim_agent.__all__))
     for name in expected:
-        value = getattr(ln_church_agent, name)
-        assert value.__module__.startswith("ln_church_agent.")
+        value = getattr(mayim_agent, name)
+        assert value.__module__.startswith("mayim_agent.")
 
-    init_source = (ROOT / "ln_church_agent/__init__.py").read_text(
+    init_source = (ROOT / "mayim_agent/__init__.py").read_text(
         encoding="utf-8"
     )
     assert "_V18_LAZY_EXPORTS" in init_source
@@ -361,13 +582,11 @@ def test_v18_public_exports_are_lazy_complete_and_owned_by_v18_modules():
 
 def test_inspect_mcp_import_is_lazy_and_exposes_no_task_mutation_tools():
     source = (
-        ROOT / "ln_church_agent/integrations/mcp_inspect.py"
+        ROOT / "mayim_agent/integrations/mcp_inspect.py"
     ).read_text(encoding="utf-8")
     assert _mcp_tool_names(source) == (
         "inspect_paid_surface",
         "explain_recommended_action",
-        "build_mcp_observation_payload",
-        "submit_mcp_observation",
     )
     for forbidden in (
         "AgentTaskV2Client",
@@ -381,11 +600,11 @@ def test_inspect_mcp_import_is_lazy_and_exposes_no_task_mutation_tools():
 
     script = (
         "import json,sys; "
-        "import ln_church_agent.integrations.mcp_inspect; "
+        "import mayim_agent.integrations.mcp_inspect; "
         "print(json.dumps(sorted(name for name in sys.modules "
-        "if name.startswith('ln_church_agent.task_v2') "
-        "or name in {'ln_church_agent.scheduled_http_get_batch',"
-        "'ln_church_agent.task_journal','ln_church_agent.network_fetch'})))"
+        "if name.startswith('mayim_agent.task_v2') "
+        "or name in {'mayim_agent.scheduled_http_get_batch',"
+        "'mayim_agent.task_journal','mayim_agent.network_fetch'})))"
     )
     environment = os.environ.copy()
     environment["PYTHONPATH"] = str(ROOT) + os.pathsep + environment.get(
@@ -439,7 +658,7 @@ def test_cli_has_additive_v2_commands_and_no_secret_arguments(
 ):
     for command, required in (
         (
-            ["ln-church-agent", "task", "claim-v2", "--help"],
+            ["mayim-agent", "task", "claim-v2", "--help"],
             (
                 "--agent-id",
                 "--reward-address",
@@ -449,7 +668,7 @@ def test_cli_has_additive_v2_commands_and_no_secret_arguments(
         ),
         (
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "run-scheduled-http-get-batch",
                 "--help",
@@ -472,7 +691,7 @@ def test_cli_has_additive_v2_commands_and_no_secret_arguments(
         cli._task_sys,
         "argv",
         [
-            "ln-church-agent",
+            "mayim-agent",
             "task",
             "run-scheduled-http-get-batch",
             "--manifest-url=" + SIGNED_MANIFEST_URL,
@@ -502,7 +721,7 @@ def test_claim_v2_cli_writes_only_private_file_and_prints_public_fields(
         def close(self):
             return None
 
-    from ln_church_agent import task_v2_client
+    from mayim_agent import task_v2_client
 
     monkeypatch.setattr(task_v2_client, "AgentTaskV2Client", FakeClient)
     credential_path = tmp_path / "claim-v2.json"
@@ -511,7 +730,7 @@ def test_claim_v2_cli_writes_only_private_file_and_prints_public_fields(
         cli._task_sys,
         "argv",
         [
-            "ln-church-agent",
+            "mayim-agent",
             "task",
             "claim-v2",
             credential.task_id,
@@ -573,7 +792,7 @@ def test_claim_v2_local_credential_save_failure_never_resends_claim(
         del self, payload
         raise OSError("injected local credential failure")
 
-    from ln_church_agent import task_v2_client
+    from mayim_agent import task_v2_client
 
     monkeypatch.setattr(task_v2_client, "AgentTaskV2Client", FakeClient)
     monkeypatch.setattr(
@@ -585,7 +804,7 @@ def test_claim_v2_local_credential_save_failure_never_resends_claim(
         cli._task_sys,
         "argv",
         [
-            "ln-church-agent",
+            "mayim-agent",
             "task",
             "claim-v2",
             credential.task_id,
@@ -669,7 +888,7 @@ def test_official_run_missing_journal_is_zero_network_and_never_recreated(
             raise AssertionError("client must not exist without a journal")
 
     if official_path == "cli":
-        from ln_church_agent import task_v2_client
+        from mayim_agent import task_v2_client
 
         monkeypatch.setattr(
             task_v2_client, "AgentTaskV2Client", ForbiddenClient
@@ -678,7 +897,7 @@ def test_official_run_missing_journal_is_zero_network_and_never_recreated(
             cli._task_sys,
             "argv",
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "run-scheduled-http-get-batch",
                 "--credential-file",
@@ -696,7 +915,7 @@ def test_official_run_missing_journal_is_zero_network_and_never_recreated(
         assert captured.err == "Task error: JOURNAL_MISSING\n"
     else:
         from examples import scheduled_http_get_batch as example
-        from ln_church_agent.task_journal import JournalError
+        from mayim_agent.task_journal import JournalError
 
         monkeypatch.setattr(example, "AgentTaskV2Client", ForbiddenClient)
         with pytest.raises(JournalError) as caught:
@@ -743,7 +962,7 @@ def test_definition_tuple_mismatch_fails_before_any_network_io(
             raise AssertionError("definition mismatch must precede client I/O")
 
     if official_path == "cli":
-        from ln_church_agent import task_v2_client
+        from mayim_agent import task_v2_client
 
         monkeypatch.setattr(
             task_v2_client, "AgentTaskV2Client", ForbiddenClient
@@ -752,7 +971,7 @@ def test_definition_tuple_mismatch_fails_before_any_network_io(
             cli._task_sys,
             "argv",
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "run-scheduled-http-get-batch",
                 "--credential-file",
@@ -768,7 +987,7 @@ def test_definition_tuple_mismatch_fails_before_any_network_io(
         assert capsys.readouterr().err == "Task error: JOURNAL_INVALID\n"
     else:
         monkeypatch.setattr(example, "AgentTaskV2Client", ForbiddenClient)
-        from ln_church_agent.task_journal import JournalError
+        from mayim_agent.task_journal import JournalError
 
         with pytest.raises(JournalError) as caught:
             example.run_claimed_batch(changed, journal_path)
@@ -797,7 +1016,7 @@ def test_run_v2_cli_durably_binds_readiness_before_manifest_io(
     if os.name != "nt":
         os.chmod(credential_path, 0o600)
 
-    from ln_church_agent.task_journal import TaskJournal
+    from mayim_agent.task_journal import TaskJournal
 
     credential_handle = credential.local_claim_credential_handle
     journal_path = tmp_path / "journal.json"
@@ -833,10 +1052,10 @@ def test_run_v2_cli_durably_binds_readiness_before_manifest_io(
 
     client_factory = _real_v2_client_factory(exchange)
 
-    from ln_church_agent.scheduled_http_get_batch import (
+    from mayim_agent.scheduled_http_get_batch import (
         ScheduledHTTPGetBatchExecutor as RealExecutor,
     )
-    from ln_church_agent.task_v2_models import ManifestFetchResult
+    from mayim_agent.task_v2_models import ManifestFetchResult
 
     class FakeExecutor:
         def execute(self, context, *, journal):
@@ -858,8 +1077,8 @@ def test_run_v2_cli_durably_binds_readiness_before_manifest_io(
                 [],
             )
 
-    from ln_church_agent import scheduled_http_get_batch
-    from ln_church_agent import task_v2_client
+    from mayim_agent import scheduled_http_get_batch
+    from mayim_agent import task_v2_client
 
     monkeypatch.setattr(
         task_v2_client, "AgentTaskV2Client", client_factory
@@ -873,7 +1092,7 @@ def test_run_v2_cli_durably_binds_readiness_before_manifest_io(
         cli._task_sys,
         "argv",
         [
-            "ln-church-agent",
+            "mayim-agent",
             "task",
             "run-scheduled-http-get-batch",
             "--credential-file",
@@ -959,7 +1178,7 @@ def test_official_paths_recover_manifest_fetch_started_without_rechecking_readin
     client_factory = _real_v2_client_factory(exchange)
 
     if official_path == "cli":
-        from ln_church_agent import task_v2_client
+        from mayim_agent import task_v2_client
 
         monkeypatch.setattr(
             task_v2_client, "AgentTaskV2Client", client_factory
@@ -968,7 +1187,7 @@ def test_official_paths_recover_manifest_fetch_started_without_rechecking_readin
             cli._task_sys,
             "argv",
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "run-scheduled-http-get-batch",
                 "--credential-file",
@@ -1041,7 +1260,7 @@ def test_official_manifest_fetch_started_recovery_rejects_invalid_binding_before
             ScheduledTaskClaimCredential._from_private_file_payload(payload)
         )
     else:
-        from ln_church_agent.task_journal import _checksum
+        from mayim_agent.task_journal import _checksum
 
         envelope = json.loads(journal_path.read_text(encoding="utf-8"))
         if invalid_binding == "execution_mismatch":
@@ -1093,7 +1312,7 @@ def test_official_manifest_fetch_started_recovery_rejects_invalid_binding_before
             return None
 
     if official_path == "cli":
-        from ln_church_agent import task_v2_client
+        from mayim_agent import task_v2_client
 
         monkeypatch.setattr(
             task_v2_client, "AgentTaskV2Client", FakeClient
@@ -1102,7 +1321,7 @@ def test_official_manifest_fetch_started_recovery_rejects_invalid_binding_before
             cli._task_sys,
             "argv",
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "run-scheduled-http-get-batch",
                 "--credential-file",
@@ -1120,7 +1339,7 @@ def test_official_manifest_fetch_started_recovery_rejects_invalid_binding_before
         assert captured.err == "Task error: JOURNAL_INVALID\n"
     else:
         from examples import scheduled_http_get_batch as example
-        from ln_church_agent.task_journal import JournalError
+        from mayim_agent.task_journal import JournalError
 
         monkeypatch.setattr(example, "AgentTaskV2Client", FakeClient)
         with pytest.raises(JournalError) as caught:
@@ -1159,7 +1378,7 @@ def test_client_interrupted_manifest_recovery_failures_are_zero_network(
     if failure_mode == "freeze_ambiguity":
         fail_writes["enabled"] = True
     else:
-        from ln_church_agent.task_journal import _checksum
+        from mayim_agent.task_journal import _checksum
 
         envelope = json.loads(journal_path.read_text(encoding="utf-8"))
         if failure_mode == "missing_digest":
@@ -1185,7 +1404,7 @@ def test_client_interrupted_manifest_recovery_failures_are_zero_network(
     }
     _forbid_scheduled_connector_io(monkeypatch, calls)
 
-    from ln_church_agent.task_v2_client import AgentTaskV2Client as RealClient
+    from mayim_agent.task_v2_client import AgentTaskV2Client as RealClient
 
     class DirectClient(RealClient):
         def __init__(self):
@@ -1204,7 +1423,7 @@ def test_client_interrupted_manifest_recovery_failures_are_zero_network(
 
     client = DirectClient()
     if failure_mode == "freeze_ambiguity":
-        from ln_church_agent.scheduled_http_get_batch import (
+        from mayim_agent.scheduled_http_get_batch import (
             ScheduledExecutionError,
         )
 
@@ -1218,7 +1437,7 @@ def test_client_interrupted_manifest_recovery_failures_are_zero_network(
         fail_writes["enabled"] = False
         assert journal.load().state == "MANIFEST_FETCH_STARTED"
     else:
-        from ln_church_agent.task_journal import JournalError
+        from mayim_agent.task_journal import JournalError
 
         with pytest.raises(JournalError) as caught:
             client.recover_interrupted_manifest_fetch(
@@ -1275,7 +1494,7 @@ def test_official_manifest_fetch_started_freeze_ambiguity_is_zero_network(
     client_type = _real_v2_client_factory(exchange)
 
     if official_path == "cli":
-        from ln_church_agent import task_journal, task_v2_client
+        from mayim_agent import task_journal, task_v2_client
 
         def journal_factory(path, **binding):
             assert Path(path) == journal_path
@@ -1300,7 +1519,7 @@ def test_official_manifest_fetch_started_freeze_ambiguity_is_zero_network(
             cli._task_sys,
             "argv",
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "run-scheduled-http-get-batch",
                 "--credential-file",
@@ -1320,7 +1539,7 @@ def test_official_manifest_fetch_started_freeze_ambiguity_is_zero_network(
         )
     else:
         from examples import scheduled_http_get_batch as example
-        from ln_church_agent.scheduled_http_get_batch import (
+        from mayim_agent.scheduled_http_get_batch import (
             ScheduledExecutionError,
         )
 
@@ -1352,8 +1571,8 @@ def test_run_v2_cli_frozen_without_dispatch_fact_posts_once_and_acks(
     journal_path = tmp_path / "journal.json"
     journal = _manifest_fetch_started_journal(journal_path, credential)
 
-    from ln_church_agent.task_v2_client import AgentTaskV2Client
-    from ln_church_agent.task_v2_transport import TaskV2Transport
+    from mayim_agent.task_v2_client import AgentTaskV2Client
+    from mayim_agent.task_v2_transport import TaskV2Transport
 
     pre_client = AgentTaskV2Client(
         transport=TaskV2Transport(
@@ -1378,7 +1597,7 @@ def test_run_v2_cli_frozen_without_dispatch_fact_posts_once_and_acks(
         assert journal.load().payload["completion_dispatch_attempts"] == 1
         return _v2_raw_response(202, _v2_receipt(credential, bytes(body)))
 
-    from ln_church_agent import task_v2_client
+    from mayim_agent import task_v2_client
 
     monkeypatch.setattr(
         task_v2_client,
@@ -1389,7 +1608,7 @@ def test_run_v2_cli_frozen_without_dispatch_fact_posts_once_and_acks(
         cli._task_sys,
         "argv",
         [
-            "ln-church-agent",
+            "mayim-agent",
             "task",
             "run-scheduled-http-get-batch",
             "--credential-file",
@@ -1427,7 +1646,7 @@ def test_official_post_ack_paths_require_recover_completion(
     )
     calls = []
 
-    from ln_church_agent.task_v2_models import (
+    from mayim_agent.task_v2_models import (
         ScheduledCompletionAcknowledgement,
         ScheduledRewardStatus,
     )
@@ -1498,7 +1717,7 @@ def test_official_post_ack_paths_reject_non_status_acknowledgement(
         journal_path, credential
     )
 
-    from ln_church_agent.task_v2_models import (
+    from mayim_agent.task_v2_models import (
         ScheduledCompletionAcknowledgement,
         ScheduledCompletionReceipt,
     )
@@ -1556,7 +1775,7 @@ def test_fixture_forbids_a_separate_top_level_completion_dispatch_state():
     fixture = json.loads(
         (
             ROOT
-            / "ln_church_agent/contracts/"
+            / "mayim_agent/contracts/"
             "v18-scheduled-http-get-batch-contract-v1.json"
         ).read_text(encoding="utf-8")
     )
@@ -1573,11 +1792,11 @@ def test_official_real_client_fresh_execution_freezes_then_posts_once(
     journal_path = tmp_path / "journal.json"
     _write_private_credential(credential_path, credential)
 
-    from ln_church_agent.task_journal import TaskJournal
-    from ln_church_agent.scheduled_http_get_batch import (
+    from mayim_agent.task_journal import TaskJournal
+    from mayim_agent.scheduled_http_get_batch import (
         ScheduledHTTPGetBatchExecutor as RealExecutor,
     )
-    from ln_church_agent.task_v2_models import ManifestFetchResult
+    from mayim_agent.task_v2_models import ManifestFetchResult
 
     journal = TaskJournal(
         journal_path,
@@ -1623,7 +1842,7 @@ def test_official_real_client_fresh_execution_freezes_then_posts_once(
             )
 
     from examples import scheduled_http_get_batch as example
-    from ln_church_agent import scheduled_http_get_batch
+    from mayim_agent import scheduled_http_get_batch
 
     monkeypatch.setattr(
         scheduled_http_get_batch,
@@ -1715,7 +1934,7 @@ def test_official_real_client_routes_frozen_dispatch_attempts(
             assert caught.value.code == 2
             assert "COMPLETION_OUTCOME_UNKNOWN" in capsys.readouterr().err
         else:
-            from ln_church_agent.task_v2_transport import (
+            from mayim_agent.task_v2_transport import (
                 CompletionOutcomeUnknownError,
             )
 
@@ -1825,7 +2044,7 @@ def test_official_post_ack_states_are_real_client_status_only(
                 "Task error: TASK_V2_RESPONSE_INVALID\n"
             )
         else:
-            from ln_church_agent.task_v2_transport import (
+            from mayim_agent.task_v2_transport import (
                 TaskV2TransportError,
             )
 
@@ -1845,7 +2064,7 @@ def test_official_post_ack_states_are_real_client_status_only(
             assert rendered["terminal"] is response_terminal
             assert "source" not in rendered
         else:
-            from ln_church_agent.task_v2_models import ScheduledRewardStatus
+            from mayim_agent.task_v2_models import ScheduledRewardStatus
 
             assert isinstance(result, ScheduledRewardStatus)
             assert result.terminal is response_terminal
@@ -1904,11 +2123,11 @@ def test_direct_client_post_ack_terminal_regression_matrix(
         assert "X-LN-Task-Claim-Token" not in headers
         return _v2_raw_response(200, status_payload)
 
-    from ln_church_agent.task_v2_models import (
+    from mayim_agent.task_v2_models import (
         ScheduledCompletionAcknowledgement,
         ScheduledCompletionReport,
     )
-    from ln_church_agent.task_v2_transport import TaskV2TransportError
+    from mayim_agent.task_v2_transport import TaskV2TransportError
 
     client_type = _real_v2_client_factory(exchange)
     report = ScheduledCompletionReport.model_validate_json(
@@ -1995,7 +2214,7 @@ def test_official_post_ack_thread_loser_has_zero_network_io(
                 invoke()
             assert caught.value.code == 2
         else:
-            from ln_church_agent.task_journal import JournalError
+            from mayim_agent.task_journal import JournalError
 
             with pytest.raises(JournalError, match="^JOURNAL_LOCKED$"):
                 invoke()
@@ -2071,7 +2290,7 @@ def test_official_post_ack_native_linux_process_loser_has_zero_network_io(
                 invoke()
             assert caught.value.code == 2
         else:
-            from ln_church_agent.task_journal import JournalError
+            from mayim_agent.task_journal import JournalError
 
             with pytest.raises(JournalError, match="^JOURNAL_LOCKED$"):
                 invoke()
@@ -2132,7 +2351,7 @@ def test_official_post_ack_hard_exit_releases_guard_for_status_restart(
         _real_v2_client_factory(exchange), monkeypatch,
     )
 
-    from ln_church_agent.task_journal import TaskJournal
+    from mayim_agent.task_journal import TaskJournal
 
     original_mark_terminal = TaskJournal.mark_terminal_status
 
@@ -2183,7 +2402,7 @@ def test_official_initial_ambiguity_is_status_first_and_never_third_post(
     journal, frozen = _freeze_interrupted_report(journal_path, credential)
     calls = []
 
-    from ln_church_agent.task_v2_transport import (
+    from mayim_agent.task_v2_transport import (
         CompletionOutcomeUnknownError,
     )
 
@@ -2282,7 +2501,7 @@ def test_official_thread_contention_has_no_late_post_after_ack(
                 invoke()
             assert caught.value.code == 2
         else:
-            from ln_church_agent.task_journal import JournalError
+            from mayim_agent.task_journal import JournalError
 
             with pytest.raises(JournalError, match="^JOURNAL_LOCKED$"):
                 invoke()
@@ -2361,7 +2580,7 @@ def test_official_native_linux_process_contention_has_one_post(
                 invoke()
             assert caught.value.code == 2
         else:
-            from ln_church_agent.task_journal import JournalError
+            from mayim_agent.task_journal import JournalError
 
             with pytest.raises(JournalError, match="^JOURNAL_LOCKED$"):
                 invoke()

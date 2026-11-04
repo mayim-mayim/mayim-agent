@@ -1,0 +1,132 @@
+{
+  "schema_version": "ln_church.agent_task_source_bundle_manifest.v1",
+  "task_type": "scheduled_http_get_batch.v1",
+  "task_definition_version": "1.2.0",
+  "task_definition_digest": "2ebfcca188270ef17660944150c3673b5b157e199cedc02e1abcacc300a0cb11",
+  "descriptor": {
+    "schema_version": "ln_church.task_definition_source_bundle.v1",
+    "source_repository": "mayim-mayim/LN_Church",
+    "specification_repository": "mayim-mayim/LN_Church_Development-Charter",
+    "specification_commit": "e5b57eae2b096cef9f67b11efaac8c22aff1e935",
+    "architecture_commit": "655a817972ef5c9cdb6c1e4f0a50e6ecbd4a5ee8",
+    "task_type": "scheduled_http_get_batch.v1",
+    "task_definition_version": "1.2.0",
+    "source_bundle_entries": [
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/claim-request.schema.json",
+        "mode": "100644",
+        "blob": "4a57360766fa6e438dbe488b174272e04bf10086",
+        "sha256": "ec6043d77e6092f2df389cdc11b0f0391319daa590171cfd16e6ef1179ae6355"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/claim.schema.json",
+        "mode": "100644",
+        "blob": "40894224a628ce7396e6f653db12df5a3949c19d",
+        "sha256": "2c09c9496db63239b9a3938dea8763b8b0a814341284a9d4fdf68e09d31742fa"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/economic-terms.schema.json",
+        "mode": "100644",
+        "blob": "061660d445adb87cbfaa0df63797f391eff1c935",
+        "sha256": "211231894cd679218b9737edfd4751cd7f3a92d3ad2e0c8aac97f6a28c2192e7"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/error.schema.json",
+        "mode": "100644",
+        "blob": "b604775e60798e2d59d91bee215cf8424e6dd3e1",
+        "sha256": "ad0c274808a3e49f3a1237d9364a851bcaf7b51b6509f9420251a47f3a3acdf0"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/manifest.schema.json",
+        "mode": "100644",
+        "blob": "022c74a492013701b0129852fe86aa563c169500",
+        "sha256": "d4b38242647611e6453e1b07b29da8e428b52cb211359f963cb84a0ca4c6a989"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/page.schema.json",
+        "mode": "100644",
+        "blob": "12239c457cfd747bbb2fef00a31b86c28b3bb583",
+        "sha256": "166617d385f7294275b4d5d8602481629a7b798671cb5650ad61bcc1b2a34263"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/public-summary.json",
+        "mode": "100644",
+        "blob": "3c18f0d92de656e3cd690ad0ce87a30fa3830fd4",
+        "sha256": "07b4eee2a4d9d259290fb18ff7767647fab78381f9d2fb263990b9baf43fdfde"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/receipt.schema.json",
+        "mode": "100644",
+        "blob": "2ca06c2eb27776adbcfa2a3fec2f3fe724091443",
+        "sha256": "5c5a75c78a63053521a497462f4c42af41b62e3b73ca45278d6deec6e6d73a53"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/registration-authorization-attempt.schema.json",
+        "mode": "100644",
+        "blob": "55d2cb2cc17c353c8c2255c51b7fd1cec86a3867",
+        "sha256": "4b41036fc42f746beff24e951032ebe5b8ce16f80435fce007eccdc54ebdec59"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/registration-preview.schema.json",
+        "mode": "100644",
+        "blob": "633b4e16de076c75b2b09ed80de30cc34891dcb9",
+        "sha256": "0d422a4d2df5f8dbea5bf0013f81f480386a7d081b71cbdf066c082427db7dd1"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/registration-recovery-status.schema.json",
+        "mode": "100644",
+        "blob": "ea0a44c15137c676d358e6ae8329826e80a8aed0",
+        "sha256": "6ede8c40eae29230b85ccbf1651d36c6355d5aba46d571fb6e9cd1674973380f"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/registration-result.schema.json",
+        "mode": "100644",
+        "blob": "e5478a60957c00720f763f19064baf7b1fe2c3f4",
+        "sha256": "512eaec2e515dc226aaf471a14f00c8015b37419d517c8c911b634a412622b3f"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/registration.schema.json",
+        "mode": "100644",
+        "blob": "3c8777eb3473b805dffab744dda8604f13457f5a",
+        "sha256": "ee362f08fd6cc04708ec104d0978a7461775f43c5b07a8ab6eb54d4325e0cbb6"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/requester-registration/SKILL.md",
+        "mode": "100644",
+        "blob": "31cfa6f5db171bd990e1117f78b304d8fae87598",
+        "sha256": "cc463c176f34949543e6a8c86d5e617683f8019f266d5fc3312a8b4a95151c76"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/result.schema.json",
+        "mode": "100644",
+        "blob": "cf9ec33e3a1889c85afc88c402b8640f2d8b9bc1",
+        "sha256": "6fbd54f2f16dc9a7af5f2ba0653f612e65678c2e50ce59c0b4464e112728cbcc"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/SKILL.md",
+        "mode": "100644",
+        "blob": "1670fd815eccb1f4ad648724b1817f1b7a8a5f4b",
+        "sha256": "7bac73dcf3b1ca45fed83c2a5d00c702b9ab30167a5bb4dca527916db23befec"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/submission.schema.json",
+        "mode": "100644",
+        "blob": "440a2ad9c81ab2d026ae74407eb4cb0bad0cfe61",
+        "sha256": "81ee0f83a67ec95d45e81d1a307fa9f0305faa2eb0b0a70fb5a65f554ff58f45"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/task.schema.json",
+        "mode": "100644",
+        "blob": "eecfd9b6d2240f5285b4b0fd7f8f0ae71c556bd2",
+        "sha256": "5b53db073e743e678afdb49f14d02b787b92c02933440f9ce94b02fa82f4ce83"
+      },
+      {
+        "path": "frontend/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/terms.schema.json",
+        "mode": "100644",
+        "blob": "14c424e595093d1cef2f824d3bc0ced70c3e10ec",
+        "sha256": "190feb1b2ba4270a176ed67b18a2e05fc9d3efb3ac2272fd2b22e0aa4972a449"
+      }
+    ],
+    "activity_map_policy_id": "mag.activity-map.public.v1"
+  }
+}

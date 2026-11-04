@@ -5,8 +5,8 @@ import base64
 import json
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.client import Payment402Client, LnChurchClient
-from ln_church_agent.challenges import SOLANA_USDC_MINT
+from mayim_agent.client import Payment402Client, MagClient
+from mayim_agent.challenges import SOLANA_USDC_MINT
 
 # ==========================================
 # 1. Challenge Parser Tests (Hybrid V1+V2 Shape)
@@ -97,33 +97,11 @@ def test_parse_svm_exact_hybrid_challenge():
     assert raw_accepted["amount"] == "10000"
     assert raw_accepted["extra"]["reference"] == "SolanaReferenceKey"
 
-@pytest.mark.parametrize('async_mode', [False, True])
-@pytest.mark.parametrize('rail', ['evm', 'svm'])
-@pytest.mark.parametrize('failure', ['invalid_proof', 'Transaction not found', 'API Error 500: Internal Server Error', None])
-def test_exact_diagnostic_result_classification(async_mode, rail, failure):
-    client = LnChurchClient(base_url='https://api.test')
-    client._last_parsed_challenge = MagicMock(network='test-network', asset='USDC',
-        draft_shape='x402-v2-exact', parameters={'token_address': 'test-token'})
-    if failure == 'invalid_proof':
-        failure = 'Invalid TxHash format' if rail == 'evm' else 'Invalid Solana signature format'
-    expected = failure is not None and 'Internal Server Error' not in failure
-    suffix = '_async' if async_mode else ''
-    with patch.object(client, 'execute_detailed' + suffix, side_effect=Exception(failure) if failure else None) as execute:
-        method = getattr(client, 'run_x402_' + rail + '_exact_sandbox_diagnostic' + suffix)
-        result = asyncio.run(method()) if async_mode else method()
-    assert result.ok == expected and result.expected_rejection == expected
-    assert result.rejection_reason == failure
-    assert result.diagnostic_class == ('post_settlement_proof_required' if expected else None)
-    assert result.failure_class == ('settlement_model_mismatch' if expected else None)
-    assert result.network == 'test-network' and result.token_address == 'test-token'
-    assert execute.call_count == 1
-    assert execute.call_args.args == ('GET', f'/api/agent/sandbox/x402/{rail}/exact/basic')
-    assert execute.call_args.kwargs == ({'payload': {'asset': 'USDC'}} if rail == 'evm' else {})
 
 
 @pytest.mark.parametrize('async_mode', [False, True])
 def test_external_observation_payload_preserves_metadata_without_secrets(async_mode):
-    client = LnChurchClient(base_url='https://api.test')
+    client = MagClient(base_url='https://api.test')
     protocol = {'rail': 'x402', 'draft_shape': 'x402-v2-exact-svm'}
     evidence = {'verification_status': 'self_reported', 'proof_reference': 'safe_hash_123',
                 'preimage': 'secret', 'macaroon': 'secret', 'PRIVATE_KEY': 'secret'}
@@ -142,7 +120,7 @@ def test_external_observation_payload_preserves_metadata_without_secrets(async_m
 
 @pytest.mark.parametrize('async_mode', [False, True])
 def test_external_observation_filters(async_mode):
-    client = LnChurchClient(base_url='https://api.test')
+    client = MagClient(base_url='https://api.test')
     suffix = '_async' if async_mode else ''
     with patch.object(client, 'execute_request' + suffix, return_value={}) as execute:
         method = getattr(client, 'get_external_observations' + suffix)
@@ -158,8 +136,8 @@ def test_external_observation_filters(async_mode):
     ('invalid 402 challenge', 'challenge_parse', 'target_endpoint'),
 ])
 def test_external_protocol_diagnostic_result_selection(async_mode, failure, stage, origin):
-    from ln_church_agent.models import ExecutionResult
-    client = LnChurchClient(base_url='https://api.test')
+    from mayim_agent.models import ExecutionResult
+    client = MagClient(base_url='https://api.test')
     fetched = ExecutionResult(response={'data': 'read'}, final_url='https://target.test')
     suffix = '_async' if async_mode else ''
     with patch.object(client, 'execute_detailed' + suffix, return_value=fetched,

@@ -8,10 +8,10 @@ import traceback
 import pytest
 from pydantic import ValidationError
 
-from ln_church_agent import AgentTaskClient, TaskDiscoveryCandidate, TaskDiscoveryPage
-from ln_church_agent.access_quota import AccessQuotaError, AccessQuotaPolicy
-from ln_church_agent.task_models import AgentTaskPage
-from ln_church_agent.task_transport import TaskTransport, TaskError, TaskTransportError
+from mayim_agent import AgentTaskClient, TaskDiscoveryCandidate, TaskDiscoveryPage
+from mayim_agent.access_quota import AccessQuotaError, AccessQuotaPolicy
+from mayim_agent.task_models import AgentTaskPage
+from mayim_agent.task_transport import TaskTransport, TaskError, TaskTransportError
 from discovery_fixtures import ORIGIN, ROWS, candidate, cursor, page
 
 

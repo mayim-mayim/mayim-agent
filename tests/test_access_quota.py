@@ -12,15 +12,15 @@ import threading
 import pytest
 import httpx
 
-from ln_church_agent.access_quota import (
+from mayim_agent.access_quota import (
     AccessQuotaPolicy, AccessQuotaError, ORIGIN, PURPOSE, SCHEMA, EXTENSION, ASSETS,
     request_digest,
 )
-from ln_church_agent.crypto.evm import LocalKeyAdapter
-from ln_church_agent.task_transport import TaskTransport, TaskTransportError
-from ln_church_agent.task_v2_transport import TaskV2Transport, TaskV2RawResponse, TaskV2Error
-from ln_church_agent.immediate_visit_transport import ImmediateVisitTransport, ImmediateVisitRawResponse, ImmediateVisitError
-from ln_church_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse, PaidServiceTrialError
+from mayim_agent.crypto.evm import LocalKeyAdapter
+from mayim_agent.task_transport import TaskTransport, TaskTransportError
+from mayim_agent.task_v2_transport import TaskV2Transport, TaskV2RawResponse, TaskV2Error
+from mayim_agent.immediate_visit_transport import ImmediateVisitTransport, ImmediateVisitRawResponse, ImmediateVisitError
+from mayim_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse, PaidServiceTrialError
 
 NOW = 1790400000
 PID = 'aq_'+'1'*32
@@ -311,10 +311,10 @@ from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2
 
 @pytest.mark.parametrize('family',FAMILIES)
 def test_public_clients_resume_same_operation_and_return_typed_claim(family,wire_v2,tmp_path):
-    from ln_church_agent.task_client import AgentTaskClient
-    from ln_church_agent.task_v2_client import AgentTaskV2Client
-    from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-    from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+    from mayim_agent.task_client import AgentTaskClient
+    from mayim_agent.task_v2_client import AgentTaskV2Client
+    from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+    from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
     from test_v1_17_0_task_venue_sdk import _claim_response
     from test_v1_18_0_task_v2_models import _claim_payload
     from test_v1_18_3_immediate_visit_contract import claim_wire
@@ -347,10 +347,10 @@ def test_public_clients_resume_same_operation_and_return_typed_claim(family,wire
 def test_real_httpx_pinning_and_same_bytes_through_access_continuation(family,monkeypatch):
     import httpcore
     import ssl
-    from ln_church_agent import task_transport as v17
-    from ln_church_agent import task_v2_transport as v2
-    from ln_church_agent import immediate_visit_transport as im
-    from ln_church_agent import paid_service_trial_transport as paid
+    from mayim_agent import task_transport as v17
+    from mayim_agent import task_v2_transport as v2
+    from mayim_agent import immediate_visit_transport as im
+    from mayim_agent import paid_service_trial_transport as paid
     p=approved();requests=[];pins=[];tls=[]
     class Stream:
         def __init__(self):self.sent=bytearray();self.response=None
@@ -438,7 +438,7 @@ def test_original_challenge_cannot_authorize_changed_request(mutated):
 def test_sepolia_signing_is_explicit_and_uses_separate_chain_and_asset():
     from eth_account import Account
     from eth_account.messages import encode_typed_data
-    from ln_church_agent.crypto.evm import EIP3009_TYPES, TRUSTED_EIP3009_TOKENS
+    from mayim_agent.crypto.evm import EIP3009_TYPES, TRUSTED_EIP3009_TOKENS
     signer=Signer().inner
     p=AccessQuotaPolicy(allow=True,budget_atomic=10000,signer=signer,network='eip155:84532',wall_time=lambda:NOW)
     url=ORIGIN+'/api/agent/tasks'

@@ -12,7 +12,7 @@ import traceback
 
 import pytest
 
-from ln_church_agent import immediate_visit_profile as profile
+from mayim_agent import immediate_visit_profile as profile
 
 
 _FIXTURE = Path(__file__).parent / "fixtures" / "v183-immediate-visit" / "profile-fixtures.json"

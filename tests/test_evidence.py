@@ -1,9 +1,9 @@
 import pytest
 import asyncio
 from unittest.mock import AsyncMock, patch, MagicMock
-from ln_church_agent.models import ExecutionContext, TrustDecision, PaymentEvidenceRecord, EvidenceRepository
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.exceptions import CounterpartyTrustError
+from mayim_agent.models import ExecutionContext, TrustDecision, PaymentEvidenceRecord, EvidenceRepository
+from mayim_agent.client import Payment402Client
+from mayim_agent.exceptions import CounterpartyTrustError
 from _p0_2_fixture import (
     configure_contract_clock,
     contract_response,

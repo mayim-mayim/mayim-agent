@@ -3,11 +3,11 @@ import json
 import base64
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.cli import inspect_url
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.models import ParsedChallenge, ChallengeSource, PaymentPolicy
-from ln_church_agent.exceptions import PaymentExecutionError
-from ln_church_agent.capabilities import get_capability_matrix
+from mayim_agent.cli import inspect_url
+from mayim_agent.client import Payment402Client
+from mayim_agent.models import ParsedChallenge, ChallengeSource, PaymentPolicy
+from mayim_agent.exceptions import PaymentExecutionError
+from mayim_agent.capabilities import get_capability_matrix
 
 def _mock_402_response(accepts_array: list) -> MagicMock:
     mock_res = MagicMock()
@@ -21,7 +21,7 @@ def _mock_402_response(accepts_array: list) -> MagicMock:
     
     return mock_res
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_auth_capture_inspect_classification(mock_req):
     """Ensure auth-capture is correctly classified as an x402 observe-only settlement option."""
     mock_req.return_value = _mock_402_response([{

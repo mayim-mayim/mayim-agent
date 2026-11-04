@@ -14,16 +14,16 @@ from test_v1_18_14_structured_response_prepack import (
     ADDRESS, ASSUMPTIONS, EXEC, TASK, TOKEN, Venue, answer, claim, error,
     fixture_pack, raw, status, task,
 )
-from ln_church_agent import structured_response_contract as c
-from ln_church_agent.structured_response_client import StructuredResponseClient
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent.structured_response_models import (
+from mayim_agent import structured_response_contract as c
+from mayim_agent.structured_response_client import StructuredResponseClient
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent.structured_response_models import (
     FrozenStructuredResponseReport, StructuredResponseTask,
 )
-from ln_church_agent.structured_response_transport import (
+from mayim_agent.structured_response_transport import (
     StructuredResponseAPIError, StructuredResponseError, StructuredResponseTransport,
 )
-from ln_church_agent.task_journal import JournalError
+from mayim_agent.task_journal import JournalError
 
 B_CONTEXT = 'ctx_' + 'b' * 32
 D_CONTEXT = 'ctx_' + 'd' * 32
@@ -239,7 +239,7 @@ def test_disclosed_source_representation_remains_supported(fixture_pack, mode):
 @pytest.mark.parametrize('mode', ['INCLUDE', 'EXCLUDE'])
 def test_mcp_responder_preserves_alias_across_unknown_restart_and_close(
         tmp_path, fixture_pack, monkeypatch, mode):
-    from ln_church_agent.integrations import mcp_structured_response as m
+    from mayim_agent.integrations import mcp_structured_response as m
     venue = BlindVenue(mode)
     transport = StructuredResponseTransport(exchange=venue)
     monkeypatch.setattr(m, 'StructuredResponseClient', lambda: StructuredResponseClient(transport=transport))

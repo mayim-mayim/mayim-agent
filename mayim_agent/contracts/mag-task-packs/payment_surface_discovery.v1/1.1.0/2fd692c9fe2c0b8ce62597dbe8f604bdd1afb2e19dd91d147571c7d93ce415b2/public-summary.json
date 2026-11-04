@@ -1,0 +1,51 @@
+{
+  "task_type": "payment_surface_discovery.v1",
+  "task_spec_version": "1.1.0",
+  "title_template": "Discover a public HTTP 402 payment surface",
+  "summary_template": "Independently discover and report one public-safe HTTP service surface that returned HTTP 402, without paying or mutating the target.",
+  "deadline_policy": "NONE",
+  "safety_profile": "public_safe_light",
+  "target_payment_allowed": false,
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "amount_atomic": "10000",
+    "capacity_total": 50,
+    "maximum_reward_principal_atomic": "500000"
+  },
+  "evaluator_id": "ln_church.payment_surface_discovery.read_only.v1",
+  "evaluator_version": "1.0.0",
+  "evaluation_boundary": {
+    "content_quality_or_usefulness_reevaluation_allowed": false,
+    "allowed_rejection_reasons": [
+      "observation_not_found",
+      "claim_task_or_observation_binding_mismatch",
+      "declared_agent_id_mismatch",
+      "proven_observation_reuse"
+    ],
+    "indeterminate_result": "remain_pending_with_finite_retry_and_safe_evidence"
+  },
+  "poc_terms": {
+    "completion_2xx_meaning": "durable_receipt_only",
+    "completion_2xx_implies_evaluation_approval": false,
+    "completion_2xx_implies_payment_completion": false,
+    "payout_mode": "automatic_best_effort_with_finite_retry_and_recorded_evidence",
+    "payment_completion_sla": false,
+    "individual_investigation": false,
+    "manual_resend": false,
+    "compensation": false,
+    "alternative_payment": false,
+    "arbitrary_non_payment_authorized": false,
+    "required_public_surfaces": [
+      "task_get",
+      "task_definition",
+      "openapi_and_agent_documentation",
+      "taskboard",
+      "sdk_documentation"
+    ]
+  },
+  "task_reward_requires_eth": false,
+  "not_a_trust_score": true,
+  "not_an_endorsement": true
+}

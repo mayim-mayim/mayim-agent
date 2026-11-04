@@ -1,8 +1,8 @@
 import pytest
 from unittest.mock import patch
-from ln_church_agent.models import SandboxEvidence
-from ln_church_agent.evidence import build_sandbox_corpus_candidate
-from ln_church_agent.client import LnChurchClient
+from mayim_agent.models import SandboxEvidence
+from mayim_agent.evidence import build_sandbox_corpus_candidate
+from mayim_agent.client import MagClient
 
 def test_corpus_candidate_l402_verified():
     ev = SandboxEvidence(
@@ -108,7 +108,7 @@ def test_raw_token_not_in_candidate_json():
     assert "RAW_SECRET" not in json_str
 
 def test_no_external_observe_call_for_corpus():
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
     client._last_sandbox_evidence = SandboxEvidence(
         evidence_scope="sandbox_internal",
         verification_status="verified",

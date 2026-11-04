@@ -7,11 +7,11 @@ import pytest
 from test_v1_18_5_paid_service_trial_contract import wire
 from test_v1_18_5_paid_service_trial_purchase import lane
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2, report_for_v2
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_models import PaidServiceTrialClaimV2, FrozenPaidServiceTrialReport
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.task_journal import JournalError
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_models import PaidServiceTrialClaimV2, FrozenPaidServiceTrialReport
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.task_journal import JournalError
 
 _FORMAL_LOADER = c.load_contract_bundle
 PACK = Path(c.__file__).parent/'contracts'
@@ -54,7 +54,7 @@ def test_v1_journal_paths_and_saved_recovery_with_v2_default_client(wire,lane,tm
 
 
 def test_v2_corrupt_saved_request_fails_before_recovery(wire_v2,tmp_path):
-    from ln_church_agent.immediate_visit_journal import _read,_write
+    from mayim_agent.immediate_visit_journal import _read,_write
     tmp_path.chmod(0o700)
     journal=PaidServiceTrialJournal(tmp_path,wire_v2.credential)
     data=_read(journal.path);data['claim']['request']['body']='{}';_write(journal.path,data)
@@ -117,8 +117,8 @@ def test_self_consistent_replacement_manifest_cannot_rebind_v2(tmp_path,monkeypa
 @pytest.mark.parametrize('method',['GET','POST'])
 def test_formal_pack_execution_and_saved_recovery(wire_v2,tmp_path,monkeypatch,method):
     from types import SimpleNamespace
-    from ln_church_agent.models import PaymentPolicy
-    from ln_church_agent.paid_service_trial import PaidServiceTrialExecutor
+    from mayim_agent.models import PaymentPolicy
+    from mayim_agent.paid_service_trial import PaidServiceTrialExecutor
     from test_v1_18_5_paid_service_trial_http_v2_contract import V2TaskTransport
     from test_v1_18_5_paid_service_trial_http_v2_purchase import V2HTTP
     # Undo only the test DTO's stand-in loader. This route must use real pack bytes.

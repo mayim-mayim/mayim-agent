@@ -3,11 +3,11 @@ import json
 import base64
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.cli import inspect_url
-from ln_church_agent.integrations.mcp_inspect import inspect_paid_surface, build_mcp_observation_payload
-from ln_church_agent.capabilities import get_capability_matrix
+from mayim_agent.cli import inspect_url
+from mayim_agent.integrations.mcp_inspect import inspect_paid_surface
+from mayim_agent.capabilities import get_capability_matrix
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_1_structured_grant_metadata_on_200_ok(mock_req):
     mock_res = MagicMock(status_code=200, url="http://public.example")
     payload = {
@@ -37,7 +37,7 @@ def test_1_structured_grant_metadata_on_200_ok(mock_req):
     assert "trial_credit" in res.grant_signals.signal_types
     assert res.will_execute_payment is False
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_2_x402_exact_and_grant_signal_coexist(mock_req):
     mock_res = MagicMock(status_code=402, url="http://public.example")
     payload = {
@@ -58,7 +58,7 @@ def test_2_x402_exact_and_grant_signal_coexist(mock_req):
     assert len(res.settlement_options) > 0
     assert res.will_execute_payment is False
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_3_l402_and_grant_signal_coexist(mock_req):
     mock_res = MagicMock(status_code=402, url="http://public.example")
     mock_res.headers = {"WWW-Authenticate": 'L402 macaroon="mac", invoice="inv"'}
@@ -74,7 +74,7 @@ def test_3_l402_and_grant_signal_coexist(mock_req):
     assert res.grant_signal_detected is True
     assert res.will_execute_payment is False
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_4_oauth_grant_type_false_positive_guard(mock_req):
     mock_res = MagicMock(status_code=200, url="http://public.example")
     payload = {
@@ -91,7 +91,7 @@ def test_4_oauth_grant_type_false_positive_guard(mock_req):
     assert res.grant_signal_detected is False
     assert "DO_NOT_LEAK" not in res.model_dump_json()
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_5_weak_text_no_false_positive(mock_req):
     mock_res = MagicMock(status_code=200, url="http://public.example")
     payload = {
@@ -105,7 +105,7 @@ def test_5_weak_text_no_false_positive(mock_req):
 
     assert res.grant_signal_detected is False
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_6_raw_grant_token_must_not_leak(mock_req):
     mock_res = MagicMock(status_code=200, url="http://public.example")
     payload = {
@@ -121,7 +121,7 @@ def test_6_raw_grant_token_must_not_leak(mock_req):
     assert res.grant_signal_detected is True
     assert "SECRET_GRANT_TOKEN_SHOULD_NOT_LEAK" not in res.model_dump_json()
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_7_mcp_inspect_includes_local_grant_sidecar(mock_req):
     mock_res = MagicMock(status_code=200, url="http://public.example")
     payload = {"faucet": "available"}
@@ -135,20 +135,6 @@ def test_7_mcp_inspect_includes_local_grant_sidecar(mock_req):
     assert res["grant_signals"] is not None
     assert res["grant_signals"]["detected"] is True
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
-def test_8_mcp_observation_payload_excludes_grant_signals(mock_req):
-    mock_res = MagicMock(status_code=200, url="http://public.example")
-    payload = {"faucet": "available"}
-    mock_res.json.return_value = payload
-    mock_res.content = json.dumps(payload).encode()
-    mock_req.return_value = mock_res
-
-    inspect_res = inspect_paid_surface("http://public.example")
-    obs_payload = build_mcp_observation_payload(inspect_res)
-
-    # observation payload には含まれていないことを確認
-    assert "grant_signals" not in obs_payload
-    assert "grant_signal_detected" not in obs_payload
 
 def test_9_capability_matrix_contains_grant_like_signal_detection():
     matrix = get_capability_matrix()

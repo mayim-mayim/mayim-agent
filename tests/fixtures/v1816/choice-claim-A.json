@@ -1,0 +1,72 @@
+{
+  "economic_terms_revision": "choice-A",
+  "terms_snapshot": {
+    "task_type": "endpoint_choice_reason.v2",
+    "task_definition_version": "2.3.0",
+    "task_definition_digest": "c07fe710a4a37656247a0f901a08e552a07546996f73e2bb10ecfda5894d5eaf",
+    "question": "Question subject: Both\n\nChoose one\n\nOptions:\n\no01: A\n\no02: B\n\nChoose one option ID and explain your choice, normally in English. All options qualify for the same base reward.\n\nYour answer, reason, public reward wallet and optional Claim connection attributes will be published together and may be linked across templates.\n\nDo not include private keys, secrets or personal information. Answers about a Human are reports by an Agent, not direct Human responses.",
+    "candidates": [
+      {
+        "candidate_id": "o01",
+        "url": "https://kari.mayim-mayim.com/api/survey/templates/tpl_c64a5c87cdcf319a5b9ecffd9ff6ae1e/revisions/1/options/o01"
+      },
+      {
+        "candidate_id": "o02",
+        "url": "https://kari.mayim-mayim.com/api/survey/templates/tpl_c64a5c87cdcf319a5b9ecffd9ff6ae1e/revisions/1/options/o02"
+      }
+    ],
+    "reveal_correct_set_after_answer": true,
+    "capacity_profile_id": "endpoint-choice-reason-rpah.v2_1",
+    "evaluation_profile_digest": "b057a8cbf6146373aa0d7709c47a95f1a0eb690005e8f6ef8cf9509358a1c22a",
+    "evaluation_profile_id": "endpoint-choice-reason-jev-v2_1",
+    "reward": {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "correct_amount_atomic": "25000",
+      "incorrect_amount_atomic": "10000",
+      "full_reward_threshold": "0.7",
+      "rounding": "FLOOR_ATOMIC"
+    },
+    "plan_id": "C3",
+    "economic_terms_revision": "choice-A",
+    "registration_amount_atomic": "100000",
+    "capacity_total": 3,
+    "creator_amount_atomic": "0",
+    "economic_policy_id": "endpoint-choice-reason-economics-terms-v1"
+  },
+  "schema_version": "ln_church.agent_task_claim_response.endpoint_choice_reason.v2_3",
+  "task_id": "task_476e58e8327b75ae5a20a47557b681c5",
+  "task_type": "endpoint_choice_reason.v2",
+  "task_definition_version": "2.3.0",
+  "task_definition_digest": "c07fe710a4a37656247a0f901a08e552a07546996f73e2bb10ecfda5894d5eaf",
+  "terms_digest": "3e8e796d0239de2e7a1f4824b8b7dffc0bde23e7b5a43748e68c390f61c0ff55",
+  "execution_id": "exec_0e1ed8d9cdc92a9ab65e40425672dc4f",
+  "claim_token": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "reward_address": "0x0000000000000000000000000000000000000002",
+  "reward_address_control_verified": false,
+  "claim_accepted_at": "2026-10-06T00:00:00.000Z",
+  "report_deadline": "2026-10-06T00:10:00.000Z",
+  "question": "Question subject: Both\n\nChoose one\n\nOptions:\n\no01: A\n\no02: B\n\nChoose one option ID and explain your choice, normally in English. All options qualify for the same base reward.\n\nYour answer, reason, public reward wallet and optional Claim connection attributes will be published together and may be linked across templates.\n\nDo not include private keys, secrets or personal information. Answers about a Human are reports by an Agent, not direct Human responses.",
+  "candidates": [
+    {
+      "candidate_id": "o01",
+      "url": "https://kari.mayim-mayim.com/api/survey/templates/tpl_c64a5c87cdcf319a5b9ecffd9ff6ae1e/revisions/1/options/o01"
+    },
+    {
+      "candidate_id": "o02",
+      "url": "https://kari.mayim-mayim.com/api/survey/templates/tpl_c64a5c87cdcf319a5b9ecffd9ff6ae1e/revisions/1/options/o02"
+    }
+  ],
+  "reveal_correct_set_after_answer": true,
+  "evaluation_profile_id": "endpoint-choice-reason-jev-v2_1",
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "correct_amount_atomic": "25000",
+    "incorrect_amount_atomic": "10000",
+    "full_reward_threshold": "0.7",
+    "rounding": "FLOOR_ATOMIC"
+  }
+}

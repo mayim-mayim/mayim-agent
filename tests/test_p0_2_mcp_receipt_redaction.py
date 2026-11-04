@@ -1,8 +1,8 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-from ln_church_agent.integrations import mcp as mcp_integration
-from ln_church_agent.payment_contract import sha256_prefixed
+from mayim_agent.integrations import mcp as mcp_integration
+from mayim_agent.payment_contract import sha256_prefixed
 
 
 def test_mcp_body_receipt_fallback_exposes_only_a_hash(monkeypatch):

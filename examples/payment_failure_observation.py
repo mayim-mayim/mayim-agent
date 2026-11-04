@@ -1,4 +1,4 @@
-from ln_church_agent.failures import build_payment_failure_record, build_payment_failure_observation_payload
+from mayim_agent.failures import build_payment_failure_record, build_payment_failure_observation_payload
 
 # シミュレーション: feePayerがリトライごとに変わるケース
 record = build_payment_failure_record(

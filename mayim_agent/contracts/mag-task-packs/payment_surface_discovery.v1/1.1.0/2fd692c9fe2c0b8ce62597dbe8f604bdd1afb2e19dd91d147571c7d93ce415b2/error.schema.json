@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.agent_task_error.v1"
+    },
+    "error_code": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]+$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "error_code"
+  ]
+}

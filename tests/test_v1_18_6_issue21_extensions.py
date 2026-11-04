@@ -4,7 +4,7 @@ import copy
 import json
 import pytest
 from test_v1_18_5_paid_service_trial_accepted_address import address_lane, run_and_check, wire, wire_v2
-from ln_church_agent.paid_service_trial_network import PaidTrialHTTPResponse
+from mayim_agent.paid_service_trial_network import PaidTrialHTTPResponse
 
 
 def add_extensions(lane, extension, location='envelope'):
