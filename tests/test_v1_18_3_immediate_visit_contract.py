@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from ln_church_agent.immediate_visit_contract import STATUS_REASONS, validate_endpoint_url
-from ln_church_agent.immediate_visit_models import (
+from mayim_agent.immediate_visit_contract import STATUS_REASONS, validate_endpoint_url
+from mayim_agent.immediate_visit_models import (
     FrozenImmediateVisitReport, ImmediateVisitClaimCredential, ImmediateVisitTask,
     ImmediateVisitTaskPage, ImmediateVisitSubmissionStatus,
 )
@@ -179,7 +179,7 @@ def test_approval_survives_every_payment_state(payment):
 
 
 def test_status_reason_enum_matches_accepted_contract_and_retains_repeat_drop():
-    resource = Path(__file__).parents[1] / "ln_church_agent/contracts/v183-immediate-visit/result.schema.json"
+    resource = Path(__file__).parents[1] / "mayim_agent/contracts/v183-immediate-visit/result.schema.json"
     accepted = json.loads(resource.read_bytes())["properties"]["reason"]["enum"]
     assert STATUS_REASONS == frozenset(value for value in accepted if value is not None)
     wire = dict(status_wire("repeat_drop"), reason="repeat_drop")
@@ -192,7 +192,7 @@ def test_status_reason_enum_matches_accepted_contract_and_retains_repeat_drop():
 
 
 def test_accepted_wire_decision_fixtures_preserve_all_fields():
-    resource = Path(__file__).parents[1] / "ln_church_agent/contracts/v183-immediate-visit/wire-fixtures.json"
+    resource = Path(__file__).parents[1] / "mayim_agent/contracts/v183-immediate-visit/wire-fixtures.json"
     fixtures = json.loads(resource.read_bytes())["fixtures"]
     decisions = [item for item in fixtures if item.get("schema") == "result.schema.json"]
     assert len(decisions) == 9

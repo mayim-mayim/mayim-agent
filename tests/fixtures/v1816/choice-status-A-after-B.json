@@ -1,0 +1,34 @@
+{
+  "schema_version": "ln_church.task_submission_status.endpoint_choice_reason.v2_3",
+  "task_id": "task_476e58e8327b75ae5a20a47557b681c5",
+  "execution_id": "exec_0e1ed8d9cdc92a9ab65e40425672dc4f",
+  "submission_id": "sub_00000000000000000000000000000002",
+  "terms_digest": "3e8e796d0239de2e7a1f4824b8b7dffc0bde23e7b5a43748e68c390f61c0ff55",
+  "report_sha256": "8200156394d98d9850785677c76e40dae006d93f499dbdd7ace9c1bb087d2640",
+  "received_at": "2026-10-06T00:00:00.000Z",
+  "evaluation_deadline": "2026-10-06T00:30:00.000Z",
+  "selected_candidate_id": "o01",
+  "answer_reason": "This option fits the question.",
+  "evaluation": {
+    "state": "GRADED",
+    "is_correct": true,
+    "q": "1",
+    "applied_coefficient": "1",
+    "reward_basis": "FULL_REWARD_LINE",
+    "base_amount_atomic": "25000",
+    "approved_amount_atomic": "25000",
+    "evaluated_at": "2026-10-06T00:00:00.000Z"
+  },
+  "payout": {
+    "state": "pending",
+    "transaction_hash": null,
+    "transaction_url": null,
+    "confirmed_paid_amount_atomic": null,
+    "paid_confirmed_at": null
+  },
+  "correct_candidate_ids": [
+    "o01",
+    "o02"
+  ],
+  "updated_at": "2026-10-06T00:00:00.000Z"
+}

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "registration_intent_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "payment_state": {
+      "type": "string"
+    },
+    "transaction_attempt_state": {
+      "type": "string"
+    },
+    "authorization_effect_state": {
+      "type": "string"
+    },
+    "business_commit_state": {
+      "type": "string"
+    },
+    "settlement_resolution": {
+      "type": "string"
+    },
+    "admission_reservation_state": {
+      "type": "string"
+    },
+    "authorization_attempt_state": {
+      "type": "string"
+    },
+    "authorization_attempt_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "recovery_mode": {
+      "enum": [
+        "COMMITTED",
+        "READBACK_ONLY",
+        "TERMINAL_NEW_ATTEMPT_AVAILABLE"
+      ]
+    }
+  },
+  "required": [
+    "registration_intent_id",
+    "payment_state",
+    "transaction_attempt_state",
+    "business_commit_state",
+    "settlement_resolution",
+    "recovery_mode"
+  ]
+}

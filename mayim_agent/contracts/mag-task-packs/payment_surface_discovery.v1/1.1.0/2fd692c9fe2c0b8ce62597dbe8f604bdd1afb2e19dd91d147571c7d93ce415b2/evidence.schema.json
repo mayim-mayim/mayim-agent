@@ -1,0 +1,404 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ln-church:agent-task-spec:payment_surface_discovery.v1:1.1.0:evidence",
+  "title": "Durable Payment Surface Discovery Task Evidence",
+  "description": "Exact public-safe DomainObservation stored before Completion. It is bound to one private Execution and contains at least one actually observed HTTP 402 surface.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "PK",
+    "SK",
+    "recordType",
+    "schema_version",
+    "observation_id",
+    "task_id",
+    "execution_id",
+    "task_type",
+    "task_definition_version",
+    "task_definition_digest",
+    "evaluator_id",
+    "evaluator_version",
+    "agent_principal_id",
+    "submission_id",
+    "submission_content_hash",
+    "target_id",
+    "request_id",
+    "domain",
+    "observer",
+    "declared_observer",
+    "reporter_verification",
+    "observed_urls",
+    "discovered_surfaces",
+    "errors",
+    "verification_cost_vector",
+    "safety_profile",
+    "no_payment_to_target",
+    "not_a_security_scan",
+    "rail",
+    "public_safe",
+    "created_at",
+    "observation_provenance",
+    "GSI2PK",
+    "GSI2SK"
+  ],
+  "properties": {
+    "PK": {
+      "type": "string",
+      "pattern": "^DOMAIN_OBSERVATION_RESULT#obs_task_[a-f0-9]{32}$"
+    },
+    "SK": {
+      "const": "META"
+    },
+    "recordType": {
+      "const": "DOMAIN_OBSERVATION_RESULT"
+    },
+    "schema_version": {
+      "const": "domain_observation.v1"
+    },
+    "observation_id": {
+      "type": "string",
+      "pattern": "^obs_task_[a-f0-9]{32}$"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^task_[a-f0-9]{32}$"
+    },
+    "execution_id": {
+      "type": "string",
+      "pattern": "^exec_[a-f0-9]{32}$"
+    },
+    "task_type": {
+      "const": "payment_surface_discovery.v1"
+    },
+    "task_definition_version": {
+      "const": "1.1.0"
+    },
+    "task_definition_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "evaluator_id": {
+      "const": "ln_church.payment_surface_discovery.read_only.v1"
+    },
+    "evaluator_version": {
+      "const": "1.0.0"
+    },
+    "agent_principal_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^sub_[a-f0-9]{32}$"
+    },
+    "submission_content_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "target_id": {
+      "type": "string",
+      "pattern": "^task_observation:obs_task_[a-f0-9]{32}$"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^task:task_[a-f0-9]{32}$"
+    },
+    "domain": {
+      "description": "Canonical domain independently discovered by the Executor Agent.",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 253,
+      "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$"
+    },
+    "observer": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+    },
+    "declared_observer": {
+      "description": "Optional self-description. It is not identity authority.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 200
+    },
+    "reporter_verification": {
+      "const": "task_claim_token_bound"
+    },
+    "observed_urls": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "method",
+          "status_code",
+          "media_family",
+          "observed_at"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "maxLength": 2048
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "HEAD"
+            ]
+          },
+          "status_code": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599
+          },
+          "media_family": {
+            "type": "string",
+            "enum": [
+              "html",
+              "json",
+              "text",
+              "image",
+              "other",
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "discovered_surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "contains": {
+        "required": [
+          "status_code"
+        ],
+        "properties": {
+          "status_code": {
+            "const": 402
+          }
+        }
+      },
+      "minContains": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "method",
+          "status_code",
+          "surface_type",
+          "observed_at"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "maxLength": 2048
+          },
+          "method": {
+            "type": "string",
+            "enum": [
+              "GET",
+              "HEAD"
+            ]
+          },
+          "status_code": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599
+          },
+          "surface_type": {
+            "type": "string",
+            "enum": [
+              "http_402",
+              "x402",
+              "l402",
+              "mpp",
+              "agent_commerce",
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url",
+          "stage",
+          "error_code",
+          "observed_at"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https?://",
+            "maxLength": 2048
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "dns",
+              "connect",
+              "tls",
+              "request",
+              "response",
+              "validation"
+            ]
+          },
+          "error_code": {
+            "type": "string",
+            "enum": [
+              "timeout",
+              "dns_failure",
+              "connection_failure",
+              "tls_failure",
+              "http_error",
+              "response_too_large",
+              "unsupported_content",
+              "invalid_public_target",
+              "unknown"
+            ]
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "verification_cost_vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "http_requests",
+        "tool_calls",
+        "payment_attempts",
+        "personal_data_required",
+        "human_confirmation_required",
+        "irreversible_action_attempted",
+        "login_attempted",
+        "form_submission_attempted",
+        "vulnerability_scan_attempted"
+      ],
+      "properties": {
+        "http_requests": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "tool_calls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "payment_attempts": {
+          "const": 0
+        },
+        "personal_data_required": {
+          "const": false
+        },
+        "human_confirmation_required": {
+          "type": "boolean"
+        },
+        "irreversible_action_attempted": {
+          "const": false
+        },
+        "login_attempted": {
+          "const": false
+        },
+        "form_submission_attempted": {
+          "const": false
+        },
+        "vulnerability_scan_attempted": {
+          "const": false
+        }
+      }
+    },
+    "safety_profile": {
+      "const": "public_safe_light"
+    },
+    "no_payment_to_target": {
+      "const": true
+    },
+    "not_a_security_scan": {
+      "const": true
+    },
+    "rail": {
+      "const": "Payment"
+    },
+    "public_safe": {
+      "const": true
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "observation_provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "reporter_verification_mix",
+        "task_claim_bound",
+        "not_a_trust_score"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "ln_church.observation_provenance.v1"
+        },
+        "reporter_verification_mix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "task_claim_token_bound"
+          ],
+          "properties": {
+            "task_claim_token_bound": {
+              "const": 1
+            }
+          }
+        },
+        "task_claim_bound": {
+          "const": true
+        },
+        "not_a_trust_score": {
+          "const": true
+        }
+      }
+    },
+    "GSI2PK": {
+      "type": "string",
+      "pattern": "^DOMAIN#"
+    },
+    "GSI2SK": {
+      "type": "string",
+      "pattern": "^RESULT#"
+    },
+    "_mag_revision": {
+      "type": "integer",
+      "minimum": 1
+    }
+  }
+}

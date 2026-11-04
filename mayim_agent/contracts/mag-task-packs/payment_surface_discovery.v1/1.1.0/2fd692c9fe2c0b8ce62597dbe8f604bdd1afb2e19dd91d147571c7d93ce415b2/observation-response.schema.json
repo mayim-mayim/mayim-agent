@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.task_domain_observation_response.v1"
+    },
+    "accepted": {
+      "const": true
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "observation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "status": {
+      "const": "recorded"
+    }
+  },
+  "required": [
+    "schema_version",
+    "accepted",
+    "task_id",
+    "submission_id",
+    "observation_id",
+    "status"
+  ]
+}

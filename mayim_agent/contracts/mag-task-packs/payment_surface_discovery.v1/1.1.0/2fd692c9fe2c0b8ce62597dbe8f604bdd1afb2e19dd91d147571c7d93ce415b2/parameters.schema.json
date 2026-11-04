@@ -1,0 +1,9 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ln-church:agent-task-spec:payment_surface_discovery.v1:1.1.0:parameters",
+  "title": "Payment Surface Discovery Task Parameters",
+  "description": "The Sponsor selects only the fixed Task type. Discovery targets are chosen independently by the Executor Agent.",
+  "type": "object",
+  "additionalProperties": false,
+  "maxProperties": 0
+}

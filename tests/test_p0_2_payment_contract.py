@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from ln_church_agent.payment_contract import (
+from mayim_agent.payment_contract import (
     CANONICAL_REQUIREMENT_FIELDS,
     PaymentContractError,
     canonical_json,

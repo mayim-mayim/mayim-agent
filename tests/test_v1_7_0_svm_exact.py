@@ -4,11 +4,11 @@ import base64
 import json
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.client import Payment402Client, _b64url_decode
-from ln_church_agent.models import PaymentPolicy
-from ln_church_agent.exceptions import PaymentExecutionError
-from ln_church_agent.challenges import SOLANA_USDC_MINT
-from ln_church_agent.crypto.solana_svm import (
+from mayim_agent.client import Payment402Client, _b64url_decode
+from mayim_agent.models import PaymentPolicy
+from mayim_agent.exceptions import PaymentExecutionError
+from mayim_agent.challenges import SOLANA_USDC_MINT
+from mayim_agent.crypto.solana_svm import (
     COMPUTE_BUDGET_PROGRAM_ID_STR,
     MEMO_PROGRAM_ID_STR,
     TOKEN_PROGRAM_ID_STR,
@@ -112,10 +112,10 @@ def test_missing_svm_dependency_fails_loudly():
     """x402[svm] (solders) 未導入時に明確なエラーになること"""
     with patch.dict('sys.modules', {'solders.keypair': None}):
         with pytest.raises(ImportError, match="SVM support dependencies are missing"):
-            from ln_church_agent.crypto.solana_svm import LocalSvmAdapter
+            from mayim_agent.crypto.solana_svm import LocalSvmAdapter
             LocalSvmAdapter("dummy_base58_key")
 
-@patch("ln_church_agent.crypto.solana_svm.LocalSvmAdapter")
+@patch("mayim_agent.crypto.solana_svm.LocalSvmAdapter")
 def test_classification_svm_exact_raw_payloads(MockSvmAdapter):
     mock_signer = MockSvmAdapter.return_value
     mock_signer.generate_svm_exact_payload.return_value = {"transaction": "base64_tx"}
@@ -186,7 +186,7 @@ def test_svm_dependency_error():
     """x402[svm] 未導入時に明確なMissingDependency系エラーになる"""
     with patch.dict('sys.modules', {'solders.keypair': None}):
         with pytest.raises(ImportError, match="SVM support dependencies are missing"):
-            from ln_church_agent.crypto.solana_svm import LocalSvmAdapter
+            from mayim_agent.crypto.solana_svm import LocalSvmAdapter
             LocalSvmAdapter("dummy_base58_key")
 
 def test_evm_private_key_does_not_break_init():
@@ -196,7 +196,7 @@ def test_evm_private_key_does_not_break_init():
     assert client.evm_signer is not None
     assert client.svm_signer is None  # svm_private_key を明示していないので None になる
 
-@patch("ln_church_agent.crypto.solana_svm.LocalSvmAdapter")
+@patch("mayim_agent.crypto.solana_svm.LocalSvmAdapter")
 def test_accepts_array_selection_and_budget_evaluation(MockSvmAdapter):
     """
     - accepts[0]=EVM, accepts[1]=Solanaでもallowed_networks等でSolanaを選べる
@@ -301,7 +301,7 @@ def test_generate_svm_exact_payload_success(mock_blockhash):
     assert validated["memo"] == memo
 
 
-@patch("ln_church_agent.crypto.solana_svm.secrets.token_hex", return_value="ab" * 16)
+@patch("mayim_agent.crypto.solana_svm.secrets.token_hex", return_value="ab" * 16)
 @patch("solana.rpc.api.Client.get_latest_blockhash")
 def test_standard_facilitator_layout_without_extra_memo(
     mock_blockhash, mock_token_hex

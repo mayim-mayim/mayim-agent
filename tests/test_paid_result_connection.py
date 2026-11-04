@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 import requests
 
-from ln_church_agent.client import LnChurchClient, Payment402Client
-from ln_church_agent.exceptions import PaymentExecutionError
-from ln_church_agent.models import ExecutionContext
+from mayim_agent.client import MagClient, Payment402Client
+from mayim_agent.exceptions import PaymentExecutionError
+from mayim_agent.models import ExecutionContext
 
 
 HANDLE = "pr_" + "a" * 32
@@ -38,7 +38,7 @@ def transport(monkeypatch, client, async_mode, replies):
         client._async_client = MagicMock()
         client._async_client.request = send
     else:
-        monkeypatch.setattr("ln_church_agent.client.requests.request", send)
+        monkeypatch.setattr("mayim_agent.client.requests.request", send)
     return send
 
 
@@ -127,26 +127,6 @@ def test_paid_fact_survives_partial_result_save_failure(monkeypatch, async_mode)
     assert client.last_receipt.payment_performed is True
 
 
-@pytest.mark.parametrize("track,nested", [(False, False), (True, False), (True, True)])
-def test_domain_metadata_expiry_body_priority_and_private_proof_file(monkeypatch, tmp_path, track, nested):
-    client = LnChurchClient(agent_id="domain-test", base_url="https://buyer.test")
-    body = {"request_id": "obsreq_123", "domain": "public.example", "status": "pending",
-            "expires_at": "product expiry", "track_expires_at": "track expiry", "result_handle": "body-priority"}
-    wire = {"data": body} if track and nested else body
-    send = transport(monkeypatch, client, False, [response(200 if track else 201, wire, HEADERS)])
-    result = client.register_verified_domain_track("public.example") if track else client.register_domain_observation_slot("public.example")
-    assert result.result_handle == "body-priority" and result.request_hash == REQUEST_HASH
-    assert result.result_expires_at == EXPIRY and result.expires_at == "product expiry"
-    assert body["result_handle"] == "body-priority" and "request_hash" not in body
-    assert REQUEST_HASH not in repr(result) and REQUEST_HASH not in result.model_dump_json()
-    assert "body-priority" not in repr(result) and "body-priority" not in result.model_dump_json()
-    assert send.call_count == 1
-    if track:
-        path = tmp_path / "proof.json"
-        client.save_verified_domain_track_proof(result, str(path))
-        proof = json.loads(path.read_text())
-        assert proof["result_handle"] == "body-priority" and proof["request_hash"] == REQUEST_HASH
-        assert proof["result_expires_at"] == EXPIRY and result.track_expires_at == "track expiry"
 
 
 @pytest.mark.parametrize("headers,expected", [({}, {}), ({"X-LN-Result-Handle": HANDLE}, {"result_handle": HANDLE}),
@@ -173,37 +153,6 @@ def test_recovery_does_not_invent_success_for_missing_or_invalid_json(monkeypatc
     assert send.call_count == 1
 
 
-@pytest.mark.parametrize("async_mode", [False, True])
-def test_purchaser_body_stays_private_across_outcome_evidence_and_explicit_observation(monkeypatch, async_mode):
-    from ln_church_agent.models import EvidenceRepository, OutcomeSummary
-    exports = []
-    body = {"access_path": "sponsored_grant", "result_handle": HANDLE, "request_hash": REQUEST_HASH,
-            "result_retrieval": {"by_handle": "/api/bazaar/paid-results/" + HANDLE}}
-    class Repo(EvidenceRepository):
-        def export_evidence(self, record, context):
-            exports.append((record.model_dump_json(), context.model_dump_json()))
-    context = ExecutionContext()
-    def outcome(data, receipt, ctx):
-        assert data == body
-        ctx.hints.update(data)
-        return OutcomeSummary(is_success=True, message=HANDLE, external_evidence=data)
-    client = LnChurchClient(agent_id="private-copy-test", base_url="https://buyer.test", evidence_repo=Repo())
-    transport(monkeypatch, client, async_mode, [response(200, body, HEADERS)])
-    result = execute(client, async_mode, "POST", PURCHASES[0][0], context=context, outcome_matcher=outcome)
-    assert result.response == body and result.outcome.external_evidence == body
-    assert context.hints["result_handle"] == HANDLE
-    assert len(exports) == 1
-    for view in (repr(result), result.model_dump_json(), *exports[0]):
-        assert HANDLE not in view and REQUEST_HASH not in view
-    # Explicit sharing uses a copy and does not disclose the purchaser fields.
-    send = transport(monkeypatch, client, async_mode, [response(200, {"status": "accepted"})])
-    if async_mode:
-        asyncio.run(client.submit_goal_attempt_observation_async(goal={}, attempt={}, evidence=body))
-    else:
-        client.submit_goal_attempt_observation(goal={}, attempt={}, evidence=body)
-    public_wire = json.dumps(send.call_args.kwargs["json"])
-    assert HANDLE not in public_wire and REQUEST_HASH not in public_wire
-    assert body["result_handle"] == HANDLE
 
 
 @pytest.mark.parametrize("async_mode", [False, True])
@@ -279,3 +228,29 @@ def test_exact_partial_save_retains_only_independently_bound_paid_fact(monkeypat
         assert all(not record.payment_performed for record in evidence.records)
     assert client.policy._session_reserved_usd == 0
     assert len(http_calls) == 2
+
+
+@pytest.mark.parametrize('async_mode', [False, True])
+def test_purchaser_body_stays_private_across_outcome_evidence(monkeypatch, async_mode):
+    from mayim_agent.models import EvidenceRepository, OutcomeSummary
+    exports = []
+    body = {'access_path': 'sponsored_grant', 'result_handle': HANDLE, 'request_hash': REQUEST_HASH, 'result_retrieval': {'by_handle': '/api/bazaar/paid-results/' + HANDLE}}
+
+    class Repo(EvidenceRepository):
+
+        def export_evidence(self, record, context):
+            exports.append((record.model_dump_json(), context.model_dump_json()))
+    context = ExecutionContext()
+
+    def outcome(data, receipt, ctx):
+        assert data == body
+        ctx.hints.update(data)
+        return OutcomeSummary(is_success=True, message=HANDLE, external_evidence=data)
+    client = MagClient(agent_id='private-copy-test', base_url='https://buyer.test', evidence_repo=Repo())
+    transport(monkeypatch, client, async_mode, [response(200, body, HEADERS)])
+    result = execute(client, async_mode, 'POST', PURCHASES[0][0], context=context, outcome_matcher=outcome)
+    assert result.response == body and result.outcome.external_evidence == body
+    assert context.hints['result_handle'] == HANDLE
+    assert len(exports) == 1
+    for view in (repr(result), result.model_dump_json(), *exports[0]):
+        assert HANDLE not in view and REQUEST_HASH not in view

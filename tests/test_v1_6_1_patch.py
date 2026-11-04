@@ -1,13 +1,13 @@
 import pytest
 import asyncio
 from unittest.mock import patch
-from ln_church_agent import LnChurchClient, AssetType
-from ln_church_agent.crypto.evm import LocalKeyAdapter
+from mayim_agent import MagClient, AssetType
+from mayim_agent.crypto.evm import LocalKeyAdapter
 
 # ==========================================
 # 1. EVM Relay Payload の完全性テスト
 # ==========================================
-@patch("ln_church_agent.crypto.evm.requests.post")
+@patch("mayim_agent.crypto.evm.requests.post")
 def test_evm_relay_payload_completeness_and_padding(mock_post):
     """
     1.6.1 の修正が正しく機能しているかを確認：
@@ -52,13 +52,13 @@ def test_evm_relay_payload_completeness_and_padding(mock_post):
 # ==========================================
 # 2. Convenience Method の **kwargs 注入テスト (Sync)
 # ==========================================
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_convenience_method_kwargs_injection(mock_execute):
     """
     draw_omikuji 等のメソッドが **kwargs を受け取り、
     正しくペイロードに追加パラメータをマージすることを確認する
     """
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     try:
         client.draw_omikuji(asset=AssetType.USDC, chainId="8453")
@@ -81,13 +81,13 @@ def test_convenience_method_kwargs_injection(mock_execute):
 # ==========================================
 # 3. Core Field Override の意図的な許容テスト
 # ==========================================
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_convenience_method_allows_core_field_override_currently(mock_execute):
     """
     現行仕様として、agentId などのコアフィールドも **kwargs で上書き可能であることを固定する。
     将来的に保護すべきフィールドが出てきた場合は、このテストを見直すこと。
     """
-    client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+    client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
     try:
         client.draw_omikuji(agentId="FORCE_OVERWRITE_ID")
@@ -106,8 +106,8 @@ def test_convenience_method_async_kwargs_injection():
     非同期(async)版の convenience method でも **kwargs 注入が機能するか確認する
     """
     async def run_test():
-        with patch("ln_church_agent.client.LnChurchClient.execute_request_async") as mock_execute_async:
-            client = LnChurchClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
+        with patch("mayim_agent.client.MagClient.execute_request_async") as mock_execute_async:
+            client = MagClient(private_key="0x0000000000000000000000000000000000000000000000000000000000000001")
 
             # ★ 警告を消すための修正：非同期モックが返すダミーの辞書をセットする
             mock_execute_async.return_value = {

@@ -10,11 +10,11 @@ import pytest
 
 from test_v1_18_14_b4_integration import b4_venue
 from test_v1_18_14_b3_integration import LocalExchange, answers, register_followup_blind, tick, wallet
-from ln_church_agent._structured_response_crypto import KEY_FILE_ENV, STORAGE_SCHEMA
-from ln_church_agent.immediate_visit_journal import _read
-from ln_church_agent.structured_response_client import StructuredResponseClient
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent.structured_response_transport import StructuredResponseError, StructuredResponseTransport
+from mayim_agent._structured_response_crypto import KEY_FILE_ENV, STORAGE_SCHEMA
+from mayim_agent.immediate_visit_journal import _read
+from mayim_agent.structured_response_client import StructuredResponseClient
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent.structured_response_transport import StructuredResponseError, StructuredResponseTransport
 
 
 def probe(origin, journal, action, *, without_key=False):
@@ -85,7 +85,7 @@ def test_actual_b4_encrypted_blind_resume_after_loss_and_expiry(b4_venue, tmp_pa
     assert expired['original_receipt_binding_sha256'] == recovered['original_receipt_binding_sha256']
     assert set(expired['http_methods']) == {'GET'}
     assert StructuredResponseJournal.open(tmp_path,journal.handle).load_report().canonical_bytes == frozen.canonical_bytes
-    evidence = os.environ.get('LN_CHURCH_S3_PROCESS_EVIDENCE')
+    evidence = os.environ.get('MAG_S3_PROCESS_EVIDENCE')
     if evidence:
         Path(evidence).write_text(json.dumps(dict(result='PASS',backend_commit='235bc8de9ce60d32e467d2c1476cf9a6eeb6ab0e',
             storage_schema=STORAGE_SCHEMA,algorithm='AES-256-GCM',fresh_process_count=4,

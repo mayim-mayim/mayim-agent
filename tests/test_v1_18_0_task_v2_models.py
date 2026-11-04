@@ -6,7 +6,7 @@ import pickle
 import pytest
 from pydantic import ValidationError
 
-from ln_church_agent.task_v2_models import (
+from mayim_agent.task_v2_models import (
     ManifestFetchResult,
     ScheduledCompletionReport,
     ScheduledRewardStatus,

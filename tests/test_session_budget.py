@@ -5,11 +5,11 @@ from unittest.mock import AsyncMock, patch, MagicMock
 from dataclasses import asdict
 import copy
 
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.models import (
+from mayim_agent.client import Payment402Client
+from mayim_agent.models import (
     ExecutionContext, PaymentPolicy, PaymentEvidenceRecord, EvidenceRepository
 )
-from ln_church_agent.exceptions import PaymentExecutionError
+from mayim_agent.exceptions import PaymentExecutionError
 from _p0_2_fixture import (
     configure_contract_clock,
     contract_response,

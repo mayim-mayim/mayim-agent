@@ -2,13 +2,13 @@ import pytest
 import requests
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.models import (
+from mayim_agent.models import (
     ExecutionContext, TrustDecision, OutcomeSummary, TrustEvidence,
     ParsedChallenge, ChallengeSource, SettlementReceipt
 )
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.exceptions import CounterpartyTrustError
-from ln_church_agent.evaluators import RemoteTrustEvaluator, RemoteOutcomeMatcher
+from mayim_agent.client import Payment402Client
+from mayim_agent.exceptions import CounterpartyTrustError
+from mayim_agent.evaluators import RemoteTrustEvaluator, RemoteOutcomeMatcher
 
 # ==========================================
 # 1. 旧版: SDK Core Engine (フック機構) のテスト

@@ -1,17 +1,22 @@
 include README.md
 include CHANGELOG.md
 include server.json
+recursive-include mayim_agent/contracts/mag-activity-map *
+recursive-include mayim_agent/contracts/mag-task-packs *
+recursive-include tests/fixtures/mag *.mjs
+recursive-include tests/fixtures/mag *.py
+recursive-include tests/fixtures/v1816-c4 *
 recursive-include docs *.md
 recursive-include examples *.py
 recursive-include tests *.py
 recursive-include tests/fixtures/v183-immediate-visit *.json
-recursive-include ln_church_agent/contracts/v183-immediate-visit *
-recursive-include ln_church_agent/contracts/v185-paid-service-trial *
-include ln_church_agent/_vendor/justhtml/LICENSE
-include ln_church_agent/_vendor/justhtml/UPSTREAM.md
-include ln_church_agent/_vendor/justhtml/compatibility.patch
-include ln_church_agent/_vendor/justhtml/py.typed
-recursive-include ln_church_agent/contracts/v185-paid-service-trial-v2 *
+recursive-include mayim_agent/contracts/v183-immediate-visit *
+recursive-include mayim_agent/contracts/v185-paid-service-trial *
+include mayim_agent/_vendor/justhtml/LICENSE
+include mayim_agent/_vendor/justhtml/UPSTREAM.md
+include mayim_agent/_vendor/justhtml/compatibility.patch
+include mayim_agent/_vendor/justhtml/py.typed
+recursive-include mayim_agent/contracts/v185-paid-service-trial-v2 *
 recursive-include tests/fixtures/v185-paid-service-trial-v2 *
 
 # Distribution content excludes private implementation and operator material.
@@ -22,23 +27,23 @@ prune tests/evidence
 prune scripts/release
 global-exclude __pycache__ *.py[cod]
 
-recursive-include ln_church_agent/contracts/v189-endpoint-choice-reason *
-recursive-include ln_church_agent/contracts/v183-immediate-visit-v2 *
+recursive-include mayim_agent/contracts/v189-endpoint-choice-reason *
+recursive-include mayim_agent/contracts/v183-immediate-visit-v2 *
 
 recursive-include tests/fixtures/v189 *.mjs
 
-recursive-include ln_church_agent/contracts/v185-paid-service-trial-v3 *
-recursive-include ln_church_agent/contracts/v183-immediate-visit-v3 *
-recursive-include ln_church_agent/contracts/v189-endpoint-choice-reason-v2 *
+recursive-include mayim_agent/contracts/v185-paid-service-trial-v3 *
+recursive-include mayim_agent/contracts/v183-immediate-visit-v3 *
+recursive-include mayim_agent/contracts/v189-endpoint-choice-reason-v2 *
 recursive-include tests/fixtures/post-v1810 *.mjs
-recursive-include ln_church_agent/contracts/v1814-structured-response-v3 *
-recursive-include ln_church_agent/contracts/v1814-endpoint-choice-reason-v2_1 *
+recursive-include mayim_agent/contracts/v1814-structured-response-v3 *
+recursive-include mayim_agent/contracts/v1814-endpoint-choice-reason-v2_1 *
 
 # DC-fixed c4 economic packs and immutable external correction.
-recursive-include ln_church_agent/contracts/v1816-scheduled-v1_1 *
-recursive-include ln_church_agent/contracts/v1816-immediate-visit-v3_1 *
-recursive-include ln_church_agent/contracts/v1816-paid-service-trial-v3_1 *
-recursive-include ln_church_agent/contracts/v1816-endpoint-choice-reason-v2_3 *
-recursive-include ln_church_agent/contracts/v1816-structured-response-v3_1 *
-recursive-include ln_church_agent/contracts/v1816-structured-response-v3_0-correction-c1 *
+recursive-include mayim_agent/contracts/v1816-scheduled-v1_1 *
+recursive-include mayim_agent/contracts/v1816-immediate-visit-v3_1 *
+recursive-include mayim_agent/contracts/v1816-paid-service-trial-v3_1 *
+recursive-include mayim_agent/contracts/v1816-endpoint-choice-reason-v2_3 *
+recursive-include mayim_agent/contracts/v1816-structured-response-v3_1 *
+recursive-include mayim_agent/contracts/v1816-structured-response-v3_0-correction-c1 *
 recursive-include tests/fixtures/v1816 *.json

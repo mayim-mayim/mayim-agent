@@ -3,9 +3,9 @@ import base64
 import json
 from unittest.mock import patch, MagicMock
 
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.models import PaymentPolicy, ChallengeSource
-from ln_church_agent.exceptions import PaymentExecutionError
+from mayim_agent.client import Payment402Client
+from mayim_agent.models import PaymentPolicy, ChallengeSource
+from mayim_agent.exceptions import PaymentExecutionError
 
 def test_1_payment_scheme_allowed():
     """Test 1: Payment scheme が policy でデフォルト許可されていること"""
@@ -25,7 +25,7 @@ def test_2_legacy_mpp_flat_invoice():
     assert parsed.payment_method == "lightning"
     assert parsed.payment_intent == "charge"
 
-@patch("ln_church_agent.challenges.decode_bolt11_amount_msats", return_value=1000000)
+@patch("mayim_agent.challenges.decode_bolt11_amount_msats", return_value=1000000)
 def test_3_payment_draft_challenge(mock_decode):
     """Test 3: Payment draft challenge (Base64URL JSON) のパースと分類"""
     client = Payment402Client()
@@ -86,7 +86,7 @@ def test_5_session_unsupported():
     with pytest.raises(PaymentExecutionError, match="mpp_session_not_supported_yet"):
         client._process_payment(parsed, {}, {}, method="GET", url="http://mock")
 
-@patch("ln_church_agent.client.LightningProvider")
+@patch("mayim_agent.client.LightningProvider")
 def test_6_payment_draft_execution_guard(MockLNProvider):
     """Test 6: scheme=Payment, payment-auth-draft の場合、レガシーフォールバックが無効なら支払い前に止まること"""
     mock_ln_adapter = MockLNProvider()
@@ -115,7 +115,7 @@ def test_7_payment_receipt_presence_without_retaining_raw_token():
     # payment_receipt_present = bool(receipt and getattr(...) ...) 
     # として評価されます。ここでは receipt オブジェクトの状態を模倣して確認します。
     
-    from ln_church_agent.models import SettlementReceipt, AttestationSource
+    from mayim_agent.models import SettlementReceipt, AttestationSource
     
     receipt_without_server_token = SettlementReceipt(
         receipt_id="123", scheme="L402", network="Lightning", asset="SATS", settled_amount=10.0,

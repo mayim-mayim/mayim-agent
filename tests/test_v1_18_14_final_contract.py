@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from ln_church_agent import structured_response_contract as c
-from ln_church_agent import endpoint_choice_reason_contract as ec
-from ln_church_agent.structured_response_models import StructuredResponseTask
-from ln_church_agent.endpoint_choice_reason_models import EndpointChoiceV21Evaluation
+from mayim_agent import structured_response_contract as c
+from mayim_agent import endpoint_choice_reason_contract as ec
+from mayim_agent.structured_response_models import StructuredResponseTask
+from mayim_agent.endpoint_choice_reason_models import EndpointChoiceV21Evaluation
 from test_v1_18_14_structured_response_prepack import task
 
 
@@ -73,8 +73,8 @@ def test_capacity_snapshot_cannot_disagree_with_rpah():
 
 @pytest.mark.parametrize('change', ['b3_digest', 'unknown_digest', 'unknown_tuple'])
 def test_unmirrored_identity_is_read_only_before_claim(change, tmp_path):
-    from ln_church_agent.structured_response_client import StructuredResponseClient
-    from ln_church_agent.structured_response_transport import StructuredResponseError, StructuredResponseTransport
+    from mayim_agent.structured_response_client import StructuredResponseClient
+    from mayim_agent.structured_response_transport import StructuredResponseError, StructuredResponseTransport
     from test_v1_18_14_structured_response_prepack import raw, ADDRESS
     value = supported_task()
     if change == 'unknown_tuple':

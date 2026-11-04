@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from ln_church_agent.models import ExecutionContext, TrustDecision, OutcomeSummary, TrustEvidence, SettlementReceipt
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.exceptions import CounterpartyTrustError
-from ln_church_agent.payment_contract import sha256_prefixed
+from mayim_agent.models import ExecutionContext, TrustDecision, OutcomeSummary, TrustEvidence, SettlementReceipt
+from mayim_agent.client import Payment402Client
+from mayim_agent.exceptions import CounterpartyTrustError
+from mayim_agent.payment_contract import sha256_prefixed
 from _p0_2_fixture import (
     configure_contract_clock,
     contract_response,

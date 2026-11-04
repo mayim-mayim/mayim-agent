@@ -5,13 +5,13 @@ from pathlib import Path
 
 import pytest
 
-from ln_church_agent.task_journal import JournalError, TaskJournal
+from mayim_agent.task_journal import JournalError, TaskJournal
 
 
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_PATH = (
     ROOT
-    / "ln_church_agent"
+    / "mayim_agent"
     / "contracts"
     / "v18-scheduled-http-get-batch-contract-v1.json"
 )
@@ -59,13 +59,11 @@ def test_canonical_fixture_bytes_hash_json_and_final_lf():
 
 def test_canonical_fixture_is_declared_as_contract_package_data():
     package_data = _setup_keyword("package_data")
-    assert package_data == {
-        "ln_church_agent": ["contracts/*.json"]
-    }
+    assert "contracts/*.json" in package_data["mayim_agent"]
 
 
 def test_offer_publication_uses_complete_l2_and_keeps_safe_for_reversal():
-    from ln_church_agent.task_v2_contract import load_contract_fixture_bytes
+    from mayim_agent.task_v2_contract import load_contract_fixture_bytes
 
     data, fixture = _fixture()
     assert load_contract_fixture_bytes() == data

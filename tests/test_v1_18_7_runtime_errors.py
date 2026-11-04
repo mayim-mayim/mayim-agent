@@ -6,9 +6,9 @@ import pytest
 
 from test_v1_18_5_paid_service_trial_contract import wire
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2
-from ln_church_agent import paid_service_trial_transport as t
-from ln_church_agent import paid_service_trial_journal as j
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent import paid_service_trial_transport as t
+from mayim_agent import paid_service_trial_journal as j
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
 
 
 def envelope(version='v2',code='unsupported_purchase_terms',request_id='request-original',reason='missing_payment_required'):

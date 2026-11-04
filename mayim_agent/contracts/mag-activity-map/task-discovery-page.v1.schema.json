@@ -1,0 +1,856 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kari.mayim-mayim.com/agent-api-schemas/task-discovery-page.v1.schema.json",
+  "$comment": "Implementation artifact of audited specification 87a1027f; that specification remains the sole semantic oracle. Page <=160 KiB UTF-8. Empty range is not an all-inventory snapshot.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "selection",
+    "coverage",
+    "checked_at",
+    "page_scope",
+    "tasks",
+    "next_cursor",
+    "empty_reason",
+    "claim_authority"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.task_discovery_page.v1"
+    },
+    "selection": {
+      "const": "recruiting_candidates"
+    },
+    "coverage": {
+      "const": "all_supported_families"
+    },
+    "checked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "page_scope": {
+      "enum": [
+        "initial",
+        "continuation"
+      ]
+    },
+    "tasks": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "next_cursor": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^td1\\.[A-Za-z0-9_-]+$",
+      "maxLength": 1024
+    },
+    "empty_reason": {
+      "enum": [
+        "no_candidates_observed_in_range",
+        null
+      ]
+    },
+    "claim_authority": {
+      "const": "task_claim_endpoint"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "tasks": {
+            "maxItems": 0
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "empty_reason": {
+            "const": "no_candidates_observed_in_range"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "empty_reason": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "task_id",
+        "task_type",
+        "task_schema_version",
+        "task_definition_version",
+        "task_definition_digest",
+        "title",
+        "summary",
+        "recruitment_state",
+        "capacity_available",
+        "claim_before",
+        "scheduled_at",
+        "eligibility",
+        "detail_url",
+        "definition_url",
+        "projection_updated_at"
+      ],
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+        },
+        "task_type": {
+          "type": "string"
+        },
+        "task_schema_version": {
+          "type": "string"
+        },
+        "task_definition_version": {
+          "type": "string"
+        },
+        "task_definition_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "summary": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "recruitment_state": {
+          "const": "candidate"
+        },
+        "capacity_available": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "claim_before": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scheduled_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "eligibility": {
+          "const": "check_task_details"
+        },
+        "detail_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "definition_url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "projection_updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "task_type": {
+              "const": "payment_surface_discovery.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.v1"
+            },
+            "task_definition_version": {
+              "const": "1.0.0"
+            },
+            "task_definition_digest": {
+              "const": "9e5d340f746c957ac9e9363c0af8ef72f0fe2bc8ea4bc4b55d1f7006b5448406"
+            },
+            "title": {
+              "const": "Discover a public HTTP 402 payment surface"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/payment_surface_discovery.v1/1.0.0/9e5d340f746c957ac9e9363c0af8ef72f0fe2bc8ea4bc4b55d1f7006b5448406/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "scheduled_http_get_batch.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.v2"
+            },
+            "task_definition_version": {
+              "const": "1.0.0"
+            },
+            "task_definition_digest": {
+              "const": "24c90c221a111881cfcd455811b7de568c93f7be6950744f05423c42e3e4f22d"
+            },
+            "title": {
+              "const": "Scheduled HTTP GET batch"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/scheduled_http_get_batch.v1/1.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.v2$"
+            },
+            "scheduled_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "immediate_http_visit.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.immediate_visit.v1"
+            },
+            "task_definition_version": {
+              "const": "1.0.0"
+            },
+            "task_definition_digest": {
+              "const": "25996fb28b531a8892ef39c9e98899d94a31bef2628ddeb437b0e8fd673b6e43"
+            },
+            "title": {
+              "const": "Visit public HTTP sites"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/immediate_http_visit.v1/1.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "immediate_http_visit.v2"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.immediate_visit.v2"
+            },
+            "task_definition_version": {
+              "const": "2.0.0"
+            },
+            "task_definition_digest": {
+              "const": "3ef4d211aa66ef7972e5c4fd861d5afd83219759e2eaebf926694936bd5a532f"
+            },
+            "title": {
+              "const": "Visit public HTTP sites"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/immediate_http_visit.v2/2.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "immediate_http_visit.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.immediate_visit.v3"
+            },
+            "task_definition_version": {
+              "const": "3.0.0"
+            },
+            "task_definition_digest": {
+              "const": "070780402e97d8b2840ecc91ce66bc42aa1ef529aebfbbb2a0ab7845f24b9a41"
+            },
+            "title": {
+              "const": "Visit public HTTP sites"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/immediate_http_visit.v3/3.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "paid_service_trial.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.paid_service_trial.v1"
+            },
+            "task_definition_version": {
+              "const": "1.0.0"
+            },
+            "task_definition_digest": {
+              "const": "f9464a5b2ca01c38df971b74b3d855be7e0fc1dd2f09d8b526d5e74539c85095"
+            },
+            "title": {
+              "const": "Try a paid service"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/paid_service_trial.v1/1.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.paid_service_trial\\.v1$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "paid_service_trial.v2"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.paid_service_trial.v2"
+            },
+            "task_definition_version": {
+              "const": "2.0.0"
+            },
+            "task_definition_digest": {
+              "const": "08723b869949844b04319bd395ba5f6f91c1aa9155e710929f1dc4168895da14"
+            },
+            "title": {
+              "const": "Try a paid service"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/paid_service_trial.v2/2.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.paid_service_trial\\.v2$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "paid_service_trial.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.paid_service_trial.v3"
+            },
+            "task_definition_version": {
+              "const": "3.0.0"
+            },
+            "task_definition_digest": {
+              "const": "5ada2a522eb7d3eb500c1e893c8e7387814882a334930d48ca5ae2bebdc2a6e5"
+            },
+            "title": {
+              "const": "Try a paid service"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/paid_service_trial.v3/3.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.paid_service_trial\\.v3$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "endpoint_choice_reason.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.endpoint_choice_reason.v1"
+            },
+            "task_definition_version": {
+              "const": "1.0.0"
+            },
+            "task_definition_digest": {
+              "const": "a74586b704dd87eb819780481ad7347ce9fcdfdaa4684726da32e4e1ed9e1d93"
+            },
+            "title": {
+              "const": "Choose a service and explain your choice"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/endpoint_choice_reason.v1/1.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=endpoint_choice_reason\\.v1&task_schema_version=ln_church\\.agent_task\\.endpoint_choice_reason\\.v1$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "endpoint_choice_reason.v2"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.endpoint_choice_reason.v2"
+            },
+            "task_definition_version": {
+              "const": "2.0.0"
+            },
+            "task_definition_digest": {
+              "const": "c777eb006645196e9bbd1c6b6cf410f628a5580cb8e20ee32f2ae4f96afb8de7"
+            },
+            "title": {
+              "const": "Choose a service and explain your choice"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/endpoint_choice_reason.v2/2.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=endpoint_choice_reason\\.v2&task_schema_version=ln_church\\.agent_task\\.endpoint_choice_reason\\.v2$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "endpoint_choice_reason.v2"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.endpoint_choice_reason.v2_1"
+            },
+            "task_definition_version": {
+              "const": "2.1.0"
+            },
+            "task_definition_digest": {
+              "const": "4d7cb9d024ae41f60898146e4dbcd7ea3be63a33a9e8c0d01696192abe8f1b56"
+            },
+            "title": {
+              "const": "Choose a service and explain your choice"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/endpoint_choice_reason.v2/2.1.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=endpoint_choice_reason\\.v2&task_schema_version=ln_church\\.agent_task\\.endpoint_choice_reason\\.v2_1$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "structured_response.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.structured_response.v3"
+            },
+            "task_definition_version": {
+              "const": "3.0.0"
+            },
+            "task_definition_digest": {
+              "const": "4d2b8f711b2273fba5215bbcfd767df1145d30a91ee9ea5711437e791616b274"
+            },
+            "title": {
+              "const": "Answer a structured research questionnaire"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/structured_response.v3/3.0.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=structured_response\\.v3&task_schema_version=ln_church\\.agent_task\\.structured_response\\.v3$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "scheduled_http_get_batch.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.v2_1"
+            },
+            "task_definition_version": {
+              "const": "1.1.0"
+            },
+            "task_definition_digest": {
+              "const": "1e0331dfe9ff1ca63b1002e9ccd530e2de8cf0b0dc751704c0190093d19227a7"
+            },
+            "title": {
+              "const": "Scheduled HTTP GET batch"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/scheduled_http_get_batch.v1/1.1.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.v2_1$"
+            },
+            "scheduled_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "immediate_http_visit.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.immediate_visit.v3_1"
+            },
+            "task_definition_version": {
+              "const": "3.1.0"
+            },
+            "task_definition_digest": {
+              "const": "9591ae9d321993c9e101693f02985b87dce59ebaf1f83f580994e8f3442dfb43"
+            },
+            "title": {
+              "const": "Visit public HTTP sites"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/immediate_http_visit.v3/3.1.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "paid_service_trial.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.paid_service_trial.v3_1"
+            },
+            "task_definition_version": {
+              "const": "3.1.0"
+            },
+            "task_definition_digest": {
+              "const": "48b478927f0c1bad45a1d89f74cc8990243e408d883479022b17d33e2427ef62"
+            },
+            "title": {
+              "const": "Try a paid service"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/paid_service_trial.v3/3.1.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.paid_service_trial\\.v3_1$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "endpoint_choice_reason.v2"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.endpoint_choice_reason.v2_3"
+            },
+            "task_definition_version": {
+              "const": "2.3.0"
+            },
+            "task_definition_digest": {
+              "const": "4c070bbf5fb2c5e1b658f0075fba9e0d6cfd5cb8a48d7191fe027431a72a11df"
+            },
+            "title": {
+              "const": "Choose a service and explain your choice"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/endpoint_choice_reason.v2/2.3.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=endpoint_choice_reason\\.v2&task_schema_version=ln_church\\.agent_task\\.endpoint_choice_reason\\.v2_3$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "structured_response.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.structured_response.v3_1"
+            },
+            "task_definition_version": {
+              "const": "3.1.0"
+            },
+            "task_definition_digest": {
+              "const": "290fdabf00b6e8d7858af52dff3783032ca71fe58aaed267a1622d831a70ac4c"
+            },
+            "title": {
+              "const": "Answer a structured research questionnaire"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/structured_response.v3/3.1.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=structured_response\\.v3&task_schema_version=ln_church\\.agent_task\\.structured_response\\.v3_1$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "endpoint_choice_reason.v2"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.endpoint_choice_reason.v2_4"
+            },
+            "task_definition_version": {
+              "const": "2.4.0"
+            },
+            "task_definition_digest": {
+              "const": "f79bcaf58e48857fcd5f9b95c09f522fa150b1f4dbe5a7be05c2ea4fed79fe7c"
+            },
+            "title": {
+              "const": "Choose a service and explain your choice"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/endpoint_choice_reason.v2/2.4.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=endpoint_choice_reason\\.v2&task_schema_version=ln_church\\.agent_task\\.endpoint_choice_reason\\.v2_4$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "immediate_http_visit.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.immediate_visit.v3_2"
+            },
+            "task_definition_version": {
+              "const": "3.2.0"
+            },
+            "task_definition_digest": {
+              "const": "c5ee14364f743649221176cdf2e1a32af13484f1eb5a153d1cdc02b44371f018"
+            },
+            "title": {
+              "const": "Visit public HTTP sites"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/immediate_http_visit.v3/3.2.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "paid_service_trial.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.paid_service_trial.v3_2"
+            },
+            "task_definition_version": {
+              "const": "3.2.0"
+            },
+            "task_definition_digest": {
+              "const": "8c44c115574b593274869091d418f4a6e4e086e55893450bf6e91a2b0a6242af"
+            },
+            "title": {
+              "const": "Try a paid service"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/paid_service_trial.v3/3.2.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.paid_service_trial\\.v3_2$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "structured_response.v3"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.structured_response.v3_2"
+            },
+            "task_definition_version": {
+              "const": "3.2.0"
+            },
+            "task_definition_digest": {
+              "const": "66c00c3deed3a39ac7ba7b0f66f911d75ed6f41ce1b419f6e77242541bf6d643"
+            },
+            "title": {
+              "const": "Answer a structured research questionnaire"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/structured_response.v3/3.2.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_type=structured_response\\.v3&task_schema_version=ln_church\\.agent_task\\.structured_response\\.v3_2$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "payment_surface_discovery.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.v1_1"
+            },
+            "task_definition_version": {
+              "const": "1.1.0"
+            },
+            "task_definition_digest": {
+              "const": "2fd692c9fe2c0b8ce62597dbe8f604bdd1afb2e19dd91d147571c7d93ce415b2"
+            },
+            "title": {
+              "const": "Discover a public HTTP 402 payment surface"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/payment_surface_discovery.v1/1.1.0/2fd692c9fe2c0b8ce62597dbe8f604bdd1afb2e19dd91d147571c7d93ce415b2/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}$"
+            },
+            "scheduled_at": {
+              "type": "null"
+            }
+          }
+        },
+        {
+          "properties": {
+            "task_type": {
+              "const": "scheduled_http_get_batch.v1"
+            },
+            "task_schema_version": {
+              "const": "ln_church.agent_task.v2_2"
+            },
+            "task_definition_version": {
+              "const": "1.2.0"
+            },
+            "task_definition_digest": {
+              "const": "2ebfcca188270ef17660944150c3673b5b157e199cedc02e1abcacc300a0cb11"
+            },
+            "title": {
+              "const": "Scheduled HTTP GET batch"
+            },
+            "definition_url": {
+              "const": "https://kari.mayim-mayim.com/agent-task-specs/scheduled_http_get_batch.v1/1.2.0/SKILL.md"
+            },
+            "detail_url": {
+              "pattern": "^https://kari\\.mayim-mayim\\.com/api/agent/tasks/[A-Za-z0-9._~-]{1,128}\\?task_schema_version=ln_church\\.agent_task\\.v2_2$"
+            },
+            "scheduled_at": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      ],
+      "$comment": "Each title/summary is at most 256 UTF-8 bytes; complete candidate <=3072 UTF-8 bytes. Runtime enforces bytes and exact UTC fixed-millisecond timestamps."
+    },
+    "error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "code",
+        "coverage",
+        "message",
+        "request_id"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "ln_church.task_discovery_error.v1"
+        },
+        "code": {
+          "enum": [
+            "invalid_request",
+            "invalid_cursor",
+            "discovery_unavailable"
+          ]
+        },
+        "coverage": {
+          "const": "unavailable"
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "request_id": {
+          "type": "string",
+          "maxLength": 128
+        }
+      }
+    }
+  }
+}

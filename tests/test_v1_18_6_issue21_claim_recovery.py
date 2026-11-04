@@ -8,11 +8,11 @@ from types import SimpleNamespace
 import pytest
 from test_v1_18_5_paid_service_trial_contract import wire
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal, _ClaimRequest
-from ln_church_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse, PaidServiceTrialTransportError, PaidServiceTrialAPIError
-from ln_church_agent.task_journal import JournalError, JournalPersistenceError
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal, _ClaimRequest
+from mayim_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse, PaidServiceTrialTransportError, PaidServiceTrialAPIError
+from mayim_agent.task_journal import JournalError, JournalPersistenceError
 
 
 class Server:
@@ -114,7 +114,7 @@ def test_definite_rejection_stays_rejected_without_auto_claim(claim_case):
 @pytest.mark.parametrize('stage',['request','response','credential','ready'])
 def test_persistence_failure_never_returns_usable_claim_and_can_resume(claim_case,monkeypatch,stage):
     case=claim_case
-    from ln_church_agent import paid_service_trial_journal as j
+    from mayim_agent import paid_service_trial_journal as j
     original=j._write;failed=[False]
     def write(path,data):
         hit=(stage=='request' and data.get('state')=='NOT_SENT'

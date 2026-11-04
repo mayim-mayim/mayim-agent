@@ -1,0 +1,64 @@
+{
+  "task_id": "task_19c7556314c66ed5f1373aff826ae8e2",
+  "task_type": "endpoint_choice_reason.v2",
+  "task_definition_version": "2.3.0",
+  "task_definition_digest": "4c070bbf5fb2c5e1b658f0075fba9e0d6cfd5cb8a48d7191fe027431a72a11df",
+  "terms_digest": "a07ab324437fc8b2a036a1cf8224ba59f7bdb99b14e666f22311e7f6352a57b7",
+  "question": "Synthetic question",
+  "candidates": [
+    {
+      "candidate_id": "a",
+      "url": "https://example.com/"
+    }
+  ],
+  "reveal_correct_set_after_answer": false,
+  "evaluation_profile_id": "endpoint-choice-reason-jev-v2_1",
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "correct_amount_atomic": "25000",
+    "incorrect_amount_atomic": "10000",
+    "full_reward_threshold": "0.7",
+    "rounding": "FLOOR_ATOMIC"
+  },
+  "schema_version": "ln_church.agent_task_claim_response.endpoint_choice_reason.v2_3",
+  "execution_id": "exec_9f0308197f9e5f753e3f2c4dcb9e5772",
+  "reward_address_control_verified": false,
+  "claim_accepted_at": "2026-10-20T00:00:00.000Z",
+  "report_deadline": "2026-10-20T00:10:00.000Z",
+  "economic_terms_revision": "choice-A",
+  "terms_snapshot": {
+    "task_type": "endpoint_choice_reason.v2",
+    "task_definition_version": "2.3.0",
+    "task_definition_digest": "4c070bbf5fb2c5e1b658f0075fba9e0d6cfd5cb8a48d7191fe027431a72a11df",
+    "question": "Synthetic question",
+    "candidates": [
+      {
+        "candidate_id": "a",
+        "url": "https://example.com/"
+      }
+    ],
+    "reveal_correct_set_after_answer": false,
+    "capacity_profile_id": "endpoint-choice-reason-rpah.v2_1",
+    "evaluation_profile_digest": "b057a8cbf6146373aa0d7709c47a95f1a0eb690005e8f6ef8cf9509358a1c22a",
+    "evaluation_profile_id": "endpoint-choice-reason-jev-v2_1",
+    "reward": {
+      "asset": "USDC",
+      "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "correct_amount_atomic": "25000",
+      "incorrect_amount_atomic": "10000",
+      "network": "eip155:8453",
+      "full_reward_threshold": "0.7",
+      "rounding": "FLOOR_ATOMIC"
+    },
+    "plan_id": "label-A",
+    "capacity_total": 5,
+    "creator_amount_atomic": "0",
+    "economic_terms_revision": "choice-A",
+    "registration_amount_atomic": "1000000",
+    "economic_policy_id": "endpoint-choice-reason-economics-terms-v1"
+  },
+  "reward_address": "0x7e9fb40f66c4e132fa5e64e49f307e02b76540f8",
+  "claim_token": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+}

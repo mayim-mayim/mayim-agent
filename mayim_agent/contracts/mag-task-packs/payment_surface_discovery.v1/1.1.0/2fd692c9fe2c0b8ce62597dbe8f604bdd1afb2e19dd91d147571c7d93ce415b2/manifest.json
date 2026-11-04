@@ -1,0 +1,127 @@
+{
+  "bundle_schema_version": "ln_church.agent_task_bundle_manifest.v1",
+  "task_type": "payment_surface_discovery.v1",
+  "task_spec_version": "1.1.0",
+  "bundle_digest": "2fd692c9fe2c0b8ce62597dbe8f604bdd1afb2e19dd91d147571c7d93ce415b2",
+  "bundle_digest_algorithm": "sha256-canonical-descriptor-v1",
+  "source_repository": "mayim-mayim/LN_Church",
+  "source_commit": "ff89f7181adce929383ce7f7fa5803864907fd1d",
+  "evaluator_id": "ln_church.payment_surface_discovery.read_only.v1",
+  "evaluator_version": "1.0.0",
+  "component_hash_scope": "All named payload components; manifest.json is excluded to avoid self-reference.",
+  "manifest_hash_scope": "SHA-256 of complete manifest bytes is pinned by the Task outside this manifest.",
+  "components": {
+    "SKILL.md": {
+      "sha256": "f3d70b452eb32663d4b0c25643473766893dfb37cabf096d0182256cb1ab2576",
+      "media_type": "text/markdown; charset=utf-8"
+    },
+    "abandon-request.schema.json": {
+      "sha256": "085582a7e8b3bd6e7fdd5b6983c9f4fd6d04ece29d896f8422402acd2a1ce7e1",
+      "media_type": "application/schema+json"
+    },
+    "abandon-response.schema.json": {
+      "sha256": "dcef7c9291cc7e8f6d65be630e95a237a290186cddcb22db6a2bef6b056ac0fe",
+      "media_type": "application/schema+json"
+    },
+    "claim-request.schema.json": {
+      "sha256": "ec6043d77e6092f2df389cdc11b0f0391319daa590171cfd16e6ef1179ae6355",
+      "media_type": "application/schema+json"
+    },
+    "claim.schema.json": {
+      "sha256": "6e6f837c08cafff618bcdf623a5e9188fe07ea4d918d50e73f6cb95fd44800e5",
+      "media_type": "application/schema+json"
+    },
+    "completion.schema.json": {
+      "sha256": "48ed5f94f81f85cdea9d4053ffa7f7756aa62eec694879d448a865d83c216c21",
+      "media_type": "application/schema+json"
+    },
+    "error.schema.json": {
+      "sha256": "93df9a21d97f3b4da8187ec35575c6bb2f0f8d6cd0246f173cdcf4fb66bf5be9",
+      "media_type": "application/schema+json"
+    },
+    "evidence.schema.json": {
+      "sha256": "a7dc2353f9399dce8f9a4c9dc4384e34ae8bf730ae8c6bfd04d6024c2ceb3cc4",
+      "media_type": "application/schema+json"
+    },
+    "observation-response.schema.json": {
+      "sha256": "0aecfaed49bf08c94d9f6b146c58e6dc199d98f1a19ae894bd01f7af5e4b5ece",
+      "media_type": "application/schema+json"
+    },
+    "observation.schema.json": {
+      "sha256": "0585f69d473edf7217cfca0dcf20a10174154de2064c0a80c6b2c64675a84ec4",
+      "media_type": "application/schema+json"
+    },
+    "page.schema.json": {
+      "sha256": "d033952cb15869a327de5cb5efc90dfe1b1777a4a0577b2e6786dd4d4a153688",
+      "media_type": "application/schema+json"
+    },
+    "parameters.schema.json": {
+      "sha256": "71d7b555a68bdd42e514c86e6b9a5d2efe6d124f7cdb71219d034f2541bab161",
+      "media_type": "application/schema+json"
+    },
+    "public-summary.json": {
+      "sha256": "b3d481b1e6e564b1fe8455c8a641ed0ed9043449c3889899bf4e713336ab315f",
+      "media_type": "application/json"
+    },
+    "receipt.schema.json": {
+      "sha256": "983b8fd92a0cd6266748134712f0d9c20115b5727eda32ffde5b438b334b4ca8",
+      "media_type": "application/schema+json"
+    },
+    "registration-recovery-challenge-request.schema.json": {
+      "sha256": "9fed18da3771515fb571a031c12ccca75d5754bd34202a23d7ac262fbad8c7ea",
+      "media_type": "application/schema+json"
+    },
+    "registration-recovery-challenge.schema.json": {
+      "sha256": "11d45c58671a2b008c90265c94e6568da64880a80c7dad1bddeb4156f912b0db",
+      "media_type": "application/schema+json"
+    },
+    "registration-recovery-request.schema.json": {
+      "sha256": "d14fa45438c34a1b71064ce198f8729fd3cdc57c8488e2c72541b66766bf9767",
+      "media_type": "application/schema+json"
+    },
+    "registration-recovery-result.schema.json": {
+      "sha256": "b95d82f407df6cfa0a81af462d97c4f23f03c6098fd152a935b25812fa9f5b36",
+      "media_type": "application/schema+json"
+    },
+    "registration-result.schema.json": {
+      "sha256": "84baeba43829c5124f14978c55240a9be125ca37086ef91ffe64f76712e0b7e3",
+      "media_type": "application/schema+json"
+    },
+    "registration.schema.json": {
+      "sha256": "ab492f7f0899b775f6755e9630272e6c19194bfb9b95ce7199b24c82426891c1",
+      "media_type": "application/schema+json"
+    },
+    "requester-guide.md": {
+      "sha256": "e413ad0081440ad6529d8f2a55740b87a45c89c49a41f9d38d8a3349823d53db",
+      "media_type": "text/markdown; charset=utf-8"
+    },
+    "result.schema.json": {
+      "sha256": "75991bba38c039d05ae444e0596f841b944cd7e4b592327dfd37b25f97b57e46",
+      "media_type": "application/schema+json"
+    },
+    "status.schema.json": {
+      "sha256": "6b014f13ed2cf223c2fd1f10a510626e89401d22a1d7d3fa8c5aebe8494873a8",
+      "media_type": "application/schema+json"
+    },
+    "submission.schema.json": {
+      "sha256": "095d51896e154cfba712a052dfb7081a7fc776220ffc0353ea9a276371d78fe7",
+      "media_type": "application/schema+json"
+    },
+    "summary.schema.json": {
+      "sha256": "2d4235daff52a076741b8dbf18028de5ad4b35e92f68a817736952d867ed6fab",
+      "media_type": "application/schema+json"
+    },
+    "task-detail.schema.json": {
+      "sha256": "fec06b5228f65ee8baf43a6535dda3c57436bf49b24685bcbbe4878fa0299b9e",
+      "media_type": "application/schema+json"
+    },
+    "task.schema.json": {
+      "sha256": "eb3833615f45f0e5fa561b5b5e104468f2492cf9c7304b97e0f1c094cfdf1f6a",
+      "media_type": "application/schema+json"
+    },
+    "terms.schema.json": {
+      "sha256": "4653faa916da9bc8420461074e3c1a7dfaf47733bfdf295c7e8a8fcc8be59f01",
+      "media_type": "application/schema+json"
+    }
+  }
+}

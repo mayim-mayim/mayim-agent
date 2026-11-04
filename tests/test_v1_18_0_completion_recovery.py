@@ -5,20 +5,20 @@ import threading
 
 import pytest
 
-from ln_church_agent.task_journal import (
+from mayim_agent.task_journal import (
     JournalError,
     JournalPersistenceError,
     TaskJournal,
 )
-from ln_church_agent.task_v2_client import AgentTaskV2Client
-from ln_church_agent.task_v2_models import (
+from mayim_agent.task_v2_client import AgentTaskV2Client
+from mayim_agent.task_v2_models import (
     ManifestFetchResult,
     ScheduledCompletionReport,
     ScheduledTargetResult,
     ScheduledTaskClaimResponse,
     ScheduledTaskReadiness,
 )
-from ln_church_agent.task_v2_transport import (
+from mayim_agent.task_v2_transport import (
     CompletionOutcomeUnknownError,
     TaskV2RawResponse,
     TaskV2Transport,

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "profile",
+    "operation_ref",
+    "payer"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.registration_read_challenge_request.v1"
+    },
+    "profile": {
+      "const": "V17_STRICT_TASK_OFFER"
+    },
+    "operation_ref": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "payer": {
+      "type": "string",
+      "pattern": "^0x[0-9a-f]{40}$"
+    }
+  }
+}

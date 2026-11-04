@@ -1,0 +1,37 @@
+{
+  "schema_version": "ln_church.agent_task_claim_response.v2_1",
+  "economic_terms_revision": "scheduled-A",
+  "terms_digest": "9c30b73fad41541792329bbaf4bc0f802f9f3ca54f28d2e3b27b46898e8846e2",
+  "economic_terms": {
+    "economic_terms_revision": "scheduled-A",
+    "plan_id": "C50",
+    "registration_amount_atomic": "1000000",
+    "capacity_total": 50,
+    "reward": {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "base_amount_atomic": "10000",
+      "reference_amount_atomic": "100000"
+    }
+  },
+  "task_id": "task_e61739e3eb3641d331d064e0119b4131",
+  "task_type": "scheduled_http_get_batch.v1",
+  "task_definition_version": "1.1.0",
+  "task_definition_digest": "1e0331dfe9ff1ca63b1002e9ccd530e2de8cf0b0dc751704c0190093d19227a7",
+  "claim_token": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+  "claim_expires_at": "2026-08-20T03:10:00Z",
+  "scheduled_at": "2026-08-20T03:00:00Z",
+  "report_close_at": "2026-08-20T03:10:00Z",
+  "manifest_url": "https://tasks-release.mayim-mayim.com/release?synthetic=1",
+  "manifest_url_not_before": "2026-08-20T03:00:00Z",
+  "manifest_url_expires_at": "2026-08-20T03:10:00Z",
+  "reward_address": "0x2222222222222222222222222222222222222222",
+  "reward_address_control_verified": false,
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    "amount_atomic": "10000"
+  }
+}

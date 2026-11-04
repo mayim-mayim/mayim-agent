@@ -3,12 +3,12 @@ import json
 import pytest
 from jsonschema import Draft202012Validator
 from test_offer_registration import bridge,client,signed,signature,request,SEED
-from ln_church_agent import endpoint_choice_reason_contract as c
-from ln_church_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
-from ln_church_agent.endpoint_choice_reason_journal import EndpointChoiceJournal
-from ln_church_agent.endpoint_choice_reason_transport import EndpointChoiceTransport
-from ln_church_agent.endpoint_choice_reason_requester import EndpointChoiceRequesterClient
-from ln_church_agent.offer_registration import OfferRegistrationClient
+from mayim_agent import endpoint_choice_reason_contract as c
+from mayim_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
+from mayim_agent.endpoint_choice_reason_journal import EndpointChoiceJournal
+from mayim_agent.endpoint_choice_reason_transport import EndpointChoiceTransport
+from mayim_agent.endpoint_choice_reason_requester import EndpointChoiceRequesterClient
+from mayim_agent.offer_registration import OfferRegistrationClient
 
 
 @pytest.mark.parametrize('version',['v1','v2'])
@@ -66,7 +66,7 @@ _REWARD_VECTORS=json.loads(c.load_contract_pack()['resources']['semantic-fixture
 @pytest.mark.parametrize('correct',[True,False])
 def test_normative_reward_vectors_from_fixed_backend(tmp_path,bridge,vector,correct):
     from decimal import Decimal
-    from ln_church_agent.crypto.evm import LocalKeyAdapter
+    from mayim_agent.crypto.evm import LocalKeyAdapter
     body=request();body['candidates'].append(dict(candidate_id='b',url='https://example.org/',evaluator_description='Other synthetic candidate'))
     req=client(bridge);op=req.prepare_registration(body).sign(LocalKeyAdapter(SEED))
     task_id=req.submit_registration(op)['task_id']

@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.agent_task_reward_status.v1"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "observation_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "task_status": {
+      "enum": [
+        "SUBMITTED",
+        "EVALUATION_REJECTED",
+        "REWARD_PENDING",
+        "REWARDED",
+        "REWARD_FAILED",
+        "REWARD_AMBIGUOUS"
+      ]
+    },
+    "reward_state": {
+      "enum": [
+        "pending",
+        "not_eligible",
+        "approved_pending",
+        "paid",
+        "failed",
+        "ambiguous"
+      ]
+    },
+    "network": {
+      "const": "eip155:8453"
+    },
+    "asset": {
+      "const": "USDC"
+    },
+    "asset_address": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$"
+    },
+    "amount_atomic": {
+      "const": "10000"
+    },
+    "evaluated_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "reward_tx_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^0x[0-9a-fA-F]{64}$"
+    },
+    "rewarded_at": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "failure_code": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "task_definition_version": {
+      "const": "1.1.0"
+    },
+    "task_definition_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "manifest_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "submission_id",
+    "observation_id",
+    "task_status",
+    "reward_state",
+    "network",
+    "asset",
+    "asset_address",
+    "amount_atomic",
+    "evaluated_at",
+    "reward_tx_hash",
+    "rewarded_at",
+    "failure_code",
+    "task_definition_version",
+    "task_definition_digest",
+    "manifest_url",
+    "manifest_sha256"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "task_status": {
+            "const": "SUBMITTED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reward_state": {
+            "const": "pending"
+          },
+          "evaluated_at": {
+            "type": "null"
+          },
+          "rewarded_at": {
+            "type": "null"
+          },
+          "reward_tx_hash": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task_status": {
+            "const": "EVALUATION_REJECTED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reward_state": {
+            "const": "not_eligible"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rewarded_at": {
+            "type": "null"
+          },
+          "reward_tx_hash": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task_status": {
+            "const": "REWARD_PENDING"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reward_state": {
+            "const": "approved_pending"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rewarded_at": {
+            "type": "null"
+          },
+          "reward_tx_hash": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task_status": {
+            "const": "REWARDED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reward_state": {
+            "const": "paid"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rewarded_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reward_tx_hash": {
+            "type": "string",
+            "pattern": "^0x[0-9a-fA-F]{64}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task_status": {
+            "const": "REWARD_FAILED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reward_state": {
+            "const": "failed"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rewarded_at": {
+            "type": "null"
+          },
+          "reward_tx_hash": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "task_status": {
+            "const": "REWARD_AMBIGUOUS"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "reward_state": {
+            "const": "ambiguous"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "rewarded_at": {
+            "type": "null"
+          },
+          "reward_tx_hash": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^0x[0-9a-fA-F]{64}$"
+          }
+        }
+      }
+    }
+  ]
+}

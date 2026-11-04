@@ -3,13 +3,13 @@ import json
 import pytest
 from test_access_quota import FAMILIES, PID, Harness, approved, challenge, status, success, b64
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2
-from ln_church_agent.access_quota import AccessQuotaError
-from ln_church_agent.task_client import AgentTaskClient
-from ln_church_agent.task_v2_client import AgentTaskV2Client
-from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_transport import PaidServiceTrialTransportError
-from ln_church_agent.task_journal import JournalError
+from mayim_agent.access_quota import AccessQuotaError
+from mayim_agent.task_client import AgentTaskClient
+from mayim_agent.task_v2_client import AgentTaskV2Client
+from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_transport import PaidServiceTrialTransportError
+from mayim_agent.task_journal import JournalError
 
 
 @pytest.mark.parametrize('family', FAMILIES)

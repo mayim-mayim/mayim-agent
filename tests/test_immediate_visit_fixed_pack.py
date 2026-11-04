@@ -2,9 +2,9 @@
 import json
 import pytest
 from jsonschema import Draft202012Validator
-from ln_church_agent.immediate_visit_versions import load_v2_pack,agent_user_agent
-from ln_church_agent.immediate_visit_models import ImmediateVisitTask,ImmediateVisitTaskPage,ImmediateVisitCompletionReceipt,ImmediateVisitSubmissionStatus,FrozenImmediateVisitReport
-from ln_church_agent.offer_registration import _request,plan
+from mayim_agent.immediate_visit_versions import load_v2_pack,agent_user_agent
+from mayim_agent.immediate_visit_models import ImmediateVisitTask,ImmediateVisitTaskPage,ImmediateVisitCompletionReceipt,ImmediateVisitSubmissionStatus,FrozenImmediateVisitReport
+from mayim_agent.offer_registration import _request,plan
 from test_v1_18_3_immediate_visit_transport import Harness
 
 PACK=load_v2_pack()
@@ -39,7 +39,7 @@ _PROFILE_VECTORS=json.loads(PACK['profile-fixtures.json'])['vectors']
 
 @pytest.mark.parametrize('vector',_PROFILE_VECTORS,ids=lambda v:v['id'])
 def test_fixed_v2_profile_vectors(vector):
-    from ln_church_agent import immediate_visit_profile as profile
+    from mayim_agent import immediate_visit_profile as profile
     body=bytes.fromhex(vector['body_hex'])
     result=profile.analyze_response(vector['status'],(('Content-Type',vector['content_type']),),body)
     assert result['outcome']==vector['expected_outcome']

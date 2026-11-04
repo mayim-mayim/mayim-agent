@@ -21,35 +21,35 @@ from bolt11.models.tags import Tag, TagChar
 from eth_account import Account
 from eth_account.messages import encode_typed_data
 
-from ln_church_agent.adapters.l402_delegate import (
+from mayim_agent.adapters.l402_delegate import (
     LightningLabsL402Executor,
     NativeL402Executor,
 )
-from ln_church_agent.challenges import (
+from mayim_agent.challenges import (
     parse_challenge_from_response,
     parse_www_authenticate,
 )
-from ln_church_agent.client import LnChurchClient, Payment402Client
-from ln_church_agent.crypto.evm import (
+from mayim_agent.client import MagClient, Payment402Client
+from mayim_agent.crypto.evm import (
     LocalKeyAdapter,
     build_eip3009_typed_data,
     derive_eip3009_requirement_nonce,
     validate_eip3009_payload,
 )
-from ln_church_agent.crypto.lightning import decode_bolt11_amount_msats
-from ln_church_agent.crypto.protocols import EVMSigner
-from ln_church_agent.payment_contract import sha256_prefixed
-from ln_church_agent.exceptions import (
+from mayim_agent.crypto.lightning import decode_bolt11_amount_msats
+from mayim_agent.crypto.protocols import EVMSigner
+from mayim_agent.payment_contract import sha256_prefixed
+from mayim_agent.exceptions import (
     CounterpartyTrustError,
     InvoiceParseError,
     NavigationGuardrailError,
     PaymentExecutionError,
 )
-from ln_church_agent.evaluators import (
+from mayim_agent.evaluators import (
     RemoteOutcomeMatcher,
     RemoteTrustEvaluator,
 )
-from ln_church_agent.models import (
+from mayim_agent.models import (
     ChallengeSource,
     EvidenceRepository,
     ExecutionContext,
@@ -397,7 +397,7 @@ def test_client_invalid_macaroon_fails_before_irreversible_reserve(
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_l402_402(macaroon=macaroon),
     ):
         with pytest.raises(PaymentExecutionError) as caught:
@@ -442,7 +442,7 @@ def test_l402_delegate_allowlist_uses_strict_netloc(
     )
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _l402_402(url="https://buyer.test:8443/start"),
             _transport_response(
@@ -660,7 +660,7 @@ def test_payment_request_rejection_is_pre_irreversible_and_retryable(
         first_transport_calls, total_transport_calls = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request", return_value=response
+            "mayim_agent.client.requests.request", return_value=response
         ) as transport:
             with pytest.raises(PaymentExecutionError):
                 client.execute_detailed(
@@ -742,7 +742,7 @@ def test_complete_payment_draft_opt_in_preserves_legacy_execution(async_mode):
         result, transport = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[response, paid],
         ) as transport:
             result = client.execute_detailed(
@@ -806,7 +806,7 @@ def test_payment_request_guard_preserves_legacy_lightning_rails(
         result, transport = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[response, paid],
         ) as transport:
             result = client.execute_detailed(
@@ -840,7 +840,7 @@ def test_mpp_unknown_currency_without_amount_stops_before_wallet(shape):
     )
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[response, _transport_response(200, {"unexpected": True})],
     ) as transport:
         with pytest.raises(PaymentExecutionError):
@@ -871,7 +871,7 @@ def test_mpp_sat_alias_positive_flow_reaches_wallet_once(shape):
     )
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[response, _transport_response(200, {"status": "paid"})],
     ) as transport:
         result = client.execute_detailed("GET", "https://buyer.test/start")
@@ -911,7 +911,7 @@ def test_mpp_declared_amount_or_currency_mismatch_stops_before_wallet(
     )
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=response
+        "mayim_agent.client.requests.request", return_value=response
     ) as transport:
         with pytest.raises(PaymentExecutionError):
             client.execute_detailed(
@@ -1029,7 +1029,7 @@ def test_mpp_case_empty_falsey_duplicate_and_contradiction_fail_before_wallet(ca
     )
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=response
+        "mayim_agent.client.requests.request", return_value=response
     ) as transport:
         with pytest.raises(PaymentExecutionError) as caught:
             client.execute_detailed(
@@ -1065,7 +1065,7 @@ def test_mpp_case_variant_fields_and_invoice_only_fallback_pay_once(shape):
     client = Payment402Client(ln_adapter=wallet)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _transport_response(402, headers={"WWW-Authenticate": header}),
             _transport_response(200, {"status": "paid"}),
@@ -1102,7 +1102,7 @@ def test_exact_parser_private_canonical_flows_to_real_signer_and_verifier():
         "generate_eip3009_payload_atomic",
         wraps=real_atomic,
     ) as signer_call:
-        with patch("ln_church_agent.client.requests.request", side_effect=[first, second]) as transport:
+        with patch("mayim_agent.client.requests.request", side_effect=[first, second]) as transport:
             result = client.execute_detailed("GET", "https://buyer.test/start")
 
     parsed = client._last_parsed_challenge
@@ -1168,7 +1168,7 @@ def test_exact_signer_cannot_mutate_approved_payto_during_callback():
     signer.client = client
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"unexpected": True})],
     ) as transport:
         with pytest.raises(PaymentExecutionError):
@@ -1197,7 +1197,7 @@ def test_exact_signer_cannot_mutate_approved_selected_option_during_callback():
     signer.client = client
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"unexpected": True})],
     ) as transport:
         with pytest.raises(PaymentExecutionError):
@@ -1233,7 +1233,7 @@ def test_exact_signer_cannot_rewrite_the_approval_snapshot_during_callback():
     signer.client = client
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"unexpected": True})],
     ) as transport:
         with pytest.raises(PaymentExecutionError):
@@ -1266,7 +1266,7 @@ def test_invalid_evm_payto_0xabc_is_rejected_before_signer():
     payload = _exact_payload(accepted_overrides={"payTo": "0xabc"})
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_exact_402(payload)
+        "mayim_agent.client.requests.request", return_value=_exact_402(payload)
     ) as transport:
         with pytest.raises(PaymentExecutionError):
             client.execute_detailed(
@@ -1310,7 +1310,7 @@ def test_exact_metadata_contradiction_is_rejected_before_signer(payload_mutator)
     payload_mutator(payload)
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_exact_402(payload)
+        "mayim_agent.client.requests.request", return_value=_exact_402(payload)
     ) as transport:
         with pytest.raises(PaymentExecutionError):
             client.execute_detailed(
@@ -1335,7 +1335,7 @@ def test_exact_without_accepts_fails_closed_before_signer():
         "resource": {},
     }
 
-    with patch("ln_church_agent.client.requests.request", return_value=_exact_402(payload)):
+    with patch("mayim_agent.client.requests.request", return_value=_exact_402(payload)):
         with pytest.raises(
             PaymentExecutionError,
             match="no complete canonical",
@@ -1358,7 +1358,7 @@ def test_unknown_network_or_token_never_falls_back_to_chain_137(accepted):
     client = Payment402Client(evm_signer=signer)
     payload = _exact_payload(accepted_overrides=accepted)
 
-    with patch("ln_church_agent.client.requests.request", return_value=_exact_402(payload)):
+    with patch("mayim_agent.client.requests.request", return_value=_exact_402(payload)):
         with pytest.raises(
             PaymentExecutionError,
             match="Fail-Closed",
@@ -1375,7 +1375,7 @@ def test_invalid_configured_signer_address_is_rejected_before_signing():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_exact_402()
+        "mayim_agent.client.requests.request", return_value=_exact_402()
     ) as transport:
         with pytest.raises(PaymentExecutionError):
             client.execute_detailed(
@@ -1577,7 +1577,7 @@ def test_legacy_evm_signer_without_canonical_binding_fails_closed():
     client = Payment402Client(evm_signer=LegacySigner())
     context = ExecutionContext()
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"status": "paid"})],
     ) as transport:
         with pytest.raises(
@@ -1611,7 +1611,7 @@ def test_exact_evm_signer_without_optional_generation_capability_fails_before_ma
     context = ExecutionContext()
     client = Payment402Client(evm_signer=SettlementOnlySigner())
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"unexpected": True})],
     ) as transport:
         with pytest.raises(PaymentExecutionError) as caught:
@@ -1748,7 +1748,7 @@ def _svm_transaction(
 
 
 def _validate_svm(payload, *, sender, destination, fee_payer=None):
-    from ln_church_agent.crypto.solana_svm import validate_svm_exact_payload
+    from mayim_agent.crypto.solana_svm import validate_svm_exact_payload
 
     payer = fee_payer or sender
     return validate_svm_exact_payload(
@@ -1799,7 +1799,7 @@ def test_svm_compute_budget_within_fixed_bounds_is_accepted(
 
 
 def test_builtin_svm_adapter_emits_exact_bounded_compute_pair():
-    from ln_church_agent.crypto.solana_svm import (
+    from mayim_agent.crypto.solana_svm import (
         COMPUTE_BUDGET_PROGRAM_ID_STR,
         LocalSvmAdapter,
         validate_svm_exact_payload,
@@ -1989,7 +1989,7 @@ def test_real_svm_transaction_mutation_is_rejected(case):
 def test_client_fails_closed_canonical_svm_before_signer_or_paid_retry(
     challenge_memo, credential_state,
 ):
-    from ln_church_agent.capabilities import get_capability_matrix
+    from mayim_agent.capabilities import get_capability_matrix
     from solders.keypair import Keypair
 
     capability = next(
@@ -2036,7 +2036,7 @@ def test_client_fails_closed_canonical_svm_before_signer_or_paid_retry(
 
     initial_ledger_version = client.policy._session_ledger_version
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _exact_402(requirement),
             _transport_response(200, {"unexpected": True}),
@@ -2111,13 +2111,13 @@ def test_client_rejects_invalid_custom_evm_signer_output_before_paid_retry():
     evidence = _CaptureEvidence()
     context = ExecutionContext()
     client = Payment402Client(evm_signer=signer, evidence_repo=evidence)
-    from ln_church_agent.crypto.evm import validate_eip3009_payload as real_validator
+    from mayim_agent.crypto.evm import validate_eip3009_payload as real_validator
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"unexpected": True})],
     ) as transport, patch(
-        "ln_church_agent.client.validate_eip3009_payload",
+        "mayim_agent.client.validate_eip3009_payload",
         wraps=real_validator,
     ) as validator:
         with pytest.raises(PaymentExecutionError) as caught:
@@ -2136,7 +2136,7 @@ def test_client_rejects_invalid_custom_evm_signer_output_before_paid_retry():
     assert all(record.session_spend_delta_usd in (None, 0) for record in evidence.records)
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_exact_402()
+        "mayim_agent.client.requests.request", return_value=_exact_402()
     ) as retry_transport:
         with pytest.raises(PaymentExecutionError):
             client.execute_detailed(
@@ -2176,7 +2176,7 @@ def test_client_fails_closed_svm_before_custom_signer_output_or_reserve():
     )
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _exact_402(requirement),
             _transport_response(200, {"unexpected": True}),
@@ -2199,7 +2199,7 @@ def test_client_fails_closed_svm_before_custom_signer_output_or_reserve():
     assert all(record.session_spend_delta_usd in (None, 0) for record in evidence.records)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_exact_402(requirement),
     ) as retry_transport:
         with pytest.raises(PaymentExecutionError):
@@ -2521,7 +2521,7 @@ def test_signer_exception_before_irreversible_marker_is_retryable_and_secret_fre
         error, transport_calls = asyncio.run(run_once())
     else:
         with patch(
-            "ln_church_agent.client.requests.request", return_value=_exact_402()
+            "mayim_agent.client.requests.request", return_value=_exact_402()
         ) as transport:
             with pytest.raises(RuntimeError) as caught:
                 client.execute_detailed(
@@ -2543,7 +2543,7 @@ def test_signer_exception_before_irreversible_marker_is_retryable_and_secret_fre
         _, retry_calls = asyncio.run(run_once())
     else:
         with patch(
-            "ln_church_agent.client.requests.request", return_value=_exact_402()
+            "mayim_agent.client.requests.request", return_value=_exact_402()
         ) as retry_transport:
             with pytest.raises(RuntimeError):
                 client.execute_detailed(
@@ -2645,7 +2645,7 @@ def test_cross_origin_redirect_strips_real_second_request_headers_and_params():
     headers = {**SENSITIVE_HEADERS, "X-Safe": "keep"}
 
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=[first, second]
+        "mayim_agent.client.requests.request", side_effect=[first, second]
     ) as transport:
         result = client.execute_detailed(
             "GET",
@@ -2674,7 +2674,7 @@ def test_same_origin_new_path_rotates_payment_credentials_before_second_request(
     second = _transport_response(200, {"status": "ok"}, url="https://source.test/other")
 
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=[first, second]
+        "mayim_agent.client.requests.request", side_effect=[first, second]
     ) as transport:
         client.execute_detailed(
             "GET",
@@ -2742,7 +2742,7 @@ def test_origin_comparison_uses_effective_port_without_weakening_strict_policy(
     second = _transport_response(200, {"status": "ok"}, url=destination)
 
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=[first, second]
+        "mayim_agent.client.requests.request", side_effect=[first, second]
     ) as transport:
         result = client.execute_detailed(
             "GET",
@@ -2787,7 +2787,7 @@ def test_hateoas_strips_original_and_suggested_nested_secrets_at_transport():
     second = _transport_response(200, {"status": "ok"}, url="https://source.test/next")
 
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=[first, second]
+        "mayim_agent.client.requests.request", side_effect=[first, second]
     ) as transport:
         result = client.execute_detailed(
             "GET",
@@ -2853,7 +2853,7 @@ def test_cross_origin_hateoas_drops_original_payload_and_uses_sanitized_suggesti
     second = _transport_response(200, {"status": "ok"}, url="https://dest.test/next")
 
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=[first, second]
+        "mayim_agent.client.requests.request", side_effect=[first, second]
     ) as transport:
         result = client.execute_detailed(
             "GET",
@@ -2882,7 +2882,7 @@ def test_cross_origin_hateoas_drops_original_payload_and_uses_sanitized_suggesti
 
 
 def test_external_observation_redacts_nested_secrets_but_preserves_public_evidence():
-    client = LnChurchClient(private_key=EVM_PRIVATE_KEY)
+    client = MagClient(private_key=EVM_PRIVATE_KEY)
     evidence = {
         "proof_reference": "public-ref",
         "payment_hash": "public-hash",
@@ -2944,7 +2944,7 @@ def test_external_observation_redacts_nested_secrets_but_preserves_public_eviden
 
 def test_external_observation_async_redacts_secret_families_in_sent_payload():
     async def run():
-        client = LnChurchClient(private_key=EVM_PRIVATE_KEY)
+        client = MagClient(private_key=EVM_PRIVATE_KEY)
         evidence = {
             "nested": [
                 {
@@ -2996,7 +2996,7 @@ def test_local_blocked_host_policy_wins_over_hints_and_allow_unsafe_navigation()
     )
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=redirect
+        "mayim_agent.client.requests.request", return_value=redirect
     ) as transport:
         with pytest.raises(NavigationGuardrailError, match="blocked_hosts"):
             client.execute_detailed(
@@ -3017,7 +3017,7 @@ def test_local_allowed_host_policy_cannot_be_extended_by_hints():
     )
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=redirect
+        "mayim_agent.client.requests.request", return_value=redirect
     ) as transport:
         with pytest.raises(NavigationGuardrailError, match="not in allowed_hosts"):
             client.execute_detailed(
@@ -3042,7 +3042,7 @@ def test_strict_netloc_allowed_hosts_sync(allowed_hosts, url, allowed):
     response = _transport_response(200, {"status": "ok"}, url=url)
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=response
+        "mayim_agent.client.requests.request", return_value=response
     ) as transport:
         if allowed:
             assert client.execute_detailed("GET", url).response == {"status": "ok"}
@@ -3068,7 +3068,7 @@ def test_strict_netloc_blocked_hosts_sync(blocked_hosts, url, blocked):
     response = _transport_response(200, {"status": "ok"}, url=url)
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=response
+        "mayim_agent.client.requests.request", return_value=response
     ) as transport:
         if blocked:
             with pytest.raises(NavigationGuardrailError) as caught:
@@ -3165,7 +3165,7 @@ def test_navigation_destination_uses_strict_local_netloc_before_sync_transport(
         hints={"allowed_hosts": ["dest.test:8443"]}
     )
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _strict_navigation_response(kind),
             _transport_response(
@@ -3383,7 +3383,7 @@ def test_cross_origin_hateoas_post_uses_only_sanitized_suggested_json(async_mode
         result, transport = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[first, second],
         ) as transport:
             result = client.execute_detailed(
@@ -3412,7 +3412,7 @@ def test_paid_retry_second_402_stops_before_second_wallet_call():
     client = Payment402Client(ln_adapter=wallet)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_l402_402(), _l402_402()],
     ):
         with pytest.raises(PaymentExecutionError, match="ambiguous_payment_result"):
@@ -3438,7 +3438,7 @@ def test_hateoas_new_path_keeps_top_level_fingerprint_and_wallet_call_count_one(
     )
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _l402_402(),
             after_payment,
@@ -3541,7 +3541,7 @@ def test_credential_reused_is_terminal_before_irreversible_reentry():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_l402_402(), _l402_402()],
     ):
         with pytest.raises(PaymentExecutionError, match="credential_delivery_failed"):
@@ -3551,7 +3551,7 @@ def test_credential_reused_is_terminal_before_irreversible_reentry():
 
     assert executor.calls == 1
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_l402_402()
+        "mayim_agent.client.requests.request", return_value=_l402_402()
     ):
         with pytest.raises(PaymentExecutionError, match="state is credential_reused"):
             client.execute_detailed(
@@ -3573,7 +3573,7 @@ def test_terminal_state_has_priority_over_max_payment_retry_limit():
     context.set_payment_state(fingerprint, "credential_reused")
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_l402_402()
+        "mayim_agent.client.requests.request", return_value=_l402_402()
     ):
         with pytest.raises(PaymentExecutionError, match="credential_reused") as caught:
             client.execute_detailed(
@@ -3597,7 +3597,7 @@ def test_ambiguous_wallet_timeout_reserves_exact_canonical_amount_once():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_l402_402(msats=1_000_000),
     ):
         with pytest.raises(PaymentExecutionError) as caught:
@@ -3617,7 +3617,7 @@ def test_ambiguous_wallet_timeout_reserves_exact_canonical_amount_once():
     assert evidence.records[0].session_budget_amount_usd == pytest.approx(0.65)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_l402_402(msats=1_000_000),
     ):
         with pytest.raises(PaymentExecutionError, match="state is ambiguous"):
@@ -3643,7 +3643,7 @@ def test_fail_closed_validation_before_wallet_has_no_ambiguous_reserve():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_l402_402(invoice="lnbc1"),
     ):
         with pytest.raises(PaymentExecutionError):
@@ -3708,7 +3708,7 @@ def test_pre_irreversible_primary_error_survives_evidence_export_failure(async_m
         error, transport_calls = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request", return_value=_exact_402()
+            "mayim_agent.client.requests.request", return_value=_exact_402()
         ) as transport:
             with pytest.raises(RuntimeError) as caught:
                 client.execute_detailed(
@@ -3757,7 +3757,7 @@ def test_result_unknown_primary_error_survives_evidence_export_failure(async_mod
         error, transport_calls = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             return_value=_l402_402(msats=1_000_000),
         ) as transport:
             with pytest.raises(PaymentExecutionError) as caught:
@@ -3806,7 +3806,7 @@ def test_paid_success_is_not_replaced_by_evidence_export_failure(async_mode):
         result, transport_calls = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[
                 _l402_402(msats=1000),
                 _transport_response(200, {"status": "paid"}),
@@ -3834,7 +3834,7 @@ def test_secret_is_absent_from_public_error_evidence_cause_and_context_chain():
     client = Payment402Client(ln_adapter=wallet, evidence_repo=evidence)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_l402_402(msats=1000),
     ):
         with pytest.raises(PaymentExecutionError) as caught:
@@ -3859,7 +3859,7 @@ def test_cached_credential_has_zero_session_spend_evidence_delta_and_reserve():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _l402_402(msats=1000),
             _transport_response(200, {"status": "cached"}),
@@ -3886,7 +3886,7 @@ def test_fresh_contexts_allow_two_real_purchases():
     client = Payment402Client(ln_adapter=wallet)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _l402_402(),
             _transport_response(200, {"purchase": 1}),
@@ -3922,7 +3922,7 @@ def test_sync_hateoas_ambiguous_flow_has_one_irreversible_call():
     )
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_l402_402(), next_action, _l402_402()],
     ):
         with pytest.raises(PaymentExecutionError, match="ambiguous_payment_result"):
@@ -3969,7 +3969,7 @@ def test_sync_pre_payment_transport_error_preserves_requests_type_and_state():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=requests.ConnectTimeout(secret),
     ):
         with pytest.raises(requests.ConnectTimeout) as caught:
@@ -4023,7 +4023,7 @@ def test_pre_irreversible_invoice_error_preserves_type_without_reserve():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_l402_402()
+        "mayim_agent.client.requests.request", return_value=_l402_402()
     ), patch.object(
         client,
         "_process_payment",
@@ -4055,7 +4055,7 @@ def test_pre_irreversible_nonstandard_exception_constructor_preserves_type():
     client = Payment402Client(ln_adapter=MagicMock())
     original = TwoArgumentInvoiceError("DUMMY_NONSTANDARD_SECRET", 17)
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_l402_402()
+        "mayim_agent.client.requests.request", return_value=_l402_402()
     ), patch.object(client, "_process_payment", side_effect=original):
         with pytest.raises(TwoArgumentInvoiceError) as caught:
             client.execute_detailed("GET", "https://buyer.test/start")
@@ -4073,7 +4073,7 @@ def test_paid_retry_transport_loss_is_secret_free_without_double_reserve():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_l402_402(), requests.RequestException(secret)],
     ):
         with pytest.raises(PaymentExecutionError) as caught:
@@ -4193,7 +4193,7 @@ def test_same_context_same_explicit_idempotency_key_rejects_second_purchase():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _l402_402(),
             _transport_response(200, {"purchase": 1}),
@@ -4226,7 +4226,7 @@ def test_same_context_different_idempotency_rejects_reused_payment_identity():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _l402_402(),
             _transport_response(200, {"purchase": 1}),
@@ -4272,7 +4272,7 @@ def test_one_msat_with_independent_zero_budget_stops_before_wallet(
     client = Payment402Client(ln_adapter=wallet, policy=policy)
 
     with patch(
-        "ln_church_agent.client.requests.request", return_value=_l402_402(msats=1)
+        "mayim_agent.client.requests.request", return_value=_l402_402(msats=1)
     ) as transport:
         with pytest.raises(PaymentExecutionError):
             client.execute_detailed("GET", "https://buyer.test/start")
@@ -4285,7 +4285,7 @@ def test_one_msat_with_independent_zero_budget_stops_before_wallet(
 def test_audit_evm_signature_is_expiry_and_requirement_bound():
     client = Payment402Client(private_key=EVM_PRIVATE_KEY)
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"status": "paid"})],
     ) as transport:
         result = client.execute_detailed(
@@ -4336,7 +4336,7 @@ def test_audit_rejects_validly_signed_evm_output_outside_canonical_bounds(tamper
 
     client = Payment402Client(evm_signer=RebindingSigner())
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_exact_402(), _transport_response(200, {"unexpected": True})],
     ) as transport:
         with pytest.raises(
@@ -4379,7 +4379,7 @@ def test_audit_exact_transport_unknown_is_reserved_and_recoverable(async_mode):
         asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[_exact_402(), requests.ReadTimeout("lost")],
         ):
             with pytest.raises(PaymentExecutionError, match="settlement_unknown"):
@@ -4418,7 +4418,7 @@ def test_audit_exact_transport_unknown_is_reserved_and_recoverable(async_mode):
         retry_result = asyncio.run(retry())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[
                 _exact_402(),
                 _transport_response(200, {"status": "paid-after-check"}),
@@ -4469,7 +4469,7 @@ def test_audit_unknown_budget_journal_survives_restart_and_release(async_mode):
         asyncio.run(lose_response())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[_exact_402(), requests.ReadTimeout("lost")],
         ):
             with pytest.raises(
@@ -4556,7 +4556,7 @@ def test_audit_unknown_budget_journal_survives_restart_and_release(async_mode):
         asyncio.run(lose_retry_response())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[_exact_402(), requests.ReadTimeout("lost-again")],
         ):
             with pytest.raises(
@@ -4625,7 +4625,7 @@ def test_audit_get_query_is_materialized_once_before_x402_approval():
     challenge["resource"]["method"] = "GET"
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _exact_402(challenge, url=wire_url),
             _transport_response(200, {"status": "paid"}, url=wire_url),
@@ -4735,7 +4735,7 @@ def test_audit_evidence_redacts_secret_wire_query_at_export_boundary(
             _transport_response(200, {"status": "paid"}, url=wire_url)
         )
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[_exact_402(challenge, url=wire_url), second],
         ) as transport:
             if transport_fails:
@@ -4878,7 +4878,7 @@ def test_audit_local_trust_echo_is_raw_locally_but_sanitized_at_boundaries(
         public_error, transport = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             return_value=_exact_402(challenge, url=wire_url),
         ) as transport:
             with pytest.raises(CounterpartyTrustError) as caught:
@@ -4975,7 +4975,7 @@ def test_audit_local_outcome_echo_is_raw_for_caller_but_sanitized_for_repo(
         result, transport = asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             return_value=response,
         ) as transport:
             result = client.execute_detailed(
@@ -5060,7 +5060,7 @@ def test_audit_remote_trust_redacts_query_and_hint_copy_only(async_mode):
     }
 
     with patch(
-        "ln_church_agent.evaluators.requests.post",
+        "mayim_agent.evaluators.requests.post",
         return_value=remote_response,
     ) as remote_post:
         if async_mode:
@@ -5079,7 +5079,7 @@ def test_audit_remote_trust_redacts_query_and_hint_copy_only(async_mode):
             transport = asyncio.run(run())
         else:
             with patch(
-                "ln_church_agent.client.requests.request",
+                "mayim_agent.client.requests.request",
                 return_value=_exact_402(challenge, url=wire_url),
             ) as transport:
                 with pytest.raises(CounterpartyTrustError):
@@ -5164,7 +5164,7 @@ def test_audit_remote_outcome_redacts_query_but_local_and_result_stay_raw(
     }
 
     with patch(
-        "ln_church_agent.evaluators.requests.post",
+        "mayim_agent.evaluators.requests.post",
         return_value=remote_response,
     ) as remote_post:
         if async_mode:
@@ -5184,7 +5184,7 @@ def test_audit_remote_outcome_redacts_query_but_local_and_result_stay_raw(
         else:
             client = Payment402Client()
             with patch(
-                "ln_church_agent.client.requests.request",
+                "mayim_agent.client.requests.request",
                 return_value=response,
             ) as transport:
                 result = client.execute_detailed(
@@ -5211,7 +5211,7 @@ def test_audit_remote_outcome_redacts_query_but_local_and_result_stay_raw(
 def test_audit_get_query_resource_mismatch_stops_before_signing():
     client = Payment402Client(private_key=EVM_PRIVATE_KEY)
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_exact_402(),
     ) as transport, patch.object(
         client.evm_signer, "generate_eip3009_payload_atomic"
@@ -5229,7 +5229,7 @@ def test_audit_get_query_resource_mismatch_stops_before_signing():
 def test_audit_receipt_identity_changes_with_logical_operation():
     client = Payment402Client(private_key=EVM_PRIVATE_KEY)
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[
             _exact_402(),
             _transport_response(200, {"operation": 1}),
@@ -5593,7 +5593,7 @@ def test_audit_signed_receipt_without_settlement_checker_stays_unsettled():
         return transport(method, url, **kwargs)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=dynamic_transport,
     ):
         result = client.execute_detailed("GET", "https://buyer.test/start")
@@ -5632,7 +5632,7 @@ def test_audit_exact_credential_redirect_cannot_confirm_settlement(async_mode):
         asyncio.run(run())
     else:
         with patch(
-            "ln_church_agent.client.requests.request",
+            "mayim_agent.client.requests.request",
             side_effect=[_exact_402(), redirect, public_success],
         ) as transport:
             with pytest.raises(PaymentExecutionError, match="settlement_unknown"):

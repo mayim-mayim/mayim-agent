@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ln-church:agent-task-spec:payment_surface_discovery.v1:1.1.0:submission",
+  "title": "Durable Payment Surface Discovery Completion Snapshot",
+  "description": "Exact normalized submission stored on the claimed AgentTaskExecution after the independently discovered DomainObservation is durably recorded. The domain is an Executor result, never a Task input.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "submission_id",
+    "observation_id",
+    "task_definition_digest",
+    "domain",
+    "submitted_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.task_submission.v1"
+    },
+    "submission_id": {
+      "type": "string",
+      "pattern": "^sub_[a-f0-9]{32}$"
+    },
+    "observation_id": {
+      "type": "string",
+      "pattern": "^obs_task_[a-f0-9]{32}$"
+    },
+    "task_definition_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "domain": {
+      "description": "Canonical domain discovered and recorded by the Executor Agent.",
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 253,
+      "pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z](?:[a-z0-9-]{0,61}[a-z0-9])?$"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

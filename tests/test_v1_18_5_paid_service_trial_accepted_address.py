@@ -17,15 +17,15 @@ from eth_utils import to_checksum_address
 
 from test_v1_18_5_paid_service_trial_contract import wire, FakeTaskTransport
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2, V2TaskTransport
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent import paid_service_trial as executor_module
-from ln_church_agent.crypto.evm import derive_eip3009_requirement_nonce
-from ln_church_agent.models import PaymentPolicy
-from ln_church_agent.paid_service_trial import PaidServiceTrialExecutor
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.paid_service_trial_models import parse_claim
-from ln_church_agent.paid_service_trial_network import PaidTrialHTTPResponse
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent import paid_service_trial as executor_module
+from mayim_agent.crypto.evm import derive_eip3009_requirement_nonce
+from mayim_agent.models import PaymentPolicy
+from mayim_agent.paid_service_trial import PaidServiceTrialExecutor
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.paid_service_trial_models import parse_claim
+from mayim_agent.paid_service_trial_network import PaidTrialHTTPResponse
 
 PATHS = [('v1','GET'), ('v2','GET'), ('v2','POST')]
 PAY_TO = '0xabcdef0123456789abcdef0123456789abcdef01'

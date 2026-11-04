@@ -12,7 +12,7 @@ import pytest
 import requests
 import urllib3
 
-from ln_church_agent import inspect_transport as transport
+from mayim_agent import inspect_transport as transport
 
 
 RAW_FAILURE_MARKER = "DUMMY_RAW_READ_FAILURE_P0_3"

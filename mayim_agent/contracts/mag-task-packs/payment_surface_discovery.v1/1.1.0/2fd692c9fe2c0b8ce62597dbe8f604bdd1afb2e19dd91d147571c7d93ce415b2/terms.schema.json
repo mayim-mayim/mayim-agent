@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "terms_schema": {
+      "const": "ln_church.task_offer_registration_terms.payment_surface_discovery.v1_1"
+    },
+    "task_type": {
+      "const": "payment_surface_discovery.v1"
+    },
+    "task_definition_version": {
+      "const": "1.1.0"
+    },
+    "task_definition_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "plan_id": {
+      "enum": [
+        "C50",
+        "C500",
+        "C5000"
+      ]
+    },
+    "activity_map_policy_id": {
+      "const": "mag.activity-map.public.v1"
+    },
+    "activity_map_epoch": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    }
+  },
+  "required": [
+    "terms_schema",
+    "task_type",
+    "task_definition_version",
+    "task_definition_digest",
+    "plan_id",
+    "activity_map_policy_id",
+    "activity_map_epoch"
+  ]
+}

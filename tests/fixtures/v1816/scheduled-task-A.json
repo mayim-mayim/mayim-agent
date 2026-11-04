@@ -1,0 +1,32 @@
+{
+  "schema_version": "ln_church.agent_task.v2_1",
+  "economic_terms_revision": "scheduled-A",
+  "registration_amount_atomic": "1000000",
+  "terms_digest": "9c30b73fad41541792329bbaf4bc0f802f9f3ca54f28d2e3b27b46898e8846e2",
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "base_amount_atomic": "10000",
+    "reference_amount_atomic": "100000"
+  },
+  "task_id": "task_e61739e3eb3641d331d064e0119b4131",
+  "task_type": "scheduled_http_get_batch.v1",
+  "task_definition_version": "1.1.0",
+  "task_definition_digest": "1e0331dfe9ff1ca63b1002e9ccd530e2de8cf0b0dc751704c0190093d19227a7",
+  "status": "OPEN",
+  "scheduled_at": "2026-08-20T03:00:00Z",
+  "report_close_at": "2026-08-20T03:10:00Z",
+  "plan_id": "C50",
+  "capacity_total": 50,
+  "capacity_remaining": 50,
+  "minimum_counted_claims": 25,
+  "counted_claims_current": 0,
+  "successful_claims_lifetime": 0,
+  "active_reservations": 0,
+  "accepted_reports": 0,
+  "base_reward_entitlements": 0,
+  "base_rewards_paid_confirmed": 0,
+  "reference_bonus_state": "NOT_DUE",
+  "claimable": true
+}

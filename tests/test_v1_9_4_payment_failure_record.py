@@ -1,5 +1,5 @@
 import pytest
-from ln_church_agent.failures import (
+from mayim_agent.failures import (
     build_payment_failure_record, 
     build_payment_failure_observation_payload,
     fingerprint_public_challenge_summary

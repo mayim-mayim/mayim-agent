@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "ln_church.agent_task_error.v1"
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "invalid_request",
+                "invalid_manifest",
+                "unsupported_task_type",
+                "invalid_control_key",
+                "invalid_claim_token",
+                "origin_mismatch",
+                "offer_not_manageable",
+                "not_found",
+                "idempotency_conflict",
+                "registration_intent_conflict",
+                "payment_authorization_conflict",
+                "campaign_capacity_unavailable",
+                "offer_not_claimable",
+                "wallet_guard_conflict",
+                "claim_outcome_unknown",
+                "submission_conflict",
+                "offer_not_cancellable",
+                "claim_expired",
+                "report_closed",
+                "report_binding_invalid",
+                "report_not_open",
+                "manifest_not_yet_available",
+                "settlement_reconciliation_pending",
+                "temporarily_unavailable",
+                "terms_confirmation_required",
+                "economic_terms_unavailable"
+              ]
+            },
+            "message": {
+              "type": "string"
+            },
+            "retryable": {
+              "type": "boolean"
+            },
+            "request_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "retryable",
+            "request_id"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "error"
+      ]
+    },
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "ln_church.agent_task_error.v1"
+        },
+        "error_code": {
+          "const": "task_not_found"
+        }
+      },
+      "required": [
+        "schema_version",
+        "error_code"
+      ]
+    }
+  ]
+}

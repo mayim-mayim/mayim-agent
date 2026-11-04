@@ -19,18 +19,18 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from ln_church_agent import inspect_transport as transport
-from ln_church_agent import redaction as redaction_policy
-from ln_church_agent import cli as cli_module
-from ln_church_agent import challenges as challenges_module
-from ln_church_agent.cli import (
+from mayim_agent import inspect_transport as transport
+from mayim_agent import redaction as redaction_policy
+from mayim_agent import cli as cli_module
+from mayim_agent import challenges as challenges_module
+from mayim_agent.cli import (
     inspect_url,
     _extract_settlement_options,
     _public_x402_pay_to,
 )
-from ln_church_agent.integrations import mcp_inspect
-from ln_church_agent.payment_contract import sha256_prefixed
-from ln_church_agent.redaction import (
+from mayim_agent.integrations import mcp_inspect
+from mayim_agent.payment_contract import sha256_prefixed
+from mayim_agent.redaction import (
     QUERY_REDACTION,
     redact_inspect_public_url,
     redact_remote_metadata,
@@ -274,77 +274,8 @@ def test_timeout_must_be_finite_positive_and_bounded(monkeypatch, timeout):
     assert exchange_calls == []
 
 
-def test_fragment_is_removed_on_wire_and_query_is_redacted_from_all_outputs(monkeypatch):
-    raw_url = (
-        "https://public.example/resource?token="
-        + RAW_QUERY_SECRET
-        + "&empty=#private-fragment"
-    )
-    _public_resolver(monkeypatch)
-    exchange_calls = []
-
-    def exchange(target, address, method, timeout, body=None):
-        del address, method, timeout, body
-        exchange_calls.append(target.url)
-        return _FakeResponse(200, url=target.url)
-
-    monkeypatch.setattr(transport, "_exchange_once", exchange)
-
-    cli_result = inspect_url(raw_url)
-    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
-    observation = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    serialized = json.dumps(
-        {
-            "cli": cli_result.model_dump(),
-            "mcp": mcp_result,
-            "observation": observation,
-        },
-        sort_keys=True,
-    )
-
-    assert len(exchange_calls) == 2
-    assert all(RAW_QUERY_SECRET in url for url in exchange_calls)
-    assert all("#" not in url for url in exchange_calls)
-    assert RAW_QUERY_SECRET not in serialized
-    assert "private-fragment" not in serialized
-    assert cli_result.url == "https://public.example/"
-    assert mcp_result["url"] == cli_result.url
-    assert observation["targetUrl"] == cli_result.url
 
 
-@pytest.mark.parametrize(
-    "credential",
-    [
-        "AKIA" + "1234567890ABCDEF",
-        "receipt_token_opaque-token-1234567890",
-        "authorization-Bearer-opaque_token_123456789",
-        "cookie_session-opaque-1234567890",
-    ],
-)
-def test_secret_shaped_query_key_is_redacted_from_public_outputs(
-    monkeypatch, credential
-):
-    raw_url = "https://public.example/resource?" + credential + "=ignored"
-    _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(
-        monkeypatch,
-        [_FakeResponse(200), _FakeResponse(200)],
-    )
-
-    direct = inspect_url(raw_url)
-    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
-    observation = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    serialized = json.dumps({
-        "direct": direct.model_dump(),
-        "mcp": mcp_result,
-        "observation": observation,
-    })
-
-    assert credential in exchange_calls[0]["target"].url
-    assert credential in exchange_calls[1]["target"].url
-    assert credential not in serialized
-    assert direct.url == "https://public.example/"
-    assert observation["targetUrl"] == direct.url
 
 
 @pytest.mark.parametrize(
@@ -374,160 +305,14 @@ def test_standard_signing_query_key_names_preserve_only_the_name(
     assert RAW_QUERY_SECRET not in result.model_dump_json()
 
 
-@pytest.mark.parametrize(
-    "suffix,leak,wire_contains",
-    [
-        ("/credentials/DUMMY_PATH_CREDENTIAL_123", "DUMMY_PATH_CREDENTIAL_123", True),
-        ("/signature/" + ("S" * 160), "S" * 160, True),
-        ("/reset/DUMMY_RESET_TOKEN_123456", "DUMMY_RESET_TOKEN_123456", True),
-        ("/users/DUMMY_EMAIL%40example.com", "DUMMY_EMAIL", True),
-        ("/users/DUMMY_EMAIL%2540example.com", "DUMMY_EMAIL", True),
-        ("?DUMMY_QUERY_KEY=ignored", "DUMMY_QUERY_KEY", True),
-        ("?DUMMY%255FQUERY_KEY=ignored", "DUMMY", True),
-        ("#DUMMY_PRIVATE_FRAGMENT", "DUMMY_PRIVATE_FRAGMENT", False),
-    ],
-)
-def test_public_url_is_origin_only_across_cli_mcp_payload_validator_and_wire(
-    monkeypatch, suffix, leak, wire_contains
-):
-    raw_url = "https://public.example" + suffix
-    _public_resolver(monkeypatch)
-    get_calls = _fake_exchange(
-        monkeypatch,
-        [_FakeResponse(200), _FakeResponse(200)],
-    )
-    post_calls = _fake_observation_exchange(monkeypatch, [204])
-
-    cli_result = inspect_url(raw_url)
-    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
-    payload = mcp_inspect.build_mcp_observation_payload(mcp_result)
-
-    assert (leak in get_calls[0]["target"].url) is wire_contains
-    assert (leak in get_calls[1]["target"].url) is wire_contains
-    assert cli_result.url == "https://public.example/"
-    assert mcp_result["url"] == "https://public.example/"
-    assert payload["targetUrl"] == "https://public.example/"
-    assert mcp_inspect._validate_observation_payload(payload) is None
-
-    result = mcp_inspect.submit_mcp_observation(payload)
-    serialized = json.dumps({
-        "cli": cli_result.model_dump(),
-        "mcp": mcp_result,
-        "payload": payload,
-        "submission": result,
-    })
-    wire_body = post_calls[0]["body"]
-
-    assert result["status"] == "success"
-    assert leak not in serialized
-    assert leak.encode("utf-8") not in wire_body
-    assert json.loads(wire_body)["targetUrl"] == "https://public.example/"
 
 
-@pytest.mark.parametrize(
-    "credential,double_encoded",
-    [
-        ("DUMMY_RESET_TOKEN_123456", False),
-        ("DUMMY_LONG_SIGNATURE_" + ("Q" * 160), True),
-    ],
-)
-def test_fully_encoded_credentials_never_cross_a_public_boundary(
-    monkeypatch, credential, double_encoded
-):
-    encoded = _fully_percent_encode(credential, double=double_encoded)
-    raw_url = "https://public.example/credential/" + encoded
-    _public_resolver(monkeypatch)
-    get_calls = _fake_exchange(
-        monkeypatch,
-        [_FakeResponse(200), _FakeResponse(200)],
-    )
-    post_calls = _fake_observation_exchange(monkeypatch, [204])
-
-    cli_result = inspect_url(raw_url)
-    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
-    payload = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    result = mcp_inspect.submit_mcp_observation(payload)
-    serialized = json.dumps({
-        "cli": cli_result.model_dump(),
-        "mcp": mcp_result,
-        "payload": payload,
-        "submission": result,
-    })
-
-    expected_wire_value = encoded if double_encoded else credential
-    assert expected_wire_value in get_calls[0]["target"].url
-    assert expected_wire_value in get_calls[1]["target"].url
-    assert cli_result.url == "https://public.example/"
-    assert mcp_result["url"] == "https://public.example/"
-    assert payload["targetUrl"] == "https://public.example/"
-    assert mcp_inspect._validate_observation_payload(payload) is None
-    assert credential not in serialized
-    assert encoded not in serialized
-    assert credential.encode("utf-8") not in post_calls[0]["body"]
-    assert encoded.encode("ascii") not in post_calls[0]["body"]
 
 
-@pytest.mark.parametrize(
-    "target",
-    [
-        "https://public.example/path",
-        "https://public.example/?query_key=value",
-        "https://public.example/#fragment",
-        "HTTPS://PUBLIC.EXAMPLE/",
-        "https://public.example:443/",
-    ],
-)
-def test_observation_validator_requires_the_exact_canonical_public_origin(target):
-    payload = _safe_observation_payload()
-    payload["targetUrl"] = target
-
-    assert (
-        mcp_inspect._validate_observation_payload(payload)
-        == "observation_schema_invalid"
-    )
 
 
-@pytest.mark.parametrize(
-    "agent_id",
-    [
-        "alice@example.com",
-        "opaque-agent-123456",
-        "DUMMY_RESET_TOKEN_123456",
-        "S" * 160,
-        "alice%40example.com",
-        "alice%2540example.com",
-    ],
-)
-def test_observation_agent_id_is_fixed_by_builder_and_validator(
-    monkeypatch, agent_id
-):
-    payload = mcp_inspect.build_mcp_observation_payload(
-        _safe_observation_input(),
-        agent_id=agent_id,
-    )
-    forged = copy.deepcopy(payload)
-    forged["agentId"] = agent_id
-    _public_resolver(monkeypatch)
-    post_calls = _fake_observation_exchange(monkeypatch, [204])
-
-    assert payload["agentId"] == "optional-agent-id"
-    assert mcp_inspect._validate_observation_payload(payload) is None
-    assert mcp_inspect._validate_observation_payload(forged) is not None
-
-    result = mcp_inspect.submit_mcp_observation(payload)
-
-    assert result["status"] == "success"
-    assert agent_id.encode("utf-8") not in post_calls[0]["body"]
 
 
-def test_observation_sdk_version_is_a_fixed_scalar():
-    payload = _safe_observation_payload()
-    payload["sdk_version"] = "1.16.4+alice"
-
-    assert (
-        mcp_inspect._validate_observation_payload(payload)
-        == "observation_schema_invalid"
-    )
 
 
 def test_action_explanation_uses_finite_handoff_allowlists_only():
@@ -628,24 +413,6 @@ def test_metadata_hostnames_are_rejected_before_dns(monkeypatch, hostname):
     assert exchange_calls == []
 
 
-@pytest.mark.parametrize("address", ["192.0.0.192", "168.63.129.16"])
-def test_version_independent_metadata_addresses_are_rejected_everywhere(
-    monkeypatch, address
-):
-    exchange_calls = _fake_exchange(monkeypatch, [])
-    raw_url = "http://%s/latest" % address
-
-    with pytest.raises(transport.InspectTransportError) as caught:
-        transport._inspect_request(raw_url)
-    with pytest.raises(transport.InspectTransportError) as observation:
-        transport._validate_observation_target(raw_url)
-
-    assert caught.value.stage == "dns_validation"
-    assert caught.value.code == "dns_forbidden_address"
-    assert observation.value.code == "dns_forbidden_address"
-    assert redaction_policy._inspect_address_is_forbidden(address) is True
-    assert redact_inspect_public_url(raw_url) == QUERY_REDACTION
-    assert exchange_calls == []
 
 
 @pytest.mark.parametrize("address", ["192.0.0.192", "168.63.129.16"])
@@ -1608,663 +1375,38 @@ def test_guidance_classification_failure_keeps_parse_domain(monkeypatch):
     assert secret not in serialized
 
 
-def test_unhashable_selection_reason_and_action_inputs_cannot_crash(
-    monkeypatch,
-):
-    requirement = {
-        "scheme": "exact",
-        "network": "eip155:1",
-        "asset": "USDC",
-        "amount": "1",
-    }
-    parsed = SimpleNamespace(
-        _inspect_semantically_valid=True,
-        scheme="exact",
-        payment_method=None,
-        network="eip155:1",
-        asset="USDC",
-        amount="1",
-        payment_intent=None,
-        draft_shape=None,
-        source=None,
-        parameters={
-            "_all_accepted": [requirement],
-            "_raw_accepted": requirement,
-            "_selection_reason": [],
-        },
-    )
-    _public_resolver(monkeypatch)
-    _fake_exchange(monkeypatch, [_FakeResponse(402)])
-
-    with patch(
-        "ln_church_agent.challenges._parse_challenge_from_response",
-        return_value=parsed,
-    ):
-        result = inspect_url("https://public.example/")
-    payload = mcp_inspect.build_mcp_observation_payload({
-        **_safe_observation_input(),
-        "settlement_options": [{
-            "network": "eip155:1",
-            "asset": "USDC",
-            "rail": "x402",
-            "scheme": "exact",
-            "selection_reason": [],
-        }],
-    })
-
-    assert result.recommended_action == "observe_only"
-    assert result.settlement_options[0].selection_reason == "unknown"
-    assert payload["settlement_options_summary"][0]["selection_reason"] == "unknown"
-    for hostile_action in ([], {}, 1):
-        explanation = mcp_inspect.explain_recommended_action({
-            "recommended_action": hostile_action
-        })
-        assert explanation["recommended_action"] == "unknown"
-        assert explanation["payment_execution_available_in_this_mcp"] is False
-
-
-@pytest.mark.parametrize(
-    "endpoint",
-    [
-        "http://kari.mayim-mayim.com/api/agent/external/mcp-observe",
-        "https://kari.mayim-mayim.com/api/agent/external/mcp-observe/",
-        "https://kari.mayim-mayim.com/api/agent/external/mcp-observe?x=1",
-        "https://other.example/api/agent/external/mcp-observe",
-        "http://127.0.0.1/collect",
-    ],
-)
-def test_noncanonical_observation_endpoint_is_rejected_before_dns_or_network(
-    monkeypatch, endpoint
-):
-    resolver_calls = _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(monkeypatch, [])
-
-    result = mcp_inspect.submit_mcp_observation(
-        _safe_observation_payload(), endpoint=endpoint
-    )
-
-    assert set(result) == {
-        "status", "status_code", "failure_code", "recommended_action"
-    }
-    assert result["status"] != "success"
-    assert result["status_code"] is None
-    assert result["failure_code"] == "observation_endpoint_mismatch"
-    assert result["recommended_action"] == "stop_safely"
-    assert resolver_calls == []
-    assert exchange_calls == []
-
-
-def test_observation_post_rejects_redirect_and_does_not_follow(monkeypatch):
-    resolver_calls = _public_resolver(monkeypatch)
-    exchange_calls = _fake_observation_exchange(
-        monkeypatch,
-        [_FakeResponse(307, headers={"Location": "https://other.example/collect"})],
-    )
-
-    result = mcp_inspect.submit_mcp_observation(_safe_observation_payload())
-
-    assert set(result) == {
-        "status", "status_code", "failure_code", "recommended_action"
-    }
-    assert result["status"] != "success"
-    assert result["status_code"] == 307
-    assert result["failure_code"] == "observation_redirect_rejected"
-    assert resolver_calls == [
-        ("public.example", 443),
-        ("kari.mayim-mayim.com", 443),
-    ]
-    assert len(exchange_calls) == 1
-    assert exchange_calls[0]["method"] == "POST"
-
-
-def test_observation_success_returns_no_response_body(monkeypatch):
-    _public_resolver(monkeypatch)
-    exchange_calls = _fake_observation_exchange(
-        monkeypatch,
-        [_FakeResponse(204, content=RAW_RESPONSE_SECRET.encode("utf-8"))],
-    )
-
-    result = mcp_inspect.submit_mcp_observation(_safe_observation_payload())
-    serialized = json.dumps(result)
-
-    assert result == {
-        "status": "success",
-        "status_code": 204,
-        "failure_code": None,
-        "recommended_action": "none",
-    }
-    assert RAW_RESPONSE_SECRET not in serialized
-    assert len(exchange_calls) == 1
-    submitted = json.loads(exchange_calls[0]["body"].decode("utf-8"))
-    assert submitted["evidence"]["payment_performed"] is False
-    assert submitted["evidence"]["proof_reference"] == "none"
-
-
-def test_two_ip_observation_timeout_is_not_replayed(monkeypatch):
-    resolver_calls = []
-
-    def resolve(host, port):
-        resolver_calls.append((host, port))
-        if host == "kari.mayim-mayim.com":
-            return (PUBLIC_V4, PUBLIC_V4_FALLBACK)
-        return (PUBLIC_V4,)
-
-    class TimeoutSession:
-        def __init__(self):
-            self.trust_env = True
-            self.headers = {}
-            self.cookies = {}
-            self.request_calls = []
-            self.closed = False
-
-        def mount(self, *_args):
-            return None
-
-        def request(self, method, url, **kwargs):
-            self.request_calls.append((method, url, kwargs))
-            raise requests.exceptions.Timeout("ambiguous observation timeout")
-
-        def close(self):
-            self.closed = True
-
-    session = TimeoutSession()
-    monkeypatch.setattr(transport, "_resolve_addresses", resolve)
-    monkeypatch.setattr(transport.requests, "Session", lambda: session)
-
-    result = mcp_inspect.submit_mcp_observation(_safe_observation_payload())
-
-    assert result == {
-        "status": "failure",
-        "status_code": None,
-        "failure_code": "observation_delivery_unknown",
-        "recommended_action": "stop_safely",
-    }
-    assert len(session.request_calls) == 1
-    assert session.request_calls[0][0] == "POST"
-    assert session.request_calls[0][1].startswith(
-        "https://%s/" % PUBLIC_V4_FALLBACK
-    )
-    assert session.closed is True
-    assert resolver_calls == [
-        ("public.example", 443),
-        ("kari.mayim-mayim.com", 443),
-    ]
-
-
-def test_production_observation_exchange_reads_no_body_and_closes(monkeypatch):
-    class GuardedResponse:
-        status_code = 204
-
-        def __init__(self):
-            self.closed = False
-
-        @property
-        def content(self):
-            raise AssertionError("observation response body must not be read")
-
-        @property
-        def text(self):
-            raise AssertionError("observation response body must not be read")
-
-        @property
-        def raw(self):
-            raise AssertionError("observation response body must not be read")
-
-        def json(self):
-            raise AssertionError("observation response body must not be read")
-
-        def iter_content(self, *_args, **_kwargs):
-            raise AssertionError("observation response body must not be read")
-
-        def close(self):
-            self.closed = True
-
-    class FakeSession:
-        def __init__(self, response):
-            self.response = response
-            self.trust_env = True
-            self.headers = {"unexpected": "value"}
-            self.cookies = {"unexpected": "value"}
-            self.closed = False
-            self.request_calls = []
-
-        def mount(self, *_args):
-            return None
-
-        def request(self, method, url, **kwargs):
-            self.request_calls.append((method, url, kwargs))
-            return self.response
-
-        def close(self):
-            self.closed = True
-
-    response = GuardedResponse()
-    session = FakeSession(response)
-    monkeypatch.setattr(transport.requests, "Session", lambda: session)
-    target = transport._canonicalize_target(
-        transport.CANONICAL_OBSERVATION_ENDPOINT
-    )
-
-    status = transport._exchange_observation_once(
-        target,
-        PUBLIC_V4,
-        5.0,
-        b"{}",
-    )
-
-    assert status == 204
-    assert response.closed is True
-    assert session.closed is True
-    assert len(session.request_calls) == 1
-    method, _url, kwargs = session.request_calls[0]
-    assert method == "POST"
-    assert kwargs["stream"] is True
-    assert kwargs["allow_redirects"] is False
-    assert kwargs["headers"]["Accept-Encoding"] == "identity"
-
-
-@pytest.mark.parametrize(
-    "failure",
-    [
-        requests.exceptions.Timeout("ambiguous timeout"),
-        requests.exceptions.SSLError("ambiguous tls failure"),
-        requests.exceptions.RequestException("ambiguous network failure"),
-    ],
-)
-def test_production_observation_network_failure_has_unknown_delivery(
-    monkeypatch, failure
-):
-    class FailingSession:
-        def __init__(self):
-            self.trust_env = True
-            self.headers = {}
-            self.cookies = {}
-            self.calls = 0
-            self.closed = False
-
-        def mount(self, *_args):
-            return None
-
-        def request(self, *_args, **_kwargs):
-            self.calls += 1
-            raise failure
-
-        def close(self):
-            self.closed = True
-
-    session = FailingSession()
-    monkeypatch.setattr(transport.requests, "Session", lambda: session)
-    target = transport._canonicalize_target(
-        transport.CANONICAL_OBSERVATION_ENDPOINT
-    )
-
-    with pytest.raises(transport.InspectTransportError) as caught:
-        transport._exchange_observation_once(
-            target,
-            PUBLIC_V4,
-            5.0,
-            b"{}",
-        )
-
-    assert caught.value.stage == "transport"
-    assert caught.value.code == "observation_delivery_unknown"
-    assert session.calls == 1
-    assert session.closed is True
-
-
-@pytest.mark.parametrize(
-    "mutation",
-    [
-        lambda value: value.update({"headers": {"Authorization": "Bearer raw"}}),
-        lambda value: value.update({"body": "raw request body"}),
-        lambda value: value.update({"credential": "raw credential"}),
-        lambda value: value.update({"macaroon": "raw macaroon"}),
-        lambda value: value.update({"schema_version": "mcp_observation_report.v2"}),
-        lambda value: value["evidence"].update({"payment_performed": True}),
-        lambda value: value["evidence"].update({"payment_performed": 0}),
-        lambda value: value["evidence"].update({"proof_reference": "raw-proof"}),
-        lambda value: value["protocol"].update({"unexpected": "field"}),
-        lambda value: value.update({"agentId": "a" * 1025}),
-        lambda value: value.update({"agentId": "agent\u0085hidden"}),
-    ],
-    ids=[
-        "raw-headers",
-        "raw-body",
-        "credential",
-        "proof-material-key",
-        "schema-version",
-        "payment-true",
-        "payment-non-bool",
-        "raw-proof",
-        "nested-unknown",
-        "overlong-string",
-        "unicode-control",
-    ],
-)
-def test_observation_payload_allowlist_rejects_unknown_secret_and_invalid_shapes(
-    monkeypatch, mutation
-):
-    payload = _safe_observation_payload()
-    mutation(payload)
-    resolver_calls = _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(monkeypatch, [])
-
-    result = mcp_inspect.submit_mcp_observation(payload)
-
-    assert set(result) == {
-        "status", "status_code", "failure_code", "recommended_action"
-    }
-    assert result["status"] != "success"
-    assert result["status_code"] is None
-    assert result["failure_code"] == "observation_payload_rejected"
-    assert "raw" not in json.dumps(result).lower()
-    assert resolver_calls == []
-    assert exchange_calls == []
-
-
-@pytest.mark.parametrize(
-    "field,value",
-    [
-        ("network", "0x" + ("1" * 64)),
-        ("network", "solana:" + ("A" * 64)),
-        ("network", "DUMMY_PRIVATE_KEY_SECRET"),
-        ("asset", "0x" + ("2" * 64)),
-        ("rail", "DUMMY_CREDENTIAL_VALUE"),
-        ("payment_intent", "DUMMY_PROOF_VALUE"),
-    ],
-)
-def test_observation_protocol_fields_require_public_semantics_before_network(
-    monkeypatch, field, value
-):
-    payload = _safe_observation_payload()
-    payload["protocol"][field] = value
-    if field == "rail":
-        payload["protocol"]["authorization_scheme"] = value
-    resolver_calls = _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(monkeypatch, [])
-
-    result = mcp_inspect.submit_mcp_observation(payload)
-
-    assert result["failure_code"] == "observation_payload_rejected"
-    assert resolver_calls == []
-    assert exchange_calls == []
-
-
-def test_observation_builder_drops_nonsemantic_secret_shaped_fields():
-    private_key = "0x" + ("3" * 64)
-    source = _safe_observation_input()
-    source.update({
-        "settlement_rails_detected": ["DUMMY_CREDENTIAL_VALUE"],
-        "commerce_intent": "DUMMY_PROOF_VALUE",
-        "selected_settlement_option": {
-            "network": private_key,
-            "asset": private_key,
-            "rail": "DUMMY_SECRET_RAIL",
-            "scheme": "DUMMY_PRIVATE_KEY_SECRET",
-        },
-        "settlement_options": [{
-            "network": private_key,
-            "asset": private_key,
-            "rail": "DUMMY_SECRET_RAIL",
-            "scheme": "DUMMY_PRIVATE_KEY_SECRET",
-            "selected": True,
-        }],
-    })
-
-    payload = mcp_inspect.build_mcp_observation_payload(
-        source,
-        agent_id=private_key,
-    )
-    serialized = json.dumps(payload, sort_keys=True)
-
-    assert private_key not in serialized
-    assert "DUMMY_" not in serialized
-    assert payload["agentId"] == "optional-agent-id"
-    assert mcp_inspect._validate_observation_payload(payload) is None
-
-
-@pytest.mark.parametrize(
-    "credential",
-    [
-        "AKIA" + "1234567890ABCDEF",
-        "ghp_" + "123456789012345678901234567890123456",
-        "sk-" + "proj-123456789012345678901234567890",
-        "xoxb-" + "1234567890-abcdefghijklmnop",
-        "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.abcdefghijklmnopqrstuvwxyz",
-    ],
-)
-def test_known_credential_formats_are_redacted_from_agent_id_and_target_path(
-    monkeypatch, credential
-):
-    raw_url = "https://public.example/session/" + credential
-    payload = mcp_inspect.build_mcp_observation_payload(
-        _safe_observation_input(url=raw_url),
-        agent_id=credential,
-    )
-    forged_agent = _safe_observation_payload()
-    forged_agent["agentId"] = credential
-    forged_target = _safe_observation_payload()
-    forged_target["targetUrl"] = raw_url
-    _public_resolver(monkeypatch)
-    _fake_exchange(monkeypatch, [_FakeResponse(200)])
-
-    direct = inspect_url(raw_url)
-
-    assert payload["agentId"] == "optional-agent-id"
-    assert payload["targetUrl"] == "https://public.example/"
-    assert credential not in json.dumps(payload)
-    assert credential not in direct.model_dump_json()
-    assert direct.url == "https://public.example/"
-    assert (
-        mcp_inspect._validate_observation_payload(forged_agent)
-        == "observation_secret_material_rejected"
-    )
-    assert (
-        mcp_inspect._validate_observation_payload(forged_target)
-        == "observation_secret_material_rejected"
-    )
-
-
-@pytest.mark.parametrize(
-    "path",
-    [
-        "/authorization/Bearer%20opaque_token_123456789",
-        "/macaroon/AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA%3D",
-        "/payment_signature/AQIDBAUGBwgJCgsMDQ4PEA%3D",
-        "/receipt_token/opaque-token-1234567890",
-        "/cookie/session-opaque-1234567890",
-        "/proof/opaque-proof-1234567890",
-        "/payment_signature_opaque-token-1234567890",
-        "/receipt_token_opaque-token-1234567890",
-        "/cookie_session-opaque-1234567890",
-        "/authorization-Bearer-opaque_token_123456789",
-    ],
-)
-def test_semantic_secret_path_segments_are_never_public(
-    monkeypatch, path
-):
-    raw_url = "https://public.example" + path
-    _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(
-        monkeypatch,
-        [_FakeResponse(200), _FakeResponse(200)],
-    )
-
-    direct = inspect_url(raw_url)
-    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
-    observation = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    serialized = json.dumps({
-        "direct": direct.model_dump(),
-        "mcp": mcp_result,
-        "observation": observation,
-    })
-
-    assert exchange_calls[0]["target"].url.endswith(path)
-    assert exchange_calls[1]["target"].url.endswith(path)
-    assert direct.url == "https://public.example/"
-    assert mcp_result["url"] == "https://public.example/"
-    assert observation["targetUrl"] == "https://public.example/"
-    assert raw_url not in serialized
-
-
-def test_observation_payload_size_limit_is_enforced_before_network(monkeypatch):
-    payload = _safe_observation_payload()
-    long_value = "x-" * 64
-    summary = {
-        "network": long_value,
-        "asset": long_value,
-        "rail": long_value,
-        "scheme": long_value,
-        "selected": False,
-        "execution_support": long_value,
-        "selection_reason": long_value,
-        "settlement_model": long_value,
-        "authorization_artifact": long_value,
-        "finality_model": long_value,
-        "deferred_settlement": False,
-        "requires_channel_state": False,
-    }
-    payload["targetUrl"] = "https://public.example/" + ("x" * 8000)
-    payload["settlement_options_summary"] = [
-        copy.deepcopy(summary) for _ in range(32)
-    ]
-    for key in (
-        "ask_site_for",
-        "do_not",
-        "required_evidence",
-        "missing_information",
-    ):
-        payload["handoff"][key] = [long_value] * 32
-    resolver_calls = _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(monkeypatch, [])
-
-    assert (
-        mcp_inspect._validate_observation_payload(payload)
-        == "observation_payload_too_large"
-    )
-    result = mcp_inspect.submit_mcp_observation(payload)
-
-    assert result["failure_code"] == "observation_payload_rejected"
-    assert resolver_calls == []
-    assert exchange_calls == []
-
-
-def test_observation_uses_a_detached_revalidated_snapshot(monkeypatch):
-    payload = _safe_observation_payload()
-    resolver_calls = _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(monkeypatch, [])
-    production_validator = mcp_inspect._validate_observation_payload
-    validation_calls = 0
-
-    def mutate_after_first_validation(candidate):
-        nonlocal validation_calls
-        validation_calls += 1
-        result = production_validator(candidate)
-        if validation_calls == 1 and result is None:
-            payload["evidence"]["payment_performed"] = True
-        return result
-
-    monkeypatch.setattr(
-        mcp_inspect,
-        "_validate_observation_payload",
-        mutate_after_first_validation,
-    )
-
-    result = mcp_inspect.submit_mcp_observation(payload)
-
-    assert result["failure_code"] == "observation_payload_rejected"
-    assert validation_calls == 2
-    assert resolver_calls == []
-    assert exchange_calls == []
-
-
-@pytest.mark.parametrize(
-    "url",
-    [
-        "http://127.0.0.1/private",
-        "http://169.254.169.254/latest/meta-data",
-        "http://192.0.0.192/latest/user-data",
-        "http://168.63.129.16/machine",
-        "http://metadata.google.internal/computeMetadata/v1/",
-        "http://service.internal/private",
-        "http://internal/private",
-        "http://intranet/private",
-        "http://database/private",
-        "http://127.0.0.1.nip.io/private",
-        "http://2130706433/private",
-        "https://public.example:22/private",
-        "https://public.example:/private",
-        "https://public.example/%0d%0aHost:internal",
-    ],
-)
-def test_forged_internal_observation_target_is_redacted_and_rejected_pre_network(
-    monkeypatch,
-    url,
-):
-    payload = mcp_inspect.build_mcp_observation_payload(
-        _safe_observation_input(url=url)
-    )
-    resolver_calls = _public_resolver(monkeypatch)
-    exchange_calls = _fake_exchange(monkeypatch, [])
-
-    assert payload["targetUrl"] == QUERY_REDACTION
-    assert url not in json.dumps(payload)
-    result = mcp_inspect.submit_mcp_observation(payload)
-
-    assert result["failure_code"] == "observation_payload_rejected"
-    assert resolver_calls == []
-    assert exchange_calls == []
-
-
-def test_observation_target_dns_is_revalidated_before_canonical_submission(
-    monkeypatch,
-):
-    resolver_calls = []
-
-    def resolve(host, port):
-        resolver_calls.append((host, port))
-        if host == "public.example":
-            return ("127.0.0.1",)
-        return (PUBLIC_V4,)
-
-    monkeypatch.setattr(transport, "_resolve_addresses", resolve)
-    exchange_calls = _fake_exchange(monkeypatch, [])
-
-    result = mcp_inspect.submit_mcp_observation(
-        _safe_observation_payload()
-    )
-
-    assert result == {
-        "status": "failure",
-        "status_code": None,
-        "failure_code": "observation_target_rejected",
-        "recommended_action": "stop_safely",
-    }
-    assert resolver_calls == [("public.example", 443)]
-    assert exchange_calls == []
-
-
-@pytest.mark.parametrize("address", ["192.0.0.192", "168.63.129.16"])
-def test_observation_dns_special_address_is_rejected_before_post(
-    monkeypatch, address
-):
-    resolver_calls = []
-
-    def resolve(host, port):
-        resolver_calls.append((host, port))
-        if host == "public.example":
-            return (address,)
-        return (PUBLIC_V4,)
-
-    monkeypatch.setattr(transport, "_resolve_addresses", resolve)
-    post_calls = _fake_observation_exchange(monkeypatch, [])
-
-    result = mcp_inspect.submit_mcp_observation(_safe_observation_payload())
-
-    assert result["failure_code"] == "observation_target_rejected"
-    assert result["recommended_action"] == "stop_safely"
-    assert resolver_calls == [("public.example", 443)]
-    assert post_calls == []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def test_inspect_does_not_read_private_key_or_initialize_payment_runtime(monkeypatch):
@@ -2291,7 +1433,7 @@ def test_inspect_does_not_read_private_key_or_initialize_payment_runtime(monkeyp
     _public_resolver(monkeypatch)
     _fake_exchange(monkeypatch, [_FakeResponse(200), _FakeResponse(200)])
 
-    from ln_church_agent.client import Payment402Client
+    from mayim_agent.client import Payment402Client
 
     with patch.object(
         Payment402Client,
@@ -2321,7 +1463,7 @@ def test_transport_module_has_no_payment_wallet_signer_or_rpc_dependency():
     source = inspect.getsource(transport)
     forbidden = (
         "Payment402Client",
-        "LnChurchClient",
+        "MagClient",
         "Wallet",
         "Signer",
         "solana.rpc",
@@ -2347,7 +1489,6 @@ def test_public_inspect_api_exposes_no_resolver_ip_or_proxy_override():
     for callable_object in (
         inspect_url,
         mcp_inspect.inspect_paid_surface,
-        mcp_inspect.submit_mcp_observation,
     ):
         assert forbidden_names.isdisjoint(inspect.signature(callable_object).parameters)
 
@@ -2413,7 +1554,7 @@ def test_untrusted_x402_fields_cannot_smuggle_secret_material(monkeypatch):
     _fake_exchange(monkeypatch, [_FakeResponse(402), _FakeResponse(402)])
 
     with patch(
-        "ln_church_agent.challenges._parse_challenge_from_response",
+        "mayim_agent.challenges._parse_challenge_from_response",
         return_value=parsed,
     ):
         cli_result = inspect_url("https://public.example/")
@@ -2434,73 +1575,6 @@ def test_untrusted_x402_fields_cannot_smuggle_secret_material(monkeypatch):
     assert mcp_result["safety"]["secrets_redacted"] is True
 
 
-@pytest.mark.parametrize(
-    "hostile_asset",
-    [
-        "ResetToken1234567890",
-        "0x0123456789abcdef0123456789abcdef01234567",
-    ],
-)
-def test_regex_shaped_public_scalars_do_not_become_exfiltration_channels(
-    monkeypatch, hostile_asset
-):
-    hostile_network = "eip155:12345678901234567890"
-    hostile_amount = "9876543210987654321098765432109876543210"
-    hostile_pay_to = "0x1111111111111111111111111111111111111111"
-    requirement = {
-        "scheme": "exact",
-        "network": hostile_network,
-        "asset": hostile_asset,
-        "amount": hostile_amount,
-        "payTo": hostile_pay_to,
-    }
-    parsed = SimpleNamespace(
-        _inspect_semantically_valid=True,
-        scheme="exact",
-        network=hostile_network,
-        asset=hostile_asset,
-        amount=hostile_amount,
-        payment_intent=None,
-        draft_shape=None,
-        source=None,
-        parameters={
-            "_all_accepted": [requirement],
-            "_raw_accepted": requirement,
-            "_selection_reason": "first_acceptable",
-        },
-    )
-    _public_resolver(monkeypatch)
-    _fake_exchange(monkeypatch, [_FakeResponse(402), _FakeResponse(402)])
-
-    with patch(
-        "ln_church_agent.challenges._parse_challenge_from_response",
-        return_value=parsed,
-    ):
-        cli_result = inspect_url("https://public.example/")
-        mcp_result = mcp_inspect.inspect_paid_surface(
-            "https://public.example/"
-        )
-    payload = mcp_inspect.build_mcp_observation_payload(mcp_result)
-    serialized = json.dumps({
-        "cli": cli_result.model_dump(),
-        "mcp": mcp_result,
-        "payload": payload,
-    })
-
-    assert hostile_network not in serialized
-    assert hostile_asset not in serialized
-    assert hostile_amount not in serialized
-    assert hostile_pay_to not in serialized
-    assert cli_result.settlement_options[0].network == QUERY_REDACTION
-    assert cli_result.settlement_options[0].asset == QUERY_REDACTION
-    assert cli_result.settlement_options[0].amount == QUERY_REDACTION
-    assert cli_result.settlement_options[0].pay_to == QUERY_REDACTION
-    assert (
-        cli_result.settlement_options[0].raw_requirement_fingerprint
-        == QUERY_REDACTION
-    )
-    assert payload["protocol"]["network"] == "unknown"
-    assert payload["protocol"]["asset"] == "unknown"
 
 
 def test_mixed_type_and_oversized_accepts_are_bounded_without_exception():
@@ -2604,7 +1678,7 @@ def test_p0_1_query_and_secret_metadata_redaction_regression():
 
 
 def test_p0_2_mcp_receipt_token_remains_hash_only(monkeypatch):
-    from ln_church_agent.integrations import mcp as payment_mcp
+    from mayim_agent.integrations import mcp as payment_mcp
 
     raw_token = "DUMMY_P0_2_RECEIPT.header.payload.signature"
     client = MagicMock()
@@ -2631,8 +1705,8 @@ def test_p0_2_mcp_receipt_token_remains_hash_only(monkeypatch):
 def test_canonical_svm_exact_still_halts_before_signing_rpc_or_paid_retry():
     from solders.keypair import Keypair
 
-    from ln_church_agent.client import Payment402Client
-    from ln_church_agent.exceptions import PaymentExecutionError
+    from mayim_agent.client import Payment402Client
+    from mayim_agent.exceptions import PaymentExecutionError
 
     sender = Keypair()
     destination = Keypair()
@@ -2674,7 +1748,7 @@ def test_canonical_svm_exact_still_halts_before_signing_rpc_or_paid_retry():
     client = Payment402Client()
     client.svm_signer = ForbiddenSvmSigner()
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=response,
     ) as request, patch.object(
         client,
@@ -2693,3 +1767,141 @@ def test_canonical_svm_exact_still_halts_before_signing_rpc_or_paid_retry():
     assert request.call_count == 1
     process_payment.assert_not_called()
     rpc.assert_not_called()
+
+
+def test_fragment_is_removed_on_wire_and_query_is_redacted_from_all_outputs(monkeypatch):
+    raw_url = 'https://public.example/resource?token=' + RAW_QUERY_SECRET + '&empty=#private-fragment'
+    _public_resolver(monkeypatch)
+    exchange_calls = []
+
+    def exchange(target, address, method, timeout, body=None):
+        del address, method, timeout, body
+        exchange_calls.append(target.url)
+        return _FakeResponse(200, url=target.url)
+    monkeypatch.setattr(transport, '_exchange_once', exchange)
+    cli_result = inspect_url(raw_url)
+    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
+    serialized = json.dumps({'cli': cli_result.model_dump(), 'mcp': mcp_result}, sort_keys=True)
+    assert len(exchange_calls) == 2
+    assert all((RAW_QUERY_SECRET in url for url in exchange_calls))
+    assert all(('#' not in url for url in exchange_calls))
+    assert RAW_QUERY_SECRET not in serialized
+    assert 'private-fragment' not in serialized
+    assert cli_result.url == 'https://public.example/'
+    assert mcp_result['url'] == cli_result.url
+
+@pytest.mark.parametrize('credential', ['AKIA' + '1234567890ABCDEF', 'receipt_token_opaque-token-1234567890', 'authorization-Bearer-opaque_token_123456789', 'cookie_session-opaque-1234567890'])
+def test_secret_shaped_query_key_is_redacted_from_public_outputs(monkeypatch, credential):
+    raw_url = 'https://public.example/resource?' + credential + '=ignored'
+    _public_resolver(monkeypatch)
+    exchange_calls = _fake_exchange(monkeypatch, [_FakeResponse(200), _FakeResponse(200)])
+    direct = inspect_url(raw_url)
+    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
+    serialized = json.dumps({'direct': direct.model_dump(), 'mcp': mcp_result})
+    assert credential in exchange_calls[0]['target'].url
+    assert credential in exchange_calls[1]['target'].url
+    assert credential not in serialized
+    assert direct.url == 'https://public.example/'
+
+@pytest.mark.parametrize('suffix,leak,wire_contains', [('/credentials/DUMMY_PATH_CREDENTIAL_123', 'DUMMY_PATH_CREDENTIAL_123', True), ('/signature/' + 'S' * 160, 'S' * 160, True), ('/reset/DUMMY_RESET_TOKEN_123456', 'DUMMY_RESET_TOKEN_123456', True), ('/users/DUMMY_EMAIL%40example.com', 'DUMMY_EMAIL', True), ('/users/DUMMY_EMAIL%2540example.com', 'DUMMY_EMAIL', True), ('?DUMMY_QUERY_KEY=ignored', 'DUMMY_QUERY_KEY', True), ('?DUMMY%255FQUERY_KEY=ignored', 'DUMMY', True), ('#DUMMY_PRIVATE_FRAGMENT', 'DUMMY_PRIVATE_FRAGMENT', False)])
+def test_public_url_is_origin_only_across_cli_mcp_payload_validator_and_wire(monkeypatch, suffix, leak, wire_contains):
+    raw_url = 'https://public.example' + suffix
+    _public_resolver(monkeypatch)
+    get_calls = _fake_exchange(monkeypatch, [_FakeResponse(200), _FakeResponse(200)])
+    cli_result = inspect_url(raw_url)
+    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
+    assert (leak in get_calls[0]['target'].url) is wire_contains
+    assert (leak in get_calls[1]['target'].url) is wire_contains
+    assert cli_result.url == 'https://public.example/'
+    assert mcp_result['url'] == 'https://public.example/'
+    serialized = json.dumps({'cli': cli_result.model_dump(), 'mcp': mcp_result})
+    assert leak not in serialized
+
+@pytest.mark.parametrize('credential,double_encoded', [('DUMMY_RESET_TOKEN_123456', False), ('DUMMY_LONG_SIGNATURE_' + 'Q' * 160, True)])
+def test_fully_encoded_credentials_never_cross_a_public_boundary(monkeypatch, credential, double_encoded):
+    encoded = _fully_percent_encode(credential, double=double_encoded)
+    raw_url = 'https://public.example/credential/' + encoded
+    _public_resolver(monkeypatch)
+    get_calls = _fake_exchange(monkeypatch, [_FakeResponse(200), _FakeResponse(200)])
+    cli_result = inspect_url(raw_url)
+    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
+    serialized = json.dumps({'cli': cli_result.model_dump(), 'mcp': mcp_result})
+    expected_wire_value = encoded if double_encoded else credential
+    assert expected_wire_value in get_calls[0]['target'].url
+    assert expected_wire_value in get_calls[1]['target'].url
+    assert cli_result.url == 'https://public.example/'
+    assert mcp_result['url'] == 'https://public.example/'
+    assert credential not in serialized
+    assert encoded not in serialized
+
+@pytest.mark.parametrize('address', ['192.0.0.192', '168.63.129.16'])
+def test_version_independent_metadata_addresses_are_rejected_everywhere(monkeypatch, address):
+    exchange_calls = _fake_exchange(monkeypatch, [])
+    raw_url = 'http://%s/latest' % address
+    with pytest.raises(transport.InspectTransportError) as caught:
+        transport._inspect_request(raw_url)
+    assert caught.value.stage == 'dns_validation'
+    assert caught.value.code == 'dns_forbidden_address'
+    assert redaction_policy._inspect_address_is_forbidden(address) is True
+    assert redact_inspect_public_url(raw_url) == QUERY_REDACTION
+    assert exchange_calls == []
+
+def test_unhashable_selection_reason_and_action_inputs_cannot_crash(monkeypatch):
+    requirement = {'scheme': 'exact', 'network': 'eip155:1', 'asset': 'USDC', 'amount': '1'}
+    parsed = SimpleNamespace(_inspect_semantically_valid=True, scheme='exact', payment_method=None, network='eip155:1', asset='USDC', amount='1', payment_intent=None, draft_shape=None, source=None, parameters={'_all_accepted': [requirement], '_raw_accepted': requirement, '_selection_reason': []})
+    _public_resolver(monkeypatch)
+    _fake_exchange(monkeypatch, [_FakeResponse(402)])
+    with patch('mayim_agent.challenges._parse_challenge_from_response', return_value=parsed):
+        result = inspect_url('https://public.example/')
+    assert result.recommended_action == 'observe_only'
+    assert result.settlement_options[0].selection_reason == 'unknown'
+    for hostile_action in ([], {}, 1):
+        explanation = mcp_inspect.explain_recommended_action({'recommended_action': hostile_action})
+        assert explanation['recommended_action'] == 'unknown'
+        assert explanation['payment_execution_available_in_this_mcp'] is False
+
+@pytest.mark.parametrize('credential', ['AKIA' + '1234567890ABCDEF', 'ghp_' + '123456789012345678901234567890123456', 'sk-' + 'proj-123456789012345678901234567890', 'xoxb-' + '1234567890-abcdefghijklmnop', 'eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.abcdefghijklmnopqrstuvwxyz'])
+def test_known_credential_formats_are_redacted_from_agent_id_and_target_path(monkeypatch, credential):
+    raw_url = 'https://public.example/session/' + credential
+    _public_resolver(monkeypatch)
+    _fake_exchange(monkeypatch, [_FakeResponse(200)])
+    direct = inspect_url(raw_url)
+    assert credential not in direct.model_dump_json()
+    assert direct.url == 'https://public.example/'
+
+@pytest.mark.parametrize('path', ['/authorization/Bearer%20opaque_token_123456789', '/macaroon/AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA%3D', '/payment_signature/AQIDBAUGBwgJCgsMDQ4PEA%3D', '/receipt_token/opaque-token-1234567890', '/cookie/session-opaque-1234567890', '/proof/opaque-proof-1234567890', '/payment_signature_opaque-token-1234567890', '/receipt_token_opaque-token-1234567890', '/cookie_session-opaque-1234567890', '/authorization-Bearer-opaque_token_123456789'])
+def test_semantic_secret_path_segments_are_never_public(monkeypatch, path):
+    raw_url = 'https://public.example' + path
+    _public_resolver(monkeypatch)
+    exchange_calls = _fake_exchange(monkeypatch, [_FakeResponse(200), _FakeResponse(200)])
+    direct = inspect_url(raw_url)
+    mcp_result = mcp_inspect.inspect_paid_surface(raw_url)
+    serialized = json.dumps({'direct': direct.model_dump(), 'mcp': mcp_result})
+    assert exchange_calls[0]['target'].url.endswith(path)
+    assert exchange_calls[1]['target'].url.endswith(path)
+    assert direct.url == 'https://public.example/'
+    assert mcp_result['url'] == 'https://public.example/'
+    assert raw_url not in serialized
+
+@pytest.mark.parametrize('hostile_asset', ['ResetToken1234567890', '0x0123456789abcdef0123456789abcdef01234567'])
+def test_regex_shaped_public_scalars_do_not_become_exfiltration_channels(monkeypatch, hostile_asset):
+    hostile_network = 'eip155:12345678901234567890'
+    hostile_amount = '9876543210987654321098765432109876543210'
+    hostile_pay_to = '0x1111111111111111111111111111111111111111'
+    requirement = {'scheme': 'exact', 'network': hostile_network, 'asset': hostile_asset, 'amount': hostile_amount, 'payTo': hostile_pay_to}
+    parsed = SimpleNamespace(_inspect_semantically_valid=True, scheme='exact', network=hostile_network, asset=hostile_asset, amount=hostile_amount, payment_intent=None, draft_shape=None, source=None, parameters={'_all_accepted': [requirement], '_raw_accepted': requirement, '_selection_reason': 'first_acceptable'})
+    _public_resolver(monkeypatch)
+    _fake_exchange(monkeypatch, [_FakeResponse(402), _FakeResponse(402)])
+    with patch('mayim_agent.challenges._parse_challenge_from_response', return_value=parsed):
+        cli_result = inspect_url('https://public.example/')
+        mcp_result = mcp_inspect.inspect_paid_surface('https://public.example/')
+    serialized = json.dumps({'cli': cli_result.model_dump(), 'mcp': mcp_result})
+    assert hostile_network not in serialized
+    assert hostile_asset not in serialized
+    assert hostile_amount not in serialized
+    assert hostile_pay_to not in serialized
+    assert cli_result.settlement_options[0].network == QUERY_REDACTION
+    assert cli_result.settlement_options[0].asset == QUERY_REDACTION
+    assert cli_result.settlement_options[0].amount == QUERY_REDACTION
+    assert cli_result.settlement_options[0].pay_to == QUERY_REDACTION
+    assert cli_result.settlement_options[0].raw_requirement_fingerprint == QUERY_REDACTION

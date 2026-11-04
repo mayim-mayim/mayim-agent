@@ -4,7 +4,7 @@ The new v3 pack must be received from DC before execution. Read the versioned Wo
 before a target GET. v2 uses the ExternalAgent role UA; v1 keeps its original UA.
 This label proves no identity, and UA-dependent response changes affect matching.
 """
-from ln_church_agent import AgentImmediateVisitClient, ImmediateVisitJournal
+from mayim_agent import AgentImmediateVisitClient, ImmediateVisitJournal
 
 
 def discover(*, access_quota=None, version='v3', cursor=None):

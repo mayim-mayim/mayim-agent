@@ -1,7 +1,7 @@
 """Offline Inspect responses and transport capture shared by boundary tests."""
 
 import json
-from ln_church_agent import inspect_transport as transport
+from mayim_agent import inspect_transport as transport
 
 PUBLIC_V4 = "8.8.8.8"
 

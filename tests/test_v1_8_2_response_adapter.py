@@ -1,9 +1,9 @@
 import pytest
 import json
 from unittest.mock import patch, MagicMock
-from ln_church_agent.cli import inspect_url
+from mayim_agent.cli import inspect_url
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_requests_to_httpx_strips_content_encoding(mock_req):
     """
     requestsがデコード済みであるにも関わらず 'Content-Encoding: gzip' が残っているレスポンスでも、
@@ -34,8 +34,8 @@ def test_requests_to_httpx_strips_content_encoding(mock_req):
     assert res.diagnostic_class == "post_settlement_proof_required"
 
 
-@patch("ln_church_agent.cli._requests_to_httpx_response")
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.cli._requests_to_httpx_response")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_requests_to_httpx_conversion_error_returns_structured_diagnostic(mock_req, mock_adapter):
     """
     httpxへの変換で予期せぬ例外（httpx.DecodingErrorなど）が発生した場合に、
@@ -56,8 +56,8 @@ def test_requests_to_httpx_conversion_error_returns_structured_diagnostic(mock_r
     assert res.failure_class == "requests_to_httpx_conversion_failed"
     assert "incorrect header check" not in res.model_dump_json()
 
-@patch("ln_church_agent.cli._requests_to_httpx_response")
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.cli._requests_to_httpx_response")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_requests_to_httpx_conversion_error_non_402(mock_req, mock_adapter):
     """
     402以外のステータス（200 OK等）で変換に失敗した場合は stop_safely になることを確認

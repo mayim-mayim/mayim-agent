@@ -1,7 +1,7 @@
 import base64
 import json
 
-from ln_church_agent.receipts import ReceiptState, evaluate_payment_receipt
+from mayim_agent.receipts import ReceiptState, evaluate_payment_receipt
 
 
 def _b64url(value):

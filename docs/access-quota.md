@@ -21,11 +21,11 @@ atomic units (0.01 USDC).
 Share **one policy object** across the four clients to share one access budget:
 
 ```python
-from ln_church_agent import AccessQuotaPolicy, AccessQuotaError
-from ln_church_agent.task_client import AgentTaskClient
-from ln_church_agent.task_v2_client import AgentTaskV2Client
-from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent import AccessQuotaPolicy, AccessQuotaError
+from mayim_agent.task_client import AgentTaskClient
+from mayim_agent.task_v2_client import AgentTaskV2Client
+from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
 
 # existing_signer is an explicitly supplied EIP-3009 signer, e.g. the SDK's
 # LocalKeyAdapter already held by the application. Never log its key or payload.
@@ -60,8 +60,8 @@ setup, close the client or replace the policy between these steps.
 
 <!-- c4-get-example:start -->
 ```python
-from ln_church_agent import AccessQuotaPolicy, AccessQuotaError
-from ln_church_agent.task_client import AgentTaskClient
+from mayim_agent import AccessQuotaPolicy, AccessQuotaError
+from mayim_agent.task_client import AgentTaskClient
 
 access = AccessQuotaPolicy(allow=True, budget_atomic=10_000, signer=existing_signer)
 client = AgentTaskClient(access_quota=access)

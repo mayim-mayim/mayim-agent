@@ -7,13 +7,13 @@ import pytest
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2
 from test_v1_18_5_paid_service_trial_http_v2_purchase import V2HTTP, terms_response
 from test_v1_18_5_paid_service_trial_contract import receipt_for, status_for
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.paid_service_trial_models import model_for, parse_claim, FrozenPaidServiceTrialReport
-from ln_church_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.models import PaymentPolicy
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.paid_service_trial_models import model_for, parse_claim, FrozenPaidServiceTrialReport
+from mayim_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialRawResponse
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.models import PaymentPolicy
 
 
 def new_wire(old, method='POST', amount='100000'):
@@ -128,7 +128,7 @@ def test_pnc05_equal_budget_pnc06_defaults(wire_v2,tmp_path):
 
 @pytest.mark.parametrize('field,value',[('amount','10000'),('payTo','0x'+'34'*20),('asset','0x'+'34'*20),('network','eip155:1')])
 def test_pnc04_mismatch_before_sign(wire_v2,tmp_path,field,value):
-    from ln_church_agent.paid_service_trial_network import PaidServiceTrialTermsError
+    from mayim_agent.paid_service_trial_network import PaidServiceTrialTermsError
     w=new_wire(wire_v2);x=lane(w,tmp_path);bad=copy.deepcopy(w.terms['requirements']);bad[field]=value
     x.http.fetch=lambda *a,**k:terms_response(w,conditions=[bad])
     class NoSigner:
@@ -155,7 +155,7 @@ def test_import_descriptor(wire_v2):
 
 
 def test_missing_producer_packs_fail_closed(monkeypatch):
-    from ln_church_agent import immediate_visit_versions as iv,endpoint_choice_reason_contract as ec
+    from mayim_agent import immediate_visit_versions as iv,endpoint_choice_reason_contract as ec
     monkeypatch.setattr(c, 'V3_PACK_SHA256', {})
     monkeypatch.setattr(iv, 'V3_PACK_SHA256', {})
     monkeypatch.setattr(ec, 'V2_PACK_SHA256', {})
@@ -180,12 +180,12 @@ def immediate_v3(value):
 def test_instant_v3_page_claim_saved_report(tmp_path,monkeypatch):
     from test_v1_18_3_immediate_visit_contract import task_wire,claim_wire,report_wire,TASK,ADDRESS,ENDPOINT
     from test_v1_18_3_immediate_visit_client import Exchange,raw
-    from ln_church_agent.immediate_visit_models import ImmediateVisitTaskPage,FrozenImmediateVisitReport
-    from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-    from ln_church_agent.immediate_visit_transport import ImmediateVisitTransport
-    from ln_church_agent.immediate_visit_journal import ImmediateVisitJournal
-    from ln_church_agent.immediate_visit import ImmediateVisitExecutor
-    from ln_church_agent import immediate_visit_versions as iv
+    from mayim_agent.immediate_visit_models import ImmediateVisitTaskPage,FrozenImmediateVisitReport
+    from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+    from mayim_agent.immediate_visit_transport import ImmediateVisitTransport
+    from mayim_agent.immediate_visit_journal import ImmediateVisitJournal
+    from mayim_agent.immediate_visit import ImmediateVisitExecutor
+    from mayim_agent import immediate_visit_versions as iv
     monkeypatch.setattr(iv,'load_pack',lambda version:{'profile.json':json.dumps(dict(profile_id='immediate_visit_utf8.v3',task_type='immediate_http_visit.v3',request_headers={'Accept':'*/*','Accept-Encoding':'identity'},user_agents={'agent':'ExternalAgent-via-LNChurch/1.0','reference':'LNChurch-Reference/1.0'})).encode()})
     page=dict(schema_version='ln_church.agent_task_page.immediate_visit.v3',tasks=[immediate_v3(task_wire())],next_cursor=None)
     ex=Exchange([raw(page),raw(immediate_v3(claim_wire()))])
@@ -199,7 +199,7 @@ def test_instant_v3_page_claim_saved_report(tmp_path,monkeypatch):
     monkeypatch.setattr(ImmediateVisitExecutor,'_fetch',lambda *a,**k:pytest.fail('Recovery refetched target'))
     recovered=ImmediateVisitJournal.load_claim(tmp_path,TASK,claim.execution_id)
     assert ImmediateVisitExecutor(journal=ImmediateVisitJournal(tmp_path,recovered)).execute(recovered,ENDPOINT).canonical_bytes==report.canonical_bytes
-    from ln_church_agent.immediate_visit_journal import _read
+    from mayim_agent.immediate_visit_journal import _read
     assert _read(journal.path)['schema_version']=='ln_church.immediate_visit_journal.v3'
     mixed=copy.deepcopy(page);mixed['tasks'][0]['profile_id']='immediate_visit_utf8.v2'
     with pytest.raises(ValueError):ImmediateVisitTaskPage.model_validate(mixed)
@@ -209,12 +209,12 @@ def test_instant_v3_page_claim_saved_report(tmp_path,monkeypatch):
 
 def test_choice_v2_client_answer_read_recovery(tmp_path,monkeypatch):
     from test_endpoint_choice_reason_prepack import task,claim,receipt,status,raw,TASK,ADDRESS,SUB,DEF
-    from ln_church_agent import endpoint_choice_reason_contract as ec
-    from ln_church_agent.endpoint_choice_reason_models import EndpointChoiceTaskPage,FrozenEndpointChoiceReport
-    from ln_church_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
-    from ln_church_agent.endpoint_choice_reason_transport import EndpointChoiceTransport
-    from ln_church_agent.endpoint_choice_reason_journal import EndpointChoiceJournal
-    from ln_church_agent.immediate_visit_journal import _read
+    from mayim_agent import endpoint_choice_reason_contract as ec
+    from mayim_agent.endpoint_choice_reason_models import EndpointChoiceTaskPage,FrozenEndpointChoiceReport
+    from mayim_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
+    from mayim_agent.endpoint_choice_reason_transport import EndpointChoiceTransport
+    from mayim_agent.endpoint_choice_reason_journal import EndpointChoiceJournal
+    from mayim_agent.immediate_visit_journal import _read
     monkeypatch.setattr(ec,'load_contract_pack',lambda version='v1':dict(manifest={'task_definition_digest':DEF}))
     task2=task();task2.update(schema_version=ec.schema('agent_task','v2'),task_type='endpoint_choice_reason.v2',
         task_definition_version='2.0.0',listing_ends_at='2026-10-05T00:00:00Z',
@@ -252,9 +252,9 @@ def test_choice_v2_client_answer_read_recovery(tmp_path,monkeypatch):
 
 
 def test_new_defaults_and_registration_identity(monkeypatch):
-    from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-    from ln_church_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
-    from ln_church_agent.offer_registration import _operation_ref
+    from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+    from mayim_agent.endpoint_choice_reason_client import AgentEndpointChoiceReasonClient
+    from mayim_agent.offer_registration import _operation_ref
     assert PaidServiceTrialTaskClient().version=='v3'
     assert AgentImmediateVisitClient().version=='v3'
     assert AgentEndpointChoiceReasonClient().version=='v2'
@@ -265,8 +265,8 @@ def test_new_defaults_and_registration_identity(monkeypatch):
 
 @pytest.mark.parametrize('family,old_version,new_version', [('immediate_http_visit','v2','v3'),('endpoint_choice_reason','v1','v2')])
 def test_registration_retains_versioned_window(family,old_version,new_version,monkeypatch):
-    from ln_church_agent import offer_registration as r
-    from ln_church_agent import endpoint_choice_reason_contract as ec
+    from mayim_agent import offer_registration as r
+    from mayim_agent import endpoint_choice_reason_contract as ec
     from test_offer_registration import request
     from datetime import datetime,timedelta,timezone
     monkeypatch.setattr(r,'load_pack',lambda version:{})

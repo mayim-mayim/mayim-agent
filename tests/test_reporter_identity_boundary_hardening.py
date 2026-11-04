@@ -1,11 +1,11 @@
 import pytest
 import time
 from unittest.mock import patch, MagicMock
-from ln_church_agent.client import LnChurchClient
+from mayim_agent.client import MagClient
 
 def test_ensure_reporter_verification_accepts_safety_flags():
     """Test that ensure_reporter_verification parses new safety flags without breaking."""
-    client = LnChurchClient(private_key="0x" + "1"*64)
+    client = MagClient(private_key="0x" + "1"*64)
     
     # 動的な現在時刻（ミリ秒）と未来の有効期限を生成
     now_ms = int(time.time() * 1000)
@@ -53,7 +53,7 @@ def test_ensure_reporter_verification_accepts_safety_flags():
 
 def test_force_refresh_bypasses_cache():
     """Test that force_refresh=True skips cache and calls API again."""
-    client = LnChurchClient(private_key="0x" + "1"*64)
+    client = MagClient(private_key="0x" + "1"*64)
     
     # Inject fake cache
     client._reporter_verified_until = 9999999999999
@@ -74,19 +74,3 @@ def test_force_refresh_bypasses_cache():
         assert res_force["status"] == "verified"
         assert client._reporter_proof_id == "proof_new"
         assert mock_exec.call_count == 2
-
-@patch("ln_church_agent.client.LnChurchClient.ensure_reporter_verification")
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
-def test_no_auto_hook_in_goal_attempt(mock_exec, mock_verify):
-    """Ensure submit_goal_attempt_observation DOES NOT automatically call verification."""
-    client = LnChurchClient(private_key="0x" + "1"*64)
-    mock_exec.return_value = {"status": "accepted"}
-    
-    client.submit_goal_attempt_observation(
-        goal={"goal_text": "test"},
-        attempt={"attempt_mode": "free"}
-    )
-    
-    assert mock_exec.call_count == 1
-    # verification must never be called automatically
-    mock_verify.assert_not_called()

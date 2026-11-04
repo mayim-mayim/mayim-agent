@@ -5,7 +5,7 @@ Read each candidate's official detail and Guide before selecting its dedicated
 client. No Claim, target visit, signing, purchase or automatic page loop here.
 """
 
-from ln_church_agent import AgentTaskClient
+from mayim_agent import AgentTaskClient
 
 
 def discover_one_page(*, limit=20, cursor=None):

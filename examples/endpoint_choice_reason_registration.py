@@ -4,7 +4,7 @@ Importing does not connect, sign or pay. Review public payment_terms and the
 private input before calling authorize_payment. Preserve operation_ref before
 submit_original; raw payment/input stays private, in caller-controlled memory.
 """
-from ln_church_agent import OfferRegistrationClient
+from mayim_agent import OfferRegistrationClient
 
 
 def prepare(client, registration_input):

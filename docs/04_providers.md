@@ -1,6 +1,6 @@
 # Supported Lightning Providers
 
-The `ln-church-agent` SDK supports multiple wallet providers to settle L402 and MPP challenges. Set your provider via the `ln_provider` argument or inject a custom `LightningProvider` adapter.
+The `mayim-agent` SDK supports multiple wallet providers to settle L402 and MPP challenges. Set your provider via the `ln_provider` argument or inject a custom `LightningProvider` adapter.
 
 ## 🛠️ Configuration Overview
 
@@ -46,7 +46,7 @@ NWC (NIP-47) allows an agent to request payments from a remote Lightning wallet 
 To keep the AI agent's runtime lightweight and avoid heavy WebSocket/secp256k1 dependencies inside the reasoning loop, the v1.2.0 `NWCAdapter` utilizes an **HTTP Bridge Gateway**. The agent parses the `nwc_uri` but delegates the actual NIP-47 messaging to your provided standard REST endpoint.
 
 ```python
-from ln_church_agent.adapters.nwc import NWCAdapter
+from mayim_agent.adapters.nwc import NWCAdapter
 
 nwc_adapter = NWCAdapter(
     nwc_uri="nostr+walletconnect://<pubkey>?relay=<relay>&secret=<secret>",

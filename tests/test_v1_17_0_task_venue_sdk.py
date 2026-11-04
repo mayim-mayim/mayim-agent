@@ -12,11 +12,11 @@ from unittest.mock import patch
 import pytest
 from pydantic import ValidationError
 
-from ln_church_agent.task_client import (
+from mayim_agent.task_client import (
     AgentTaskClient,
     TaskCheckpointPersistenceError,
 )
-from ln_church_agent.task_contract import (
+from mayim_agent.task_contract import (
     MAXIMUM_JSON_BYTES,
     PUBLIC_API_ORIGIN,
     canonical_submission_digest_hex,
@@ -29,7 +29,7 @@ from ln_church_agent.task_contract import (
     to_eip55_checksum_address,
     validate_public_domain,
 )
-from ln_church_agent.task_models import (
+from mayim_agent.task_models import (
     AgentTask,
     AgentTaskClaim,
     AgentTaskClaimResponse,
@@ -55,7 +55,7 @@ from ln_church_agent.task_models import (
     verify_reward_status_transition,
     verify_task_execution_summary,
 )
-from ln_church_agent.task_transport import (
+from mayim_agent.task_transport import (
     TASK_API_HOST,
     TASK_API_PORT,
     TaskAPIError,
@@ -3500,11 +3500,11 @@ def test_transport_httpx_configuration_has_no_ambient_credentials(monkeypatch):
             captured["closed"] = True
 
     monkeypatch.setattr(
-        "ln_church_agent.task_transport._new_pinned_httpx_transport",
+        "mayim_agent.task_transport._new_pinned_httpx_transport",
         lambda *args, **kwargs: object(),
     )
     monkeypatch.setattr(
-        "ln_church_agent.task_transport.httpx.Client", FakeClient
+        "mayim_agent.task_transport.httpx.Client", FakeClient
     )
     response = TaskTransport(
         _resolver=lambda host, port: ("93.184.216.34",)
@@ -3520,7 +3520,7 @@ def test_transport_httpx_configuration_has_no_ambient_credentials(monkeypatch):
     assert stream_kwargs["headers"]["Accept-Encoding"] == "identity"
     assert (
         stream_kwargs["headers"]["User-Agent"]
-        == "ln-church-agent-task/1.18.9"
+        == "mayim-agent-task/2.0.0"
     )
     assert "Cookie" not in stream_kwargs["headers"]
     assert "Authorization" not in stream_kwargs["headers"]
@@ -3542,7 +3542,7 @@ def test_pinned_httpx_transport_forces_tls_verification(monkeypatch):
             pass
 
     monkeypatch.setattr(
-        "ln_church_agent.task_transport.httpx.HTTPTransport",
+        "mayim_agent.task_transport.httpx.HTTPTransport",
         FakeHTTPTransport,
     )
     tracker = SimpleNamespace(request_bytes_sent=None)
@@ -3603,7 +3603,7 @@ def test_worker_402_never_retries_or_enters_payment_execution(monkeypatch):
         raise AssertionError("payment execution must not be reached")
 
     monkeypatch.setattr(
-        "ln_church_agent.client.LnChurchClient.execute_request",
+        "mayim_agent.client.MagClient.execute_request",
         payment_forbidden,
     )
     transport = TaskTransport(
@@ -3944,7 +3944,7 @@ def test_cli_claim_removes_only_proven_safe_reservation_and_tombstones_unknown(
 
     output_path = tmp_path / "claim.json"
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "claim",
         "task_example",
@@ -3957,11 +3957,11 @@ def test_cli_claim_removes_only_proven_safe_reservation_and_tombstones_unknown(
     ]
     fake = FakeClient()
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=fake,
     ):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             with pytest.raises(SystemExit) as caught:
                 main()
@@ -4008,7 +4008,7 @@ def test_cli_claim_reserves_mode_0600_and_never_prints_token(tmp_path, capsys):
 
     output_path = tmp_path / "claim.json"
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "claim",
         "task_example",
@@ -4020,9 +4020,9 @@ def test_cli_claim_reserves_mode_0600_and_never_prints_token(tmp_path, capsys):
         str(output_path),
         "--json",
     ]
-    with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+    with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
     captured = capsys.readouterr()
@@ -4066,7 +4066,7 @@ def test_cli_claim_keeps_one_descriptor_through_write_and_fsync(
         def close(self):
             pass
 
-    from ln_church_agent import cli
+    from mayim_agent import cli
 
     output_path = tmp_path / "same-fd.json"
     original_open = cli.os.open
@@ -4087,7 +4087,7 @@ def test_cli_claim_keeps_one_descriptor_through_write_and_fsync(
     monkeypatch.setattr(cli.os, "open", tracked_open)
     monkeypatch.setattr(cli.os, "fsync", tracked_fsync)
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "claim",
         "task_example",
@@ -4100,7 +4100,7 @@ def test_cli_claim_keeps_one_descriptor_through_write_and_fsync(
         "--json",
     ]
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         FakeClient,
     ):
         with patch.object(sys, "argv", argv):
@@ -4117,7 +4117,7 @@ def test_cli_claim_keeps_one_descriptor_through_write_and_fsync(
 def test_credential_reservation_rejects_symlink_parent_and_hardlink_change(
     tmp_path
 ):
-    from ln_church_agent.cli import _TaskCredentialReservation
+    from mayim_agent.cli import _TaskCredentialReservation
 
     real_parent = tmp_path / "real"
     real_parent.mkdir()
@@ -4143,7 +4143,7 @@ def test_credential_reservation_rejects_symlink_parent_and_hardlink_change(
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX inode boundary")
 def test_credential_reservation_rejects_path_identity_replacement(tmp_path):
-    from ln_church_agent.cli import _TaskCredentialReservation
+    from mayim_agent.cli import _TaskCredentialReservation
 
     path = tmp_path / "claim.json"
     reservation = _TaskCredentialReservation(str(path))
@@ -4160,7 +4160,7 @@ def test_credential_reservation_rejects_path_identity_replacement(tmp_path):
 
 
 def test_task_json_file_exact_size_limit_symlink_and_hardlink(tmp_path):
-    from ln_church_agent.cli import _read_task_json_file
+    from mayim_agent.cli import _read_task_json_file
 
     prefix = b'{"value":"'
     suffix = b'"}'
@@ -4208,7 +4208,7 @@ def test_task_json_file_exact_size_limit_symlink_and_hardlink(tmp_path):
 def test_task_json_file_rejects_duplicate_keys_and_non_json_numbers(
     tmp_path, content
 ):
-    from ln_church_agent.cli import _read_task_json_file
+    from mayim_agent.cli import _read_task_json_file
 
     path = tmp_path / "observation.json"
     path.write_text(content, encoding="utf-8")
@@ -4218,7 +4218,7 @@ def test_task_json_file_rejects_duplicate_keys_and_non_json_numbers(
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission boundary")
 def test_task_file_rejects_unsafe_intermediate_ancestor(tmp_path):
-    from ln_church_agent.cli import _validated_task_file_path
+    from mayim_agent.cli import _validated_task_file_path
 
     unsafe = tmp_path / "unsafe"
     safe_parent = unsafe / "safe"
@@ -4235,7 +4235,7 @@ def test_task_file_rejects_unsafe_intermediate_ancestor(tmp_path):
 def test_task_json_file_claims_root_policy_depends_on_file_sensitivity(
     monkeypatch
 ):
-    import ln_church_agent.cli as cli
+    import mayim_agent.cli as cli
 
     seen = []
 
@@ -4298,7 +4298,7 @@ def test_cli_credential_invalid_expired_or_unknown_never_reaches_network(
         encoding="utf-8",
     )
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "submit",
         "task_example",
@@ -4309,11 +4309,11 @@ def test_cli_credential_invalid_expired_or_unknown_never_reaches_network(
     ]
     fake = FakeClient()
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=fake,
     ):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             with pytest.raises(SystemExit) as caught:
                 main()
@@ -4355,7 +4355,7 @@ def test_cli_status_commands_use_expired_public_snapshot_without_token(
             pass
 
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         command,
         "task_example",
@@ -4367,9 +4367,9 @@ def test_cli_status_commands_use_expired_public_snapshot_without_token(
         OBSERVATION_ID,
         "--json",
     ]
-    with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+    with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
     captured = capsys.readouterr()
@@ -4405,7 +4405,7 @@ def test_cli_status_task_mismatch_fails_before_client_call(tmp_path, capsys):
 
     fake = FakeClient()
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "status",
         "task_other",
@@ -4417,11 +4417,11 @@ def test_cli_status_task_mismatch_fails_before_client_call(tmp_path, capsys):
         OBSERVATION_ID,
     ]
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=fake,
     ):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             with pytest.raises(SystemExit) as caught:
                 main()
@@ -4438,7 +4438,7 @@ def test_cli_claim_never_overwrites_existing_credential(tmp_path, capsys):
     if os.name != "nt":
         os.chmod(output_path, 0o600)
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "claim",
         "task_example",
@@ -4450,7 +4450,7 @@ def test_cli_claim_never_overwrites_existing_credential(tmp_path, capsys):
         str(output_path),
     ]
     with patch.object(sys, "argv", argv):
-        from ln_church_agent.cli import main
+        from mayim_agent.cli import main
 
         with pytest.raises(SystemExit) as caught:
             main()
@@ -5187,7 +5187,7 @@ def test_guided_shared_budget_covers_all_transport_retries_and_fallback():
     )
     budget = _TaskExchangeBudget(10)
     with patch(
-        "ln_church_agent.task_client._TaskExchangeBudget",
+        "mayim_agent.task_client._TaskExchangeBudget",
         return_value=budget,
     ):
         result = AgentTaskClient(
@@ -5211,13 +5211,13 @@ def test_guided_shared_budget_covers_all_transport_retries_and_fallback():
 
 def test_cli_submit_complete_has_no_manual_id_arguments(capsys):
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "submit-complete",
         "--help",
     ]
     with patch.object(sys, "argv", argv):
-        from ln_church_agent.cli import main
+        from mayim_agent.cli import main
 
         with pytest.raises(SystemExit) as caught:
             main()
@@ -5251,7 +5251,7 @@ def test_cli_submit_complete_persists_secret_free_registered_checkpoint(
     )
     client = AgentTaskClient(_transport=transport)
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "submit-complete",
         "task_example",
@@ -5264,11 +5264,11 @@ def test_cli_submit_complete_persists_secret_free_registered_checkpoint(
         "--json",
     ]
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=client,
     ):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
 
@@ -5309,7 +5309,7 @@ def test_cli_checkpoint_replace_failure_is_local_and_pre_observation(
     transport = _FakeTransport([_register_response()])
     client = AgentTaskClient(_transport=transport)
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "submit-complete",
         "task_example",
@@ -5321,15 +5321,15 @@ def test_cli_checkpoint_replace_failure_is_local_and_pre_observation(
         str(checkpoint_path),
     ]
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=client,
     ), patch(
-        "ln_church_agent.cli.os.replace",
+        "mayim_agent.cli.os.replace",
         side_effect=PermissionError(
             "simulated Windows sharing failure " + CLAIM_TOKEN
         ),
     ), patch.object(sys, "argv", argv):
-        from ln_church_agent.cli import main
+        from mayim_agent.cli import main
 
         with pytest.raises(SystemExit) as caught:
             main()
@@ -5352,7 +5352,7 @@ def test_cli_checkpoint_replace_failure_is_local_and_pre_observation(
 def test_checkpoint_file_round_trips_wire_valid_boundary_envelopes(
     tmp_path,
 ):
-    from ln_church_agent.cli import (
+    from mayim_agent.cli import (
         _TASK_CHECKPOINT_FILE_MAX_BYTES,
         _TASK_FILE_MAX_BYTES,
         _TaskCheckpointFile,
@@ -5426,7 +5426,7 @@ def test_checkpoint_file_round_trips_wire_valid_boundary_envelopes(
 def test_checkpoint_atomic_replace_closes_data_handles_and_keeps_lock(
     tmp_path,
 ):
-    from ln_church_agent.cli import _TaskCheckpointFile
+    from mayim_agent.cli import _TaskCheckpointFile
 
     path = tmp_path / "checkpoint.json"
     lock_path = Path(str(path) + ".lock")
@@ -5476,11 +5476,11 @@ def test_checkpoint_atomic_replace_closes_data_handles_and_keeps_lock(
         return real_replace(source, destination)
 
     with patch(
-        "ln_church_agent.cli.os.open", side_effect=tracked_open
+        "mayim_agent.cli.os.open", side_effect=tracked_open
     ), patch(
-        "ln_church_agent.cli.os.close", side_effect=tracked_close
+        "mayim_agent.cli.os.close", side_effect=tracked_close
     ), patch(
-        "ln_church_agent.cli.os.replace", side_effect=guarded_replace
+        "mayim_agent.cli.os.replace", side_effect=guarded_replace
     ):
         checkpoint_file = _TaskCheckpointFile(str(path))
         try:
@@ -5513,7 +5513,7 @@ def test_checkpoint_atomic_replace_closes_data_handles_and_keeps_lock(
 
 
 def test_checkpoint_file_rejects_above_checkpoint_only_cap(tmp_path):
-    from ln_church_agent.cli import (
+    from mayim_agent.cli import (
         _TASK_CHECKPOINT_FILE_MAX_BYTES,
         _TaskCheckpointFile,
     )
@@ -5574,7 +5574,7 @@ def test_checkpoint_file_rejects_above_checkpoint_only_cap(tmp_path):
 def test_cli_submit_complete_accepts_wire_valid_checkpoint_boundary(
     tmp_path, capsys
 ):
-    from ln_church_agent.cli import (
+    from mayim_agent.cli import (
         _TASK_CHECKPOINT_FILE_MAX_BYTES,
         _TASK_FILE_MAX_BYTES,
     )
@@ -5613,7 +5613,7 @@ def test_cli_submit_complete_accepts_wire_valid_checkpoint_boundary(
     )
     client = AgentTaskClient(_transport=transport)
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "submit-complete",
         "task_example",
@@ -5626,11 +5626,11 @@ def test_cli_submit_complete_accepts_wire_valid_checkpoint_boundary(
         "--json",
     ]
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=client,
     ):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
 
@@ -5706,7 +5706,7 @@ def test_cli_rejected_checkpoint_never_leaks_secret_in_exception_graph(
 
     client = FakeClient()
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "submit-complete",
         "task_example",
@@ -5718,11 +5718,11 @@ def test_cli_rejected_checkpoint_never_leaks_secret_in_exception_graph(
         str(checkpoint_path),
     ]
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=client,
     ):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             with pytest.raises(SystemExit) as caught:
                 main()
@@ -5782,7 +5782,7 @@ def test_cli_submit_complete_malformed_input_drops_secret_context(
 
     client = FakeClient()
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "submit-complete",
         "task_example",
@@ -5794,11 +5794,11 @@ def test_cli_submit_complete_malformed_input_drops_secret_context(
         str(checkpoint_path),
     ]
     with patch(
-        "ln_church_agent.task_client.AgentTaskClient",
+        "mayim_agent.task_client.AgentTaskClient",
         return_value=client,
     ):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             with pytest.raises(SystemExit) as caught:
                 main()
@@ -5827,7 +5827,7 @@ def test_cli_submit_complete_malformed_input_drops_secret_context(
 def test_checkpoint_file_exclusive_lock_rejects_concurrent_writer(
     tmp_path,
 ):
-    from ln_church_agent.cli import _TaskCheckpointFile
+    from mayim_agent.cli import _TaskCheckpointFile
 
     path = tmp_path / "checkpoint.json"
     first = _TaskCheckpointFile(str(path))
@@ -5849,7 +5849,7 @@ def test_checkpoint_file_exclusive_lock_rejects_concurrent_writer(
 def test_checkpoint_file_malformed_json_drops_secret_exception_context(
     tmp_path,
 ):
-    from ln_church_agent.cli import _TaskCheckpointFile
+    from mayim_agent.cli import _TaskCheckpointFile
 
     path = tmp_path / "checkpoint.json"
     path.write_text(
@@ -5870,7 +5870,7 @@ def test_checkpoint_file_malformed_json_drops_secret_exception_context(
 def test_checkpoint_failed_update_preserves_last_good_pending_state(
     tmp_path,
 ):
-    from ln_church_agent.cli import _TaskCheckpointFile
+    from mayim_agent.cli import _TaskCheckpointFile
 
     path = tmp_path / "checkpoint.json"
     checkpoint_file = _TaskCheckpointFile(str(path))
@@ -5894,7 +5894,7 @@ def test_checkpoint_failed_update_preserves_last_good_pending_state(
 
     try:
         with patch(
-            "ln_church_agent.cli.os.write",
+            "mayim_agent.cli.os.write",
             side_effect=fail_after_partial_write,
         ):
             with pytest.raises(ValueError) as caught:
@@ -5913,7 +5913,7 @@ def test_checkpoint_failed_update_preserves_last_good_pending_state(
 def test_checkpoint_replace_failure_preserves_old_bytes_and_cleans_temp(
     tmp_path,
 ):
-    from ln_church_agent.cli import _TaskCheckpointFile
+    from mayim_agent.cli import _TaskCheckpointFile
 
     path = tmp_path / "checkpoint.json"
     checkpoint_file = _TaskCheckpointFile(str(path))
@@ -5927,7 +5927,7 @@ def test_checkpoint_replace_failure_preserves_old_bytes_and_cleans_temp(
     pending_bytes = path.read_bytes()
     try:
         with patch(
-            "ln_church_agent.cli.os.replace",
+            "mayim_agent.cli.os.replace",
             side_effect=PermissionError(
                 "simulated Windows sharing failure " + CLAIM_TOKEN
             ),
@@ -5948,7 +5948,7 @@ def test_checkpoint_replace_failure_preserves_old_bytes_and_cleans_temp(
 def test_checkpoint_atomic_update_transfers_exclusive_lock(
     tmp_path,
 ):
-    from ln_church_agent.cli import _TaskCheckpointFile
+    from mayim_agent.cli import _TaskCheckpointFile
 
     path = tmp_path / "checkpoint.json"
     checkpoint_file = _TaskCheckpointFile(str(path))
@@ -6017,11 +6017,11 @@ def test_windows_python_314_known_limitation_is_documented_consistently():
         "shared-wire defects, runtime defects that also reproduce on Linux "
         "Tier 1, release-identity inconsistencies, and materially misleading "
         "public interfaces or documentation remain release-blocking.",
-        "%LOCALAPPDATA%\\ln-church-agent\\claims",
+        "%LOCALAPPDATA%\\mayim-agent\\claims",
         "The runtime does not create this root automatically; create it "
         "before running the Task CLI.",
         "In PowerShell 5.1:",
-        '$claimsRoot = Join-Path $env:LOCALAPPDATA "ln-church-agent\\claims"',
+        '$claimsRoot = Join-Path $env:LOCALAPPDATA "mayim-agent\\claims"',
         "New-Item -ItemType Directory -Path $claimsRoot -Force | Out-Null",
         '$credentialFile = Join-Path $claimsRoot "TASK_ID.json"',
         '$checkpointFile = Join-Path $claimsRoot "TASK_ID.checkpoint.json"',
@@ -6050,13 +6050,13 @@ def test_windows_python_314_known_limitation_is_documented_consistently():
     assert "Windows＋Python 3.14" in release_note
     for required in shared_documentation:
         assert required in readme
-        assert required in release_note
+        assert required.replace("mayim-agent", "ln-church-agent") in release_note
 
 
 def test_inspect_only_mcp_exposes_no_task_mutation_tools():
     source = (
         Path(__file__).parents[1]
-        / "ln_church_agent"
+        / "mayim_agent"
         / "integrations"
         / "mcp_inspect.py"
     ).read_text(encoding="utf-8")
@@ -6066,7 +6066,7 @@ def test_inspect_only_mcp_exposes_no_task_mutation_tools():
 
 
 def test_task_public_api_exports_are_available_from_package_root():
-    import ln_church_agent
+    import mayim_agent
 
     required = {
         "AgentTaskClient",
@@ -6084,13 +6084,13 @@ def test_task_public_api_exports_are_available_from_package_root():
         "TaskAPIError",
         "TaskAmbiguousOutcomeError",
     }
-    assert required <= set(ln_church_agent.__all__)
-    assert all(hasattr(ln_church_agent, name) for name in required)
+    assert required <= set(mayim_agent.__all__)
+    assert all(hasattr(mayim_agent, name) for name in required)
 
 
 def test_old_public_task_offer_surface_is_absent_and_internal_interfaces_remain():
-    import ln_church_agent
-    from ln_church_agent import task_contract, task_models
+    import mayim_agent
+    from mayim_agent import task_contract, task_models
 
     assert task_contract.TASK_TYPE_PAYMENT_SURFACE_DISCOVERY == TASK_TYPE
     assert not hasattr(task_contract, "TASK_TYPE_DOMAIN_OBSERVATION")
@@ -6102,17 +6102,17 @@ def test_old_public_task_offer_surface_is_absent_and_internal_interfaces_remain(
     ):
         assert not hasattr(task_models, name)
         assert name not in getattr(task_models, "__all__", ())
-        assert name not in ln_church_agent.__all__
+        assert name not in mayim_agent.__all__
     assert not hasattr(AgentTaskClient, "create_task_offer")
-    assert hasattr(ln_church_agent.LnChurchClient, "claim_domain_observation_targets")
-    assert hasattr(ln_church_agent.LnChurchClient, "submit_domain_observation_result")
+    assert not hasattr(mayim_agent.MagClient, "claim_domain_observation_targets")
+    assert not hasattr(mayim_agent.MagClient, "submit_domain_observation_result")
     assert TaskDomainObservationSubmission.model_fields["schema_version"].default == (
         "ln_church.task_domain_observation_submission.v1"
     )
 
 
 def test_task_public_payload_redacts_claim_token_name_variants():
-    from ln_church_agent.cli import _task_public_payload
+    from mayim_agent.cli import _task_public_payload
 
     payload = {
         "claim_token": CLAIM_TOKEN,
@@ -6215,14 +6215,14 @@ def test_claim_json_validation_sanitizes_non_object_payloads(
 
 def test_task_argparse_error_never_echoes_extra_canonical_claim_token(capsys):
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "get",
         "task_example",
         CLAIM_TOKEN,
     ]
     with patch.object(sys, "argv", argv):
-        from ln_church_agent.cli import main
+        from mayim_agent.cli import main
 
         with pytest.raises(SystemExit) as caught:
             main()
@@ -6250,10 +6250,10 @@ def test_task_cli_accepts_legitimate_43_character_task_id(capsys):
         def close(self):
             pass
 
-    argv = ["ln-church-agent", "task", "get", task_id, "--json"]
-    with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+    argv = ["mayim-agent", "task", "get", task_id, "--json"]
+    with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
 
@@ -6276,15 +6276,15 @@ def test_task_get_cli_json_preserves_all_summary_fields_and_nulls(capsys):
             pass
 
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "get",
         "task_example",
         "--json",
     ]
-    with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+    with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
 
@@ -6342,7 +6342,7 @@ def test_task_get_cli_displays_exact_server_page_and_disclosure(capsys):
             pass
 
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "get",
         "task_example",
@@ -6351,9 +6351,9 @@ def test_task_get_cli_displays_exact_server_page_and_disclosure(capsys):
         "--cursor",
         "opaque-page",
     ]
-    with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+    with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
 
@@ -6516,15 +6516,15 @@ def test_readme_documents_reward_destination_education_boundary():
 @pytest.mark.parametrize(
     "argv",
     [
-        ["ln-church-agent", "task", "--help"],
-        ["ln-church-agent", "task", "claim", "--help"],
+        ["mayim-agent", "task", "--help"],
+        ["mayim-agent", "task", "claim", "--help"],
     ],
 )
 def test_task_help_educates_without_wallet_secret_arguments(
     argv, capsys
 ):
     with patch.object(sys, "argv", argv):
-        from ln_church_agent.cli import main
+        from mayim_agent.cli import main
 
         with pytest.raises(SystemExit) as caught:
             main()
@@ -6567,12 +6567,12 @@ def test_task_list_and_get_human_output_educate_before_claim(capsys):
             pass
 
     for argv in (
-        ["ln-church-agent", "task", "list"],
-        ["ln-church-agent", "task", "get", "task_example"],
+        ["mayim-agent", "task", "list"],
+        ["mayim-agent", "task", "get", "task_example"],
     ):
-        with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+        with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
             with patch.object(sys, "argv", argv):
-                from ln_church_agent.cli import main
+                from mayim_agent.cli import main
 
                 main()
         captured = capsys.readouterr()
@@ -6603,12 +6603,12 @@ def test_task_list_and_get_json_output_remain_exactly_compatible(capsys):
 
     cases = (
         (
-            ["ln-church-agent", "task", "list", "--json"],
+            ["mayim-agent", "task", "list", "--json"],
             page.model_dump(mode="json"),
         ),
         (
             [
-                "ln-church-agent",
+                "mayim-agent",
                 "task",
                 "get",
                 "task_example",
@@ -6618,9 +6618,9 @@ def test_task_list_and_get_json_output_remain_exactly_compatible(capsys):
         ),
     )
     for argv, expected in cases:
-        with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+        with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
             with patch.object(sys, "argv", argv):
-                from ln_church_agent.cli import main
+                from mayim_agent.cli import main
 
                 main()
         captured = capsys.readouterr()
@@ -6655,7 +6655,7 @@ def test_cli_claim_human_confirmation_educates_without_wallet_secrets(
 
     credential_path = tmp_path / "claim.json"
     argv = [
-        "ln-church-agent",
+        "mayim-agent",
         "task",
         "claim",
         "task_example",
@@ -6666,9 +6666,9 @@ def test_cli_claim_human_confirmation_educates_without_wallet_secrets(
         "--credential-file",
         str(credential_path),
     ]
-    with patch("ln_church_agent.task_client.AgentTaskClient", FakeClient):
+    with patch("mayim_agent.task_client.AgentTaskClient", FakeClient):
         with patch.object(sys, "argv", argv):
-            from ln_church_agent.cli import main
+            from mayim_agent.cli import main
 
             main()
 
@@ -6701,13 +6701,13 @@ def test_cli_claim_human_confirmation_educates_without_wallet_secrets(
 def test_windows_reparse_scan_keeps_original_root_and_every_ancestor():
     from pathlib import PureWindowsPath
 
-    from ln_church_agent.cli import _windows_original_ancestors
+    from mayim_agent.cli import _windows_original_ancestors
 
     local_app_data = PureWindowsPath(
         r"C:\Users\agent\AppData\Local"
     )
     required_root = (
-        local_app_data / "ln-church-agent" / "claims"
+        local_app_data / "mayim-agent" / "claims"
     )
     candidate_parent = required_root / "nested"
 
@@ -6720,7 +6720,7 @@ def test_windows_reparse_scan_keeps_original_root_and_every_ancestor():
         PureWindowsPath("C:/Users/agent"),
         PureWindowsPath("C:/Users/agent/AppData"),
         local_app_data,
-        local_app_data / "ln-church-agent",
+        local_app_data / "mayim-agent",
         required_root,
     )
     assert candidate_ancestors[: len(required_ancestors)] == required_ancestors

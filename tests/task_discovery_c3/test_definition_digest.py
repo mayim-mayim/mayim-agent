@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
-import ln_church_agent
-from ln_church_agent import TaskDiscoveryCandidate, TaskDiscoveryPage
-from ln_church_agent.task_transport import TaskError
+import mayim_agent
+from mayim_agent import TaskDiscoveryCandidate, TaskDiscoveryPage
+from mayim_agent.task_transport import TaskError
 from wire_inputs import FIXTURES
 from wire_support import Replay, run_cli
 from formal_identities import IDENTITIES
@@ -22,8 +22,8 @@ def test_normal_candidate_matches_existing_formal_identity_and_keeps_original_fi
     identity = next(i for i in IDENTITIES if (i['task_type'], i['version']) ==
                     (task['task_type'], task['task_definition_version']))
     assert (task['task_schema_version'], task['task_definition_digest']) == (identity['schema'], identity['digest'])
-    if identity['path'].startswith('ln_church_agent/'):
-        raw = (Path(ln_church_agent.__file__).parent.parent/identity['path']).read_bytes()
+    if identity['path'].startswith('mayim_agent/'):
+        raw = (Path(mayim_agent.__file__).parent.parent/identity['path']).read_bytes()
         assert len(raw) == identity['bytes']
         assert hashlib.sha256(raw).hexdigest() == identity['sha256']
         assert hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest() == identity['blob']

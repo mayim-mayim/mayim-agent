@@ -14,7 +14,7 @@ globalThis.fetch=()=>{throw Error('External network prohibited in SDK integratio
 async function loadGateway(){
     globalThis.__v183GatewayViem=viem;
     const sources={
-        'hono':`export class Hono {use(){return this}get(){return this}post(){return this}on(){return this}}`,
+        'hono':`export class Hono {use(){return this}get(){return this}post(){return this}all(){return this}on(){return this}}`,
         'hono/aws-lambda':'export const handle=app=>app;',
         '@x402/hono':`export const paymentMiddleware=()=>async(c,next)=>next();export class x402ResourceServer {register(){return this}registerExtension(){return this}onAfterVerify(){return this}onBeforeSettle(){return this}onAfterSettle(){return this}onSettleFailure(){return this}}`,
         '@x402/evm/exact/server':'export class ExactEvmScheme {}',

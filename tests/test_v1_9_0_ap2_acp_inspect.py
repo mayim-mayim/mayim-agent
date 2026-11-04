@@ -2,9 +2,9 @@ import pytest
 import json
 import base64
 from unittest.mock import patch, MagicMock
-from ln_church_agent.cli import inspect_url
+from mayim_agent.cli import inspect_url
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_ap2_payment_mandate_detection(mock_req):
     """AP2 payment mandate detection: AP2のみの場合は observe_only となること"""
     mock_res = MagicMock(status_code=402)
@@ -29,7 +29,7 @@ def test_ap2_payment_mandate_detection(mock_req):
     assert len(res.settlement_rails_detected) == 0
     assert res.recommended_action == "observe_only"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_acp_checkout_detection(mock_req):
     """ACP checkout detection: ACPのみの場合は observe_only となること"""
     mock_res = MagicMock(status_code=402)
@@ -55,7 +55,7 @@ def test_acp_checkout_detection(mock_req):
     assert len(res.settlement_rails_detected) == 0
     assert res.recommended_action == "observe_only"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_ap2_with_x402_challenge_coexistence(mock_req):
     """AP2 + x402-like challenge: 両方検知するが、アクションは observe_only にとどめる"""
     mock_res = MagicMock(status_code=402)
@@ -84,7 +84,7 @@ def test_ap2_with_x402_challenge_coexistence(mock_req):
     # 決済レールが共存していても pay_and_verify には昇格させない
     assert res.recommended_action == "observe_only"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_acp_with_malformed_settlement_hint(mock_req):
     """ACP + malformed settlement hint: typed parse failureを優先すること"""
     mock_res = MagicMock(status_code=402)
@@ -110,7 +110,7 @@ def test_acp_with_malformed_settlement_hint(mock_req):
     assert res.surfaces_detected == []
     assert res.will_execute_payment is False
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_ap2_checkout_mandate_artifact(mock_req):
     """AP2 checkout_mandate の artifact 分類確認"""
     mock_res = MagicMock(status_code=402, url="http://public.example")
@@ -124,7 +124,7 @@ def test_ap2_checkout_mandate_artifact(mock_req):
     assert "AP2" not in res.rails_detected
     assert res.authorization_artifact == "checkout_mandate"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_acp_catalog_artifact_none(mock_req):
     """ACP catalog の artifact が none になること"""
     mock_res = MagicMock(status_code=402, url="http://public.example")
@@ -138,7 +138,7 @@ def test_acp_catalog_artifact_none(mock_req):
     assert "ACP" not in res.rails_detected
     assert res.authorization_artifact == "none"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_acp_shared_token_artifact(mock_req):
     """ACP shared_payment_token の artifact 分類確認"""
     mock_res = MagicMock(status_code=402, url="http://public.example")
@@ -152,7 +152,7 @@ def test_acp_shared_token_artifact(mock_req):
     assert "ACP" not in res.rails_detected
     assert res.authorization_artifact == "shared_payment_token"
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_regression_normal_l402_inspect(mock_req):
     """通常 L402 inspect が AP2/ACP 拡張の影響を受けず正常動作するかの回帰テスト"""
     mock_res = MagicMock(status_code=402, url="http://public.example")

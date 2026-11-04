@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.agent_task.v1_1"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "task_type": {
+      "const": "payment_surface_discovery.v1"
+    },
+    "task_definition_version": {
+      "const": "1.1.0"
+    },
+    "task_definition_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "activity_map_policy_id": {
+      "const": "mag.activity-map.public.v1"
+    },
+    "activity_map_epoch": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "terms_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "plan_id": {
+      "enum": [
+        "C50",
+        "C500",
+        "C5000"
+      ]
+    },
+    "registration_amount_atomic": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$"
+    },
+    "manifest_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "enum": [
+        "OPEN",
+        "CLOSED",
+        "EXPIRED"
+      ]
+    },
+    "seed_urls": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "observation_profile": {
+      "const": "public_safe_light"
+    },
+    "constraints": {
+      "const": {
+        "allowed_methods": [
+          "GET",
+          "HEAD"
+        ],
+        "no_login": true,
+        "no_forms": true,
+        "no_vulnerability_scan": true,
+        "no_payment_to_target": true,
+        "no_personal_data": true,
+        "not_a_security_scan": true,
+        "payment_attempts": 0,
+        "irreversible_action_attempted": false,
+        "maximum_observed_urls": 50,
+        "maximum_discovered_surfaces": 50,
+        "maximum_errors": 20
+      }
+    },
+    "reward": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "network": {
+          "const": "eip155:8453"
+        },
+        "asset": {
+          "const": "USDC"
+        },
+        "asset_address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "amount_atomic": {
+          "const": "10000"
+        }
+      },
+      "required": [
+        "network",
+        "asset",
+        "asset_address",
+        "amount_atomic"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "active_execution_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "claim_count_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "rewarded_execution_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "reward_paid_total_minor": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "capacity_total": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "capacity_remaining": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "maximum_reward_principal_atomic": {
+      "type": "string",
+      "pattern": "^[1-9][0-9]*$"
+    },
+    "claimable": {
+      "type": "boolean"
+    },
+    "poc_terms": {
+      "const": {
+        "completion_2xx_meaning": "durable_receipt_only",
+        "completion_2xx_implies_evaluation_approval": false,
+        "completion_2xx_implies_payment_completion": false,
+        "payout_mode": "automatic_best_effort_with_finite_retry_and_recorded_evidence",
+        "payment_completion_sla": false,
+        "individual_investigation": false,
+        "manual_resend": false,
+        "compensation": false,
+        "alternative_payment": false,
+        "arbitrary_non_payment_authorized": false,
+        "required_public_surfaces": [
+          "task_get",
+          "task_definition",
+          "openapi_and_agent_documentation",
+          "taskboard",
+          "sdk_documentation"
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "task_type",
+    "task_definition_version",
+    "task_definition_digest",
+    "activity_map_policy_id",
+    "activity_map_epoch",
+    "terms_digest",
+    "plan_id",
+    "registration_amount_atomic",
+    "manifest_url",
+    "manifest_sha256",
+    "status",
+    "seed_urls",
+    "observation_profile",
+    "constraints",
+    "reward",
+    "created_at",
+    "expires_at",
+    "active_execution_count",
+    "claim_count_total",
+    "rewarded_execution_count",
+    "reward_paid_total_minor",
+    "capacity_total",
+    "capacity_remaining",
+    "maximum_reward_principal_atomic",
+    "claimable",
+    "poc_terms"
+  ]
+}

@@ -20,10 +20,10 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode, urlsplit
 from urllib.request import build_opener, ProxyHandler, Request
 
-from ln_church_agent import AgentTaskClient, TaskDiscoveryPage
-from ln_church_agent.access_quota import AccessQuotaPolicy
-from ln_church_agent.endpoint_choice_reason_models import EndpointChoiceTask
-from ln_church_agent.task_transport import TaskError, TaskTransport
+from mayim_agent import AgentTaskClient, TaskDiscoveryPage
+from mayim_agent.access_quota import AccessQuotaPolicy
+from mayim_agent.endpoint_choice_reason_models import EndpointChoiceTask
+from mayim_agent.task_transport import TaskError, TaskTransport
 from wire_inputs import FIXTURES_BYTES, QUOTA_BYTES, SCHEMA_BYTES
 from wire_support import run_cli
 
@@ -212,8 +212,8 @@ def main():
                 if row['status'] == 200 and row['scenario'] == 'mixed' and row['path'].startswith('/api/agent/tasks?limit=') and 'task_type=' not in row['path']:
                     assert [x['operation'] for x in row['db']] == ['Get', 'Query']
             result['modules'] = {n:str(Path(m.__file__).resolve()) for n,m in sys.modules.items()
-                                 if (n == 'ln_church_agent' or n.startswith('ln_church_agent.')) and getattr(m, '__file__', None)}
-            result['version'] = importlib.metadata.version('ln-church-agent')
+                                 if (n == 'mayim_agent' or n.startswith('mayim_agent.')) and getattr(m, '__file__', None)}
+            result['version'] = importlib.metadata.version('mayim-agent')
             result['result'] = 'IMPLEMENTATION_SELF_CHECK_PASS'
             result['boundaries'] = 'Real TaskGet over loopback; actual Choice2.0/2.1 lifecycle and in-memory conditional stores, synthetic provider. Twelve-tuple and quota files are separately labeled replay. No public HTTP, Claim, purchase, signing or payment.'
         finally:

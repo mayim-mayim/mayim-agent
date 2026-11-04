@@ -7,7 +7,7 @@ import time
 
 import pytest
 
-from ln_church_agent.task_journal import JournalError, TaskJournal
+from mayim_agent.task_journal import JournalError, TaskJournal
 
 
 TASK_ID = "task_native_platform"
@@ -53,7 +53,7 @@ def test_native_stable_sibling_fcntl_lock_excludes_second_process(tmp_path):
         import sys
         import time
         from pathlib import Path
-        from ln_church_agent.task_journal import _StableLock
+        from mayim_agent.task_journal import _StableLock
 
         lock_path, ready = sys.argv[1:]
         with _StableLock(Path(lock_path)):
@@ -93,7 +93,7 @@ def test_native_completion_operation_guard_is_cross_process_and_crash_released(
         import sys
         import time
         from pathlib import Path
-        from ln_church_agent.task_journal import TaskJournal
+        from mayim_agent.task_journal import TaskJournal
 
         path, ready, crash = sys.argv[1:]
         journal = TaskJournal(
@@ -137,7 +137,7 @@ def test_native_windows_closed_handle_replace_and_msvcrt_lock(tmp_path):
     local = os.environ.get("LOCALAPPDATA")
     if not local:
         pytest.fail("LOCALAPPDATA is required for native Windows qualification")
-    claims = os.path.join(local, "ln-church-agent", "claims")
+    claims = os.path.join(local, "mayim-agent", "claims")
     os.makedirs(claims, exist_ok=True)
     path = os.path.join(claims, "native-v18-qualification.journal")
     if os.path.exists(path):

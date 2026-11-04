@@ -2,9 +2,9 @@ import pytest
 import json
 import base64
 from unittest.mock import patch, MagicMock
-from ln_church_agent.cli import inspect_url
+from mayim_agent.cli import inspect_url
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_ap2_payment_mandate_returns_guided_handoff(mock_req):
     mock_res = MagicMock(status_code=402)
     mock_res.url = "http://public.example"
@@ -30,7 +30,7 @@ def test_ap2_payment_mandate_returns_guided_handoff(mock_req):
     assert "treat_mandate_as_settlement_proof" in res.do_not
     assert "explicit_price" in res.required_evidence
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_ap2_with_x402_coexist_still_observe_only(mock_req):
     mock_res = MagicMock(status_code=402)
     mock_res.url = "http://public.example"
@@ -58,7 +58,7 @@ def test_ap2_with_x402_coexist_still_observe_only(mock_req):
     assert res.operator_approval_reason == "commerce_surface_with_settlement_rail"
     assert "settlement_rail_options" in res.ask_site_for
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_acp_shared_payment_token_does_not_expose_raw_token(mock_req):
     mock_res = MagicMock(status_code=402, url="http://public.example")
     payload = {
@@ -83,7 +83,7 @@ def test_acp_shared_payment_token_does_not_expose_raw_token(mock_req):
     serialized = res.model_dump_json() if hasattr(res, "model_dump_json") else res.json()
     assert "SECRET_TOKEN_SHOULD_NOT_LEAK" not in serialized
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_acp_cart_returns_cart_guidance(mock_req):
     mock_res = MagicMock(status_code=402, url="http://public.example")
     payload = {
@@ -104,7 +104,7 @@ def test_acp_cart_returns_cart_guidance(mock_req):
     assert "price_breakdown" in res.ask_site_for
     assert "cart_total" in res.required_evidence
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_app_okx_app_returns_broker_escrow_guidance(mock_req):
     mock_res = MagicMock(status_code=402, url="http://public.example")
     payload = {
@@ -125,7 +125,7 @@ def test_app_okx_app_returns_broker_escrow_guidance(mock_req):
     assert "treat_broker_hint_as_settlement_proof" in res.do_not
     assert "escrow_or_dispute_terms" in res.required_evidence
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_normal_l402_regression_has_no_guided_handoff(mock_req):
     mock_res = MagicMock(status_code=402, url="http://public.example")
     mock_res.headers = {"WWW-Authenticate": 'L402 macaroon="mac", invoice="inv"'}
@@ -145,7 +145,7 @@ def test_normal_l402_regression_has_no_guided_handoff(mock_req):
     assert res.required_evidence == []
     assert res.missing_information == []
 
-@patch("ln_church_agent.inspect_transport._exchange_once")
+@patch("mayim_agent.inspect_transport._exchange_once")
 def test_malformed_overlap_returns_typed_parse_failure(mock_req):
     mock_res = MagicMock(status_code=402, url="http://public.example")
     acp_payload = {"protocol": "acp", "intent": "cart"}

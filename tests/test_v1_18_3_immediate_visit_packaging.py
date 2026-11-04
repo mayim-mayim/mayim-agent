@@ -30,7 +30,7 @@ COPIED_NAMES = {
 
 def test_accepted_contract_resources_preserve_all_twenty_mappings_and_provenance():
     provenance = json.loads(pkgutil.get_data(
-        "ln_church_agent", CONTRACT_PREFIX + "source-provenance.json"))
+        "mayim_agent", CONTRACT_PREFIX + "source-provenance.json"))
     assert provenance["acceptance"] == {
         "repository": "mayim-mayim/LN_Church_Development-Charter",
         "commit": "11a263537e54f6ac9a30f73277c25c6d861ed7a5",
@@ -52,26 +52,26 @@ def test_accepted_contract_resources_preserve_all_twenty_mappings_and_provenance
         name = resource[len(CONTRACT_PREFIX):]
         assert entry["source_path"] == (
             "frontend/agent-task-specs/immediate_http_visit.v1/1.0.0/" + name)
-        body = pkgutil.get_data("ln_church_agent", resource)
+        body = pkgutil.get_data("mayim_agent", resource)
         assert len(body) == entry["bytes"]
         assert hashlib.sha256(body).hexdigest() == entry["sha256"]
         assert hashlib.sha1(b"blob " + str(len(body)).encode() + b"\0" + body).hexdigest() == entry["blob"]
         assert entry["mode"] == "100644"
         if os.name != "nt":
-            assert stat.S_IMODE((ROOT / entry["sdk_path"]).stat().st_mode) == 0o644
-    manifest = pkgutil.get_data("ln_church_agent", CONTRACT_PREFIX + "manifest.json")
+            assert stat.S_IMODE((ROOT / "mayim_agent" / entry["sdk_path"].split("/", 1)[1]).stat().st_mode) == 0o644
+    manifest = pkgutil.get_data("mayim_agent", CONTRACT_PREFIX + "manifest.json")
     assert b"implementation_candidate_not_source_accepted" in manifest
 
 
 def test_bundled_profile_fixtures_match_fixed_specification_and_execute():
-    from ln_church_agent.immediate_visit_profile import analyze_response
+    from mayim_agent.immediate_visit_profile import analyze_response
 
     fixed_bytes = (ROOT / "tests/fixtures/v183-immediate-visit/profile-fixtures.json").read_bytes()
     assert hashlib.sha256(fixed_bytes).hexdigest() == (
         "ee89b8f6c5969359b38245cd72d0f6b535228244b5e9e408ba0932cd5d0b93be")
     fixed = json.loads(fixed_bytes)
     bundled = json.loads(pkgutil.get_data(
-        "ln_church_agent", CONTRACT_PREFIX + "profile-fixtures.json"))
+        "mayim_agent", CONTRACT_PREFIX + "profile-fixtures.json"))
     assert bundled == fixed
     assert len(bundled["vectors"]) == 27
     for vector in bundled["vectors"]:
@@ -92,24 +92,24 @@ def test_bundled_profile_fixtures_match_fixed_specification_and_execute():
 
 
 def test_new_public_worker_exports_and_previous_public_apis_import():
-    from ln_church_agent import (
+    from mayim_agent import (
         AgentImmediateVisitClient,
         AgentTaskClient,
         AgentTaskV2Client,
         FrozenImmediateVisitReport,
         ImmediateVisitExecutor,
         ImmediateVisitJournal,
-        LnChurchClient,
+        MagClient,
         Payment402Client,
     )
-    from ln_church_agent.immediate_visit_client import (
+    from mayim_agent.immediate_visit_client import (
         AgentImmediateVisitClient as ConcreteClient,
     )
-    from ln_church_agent.immediate_visit import (
+    from mayim_agent.immediate_visit import (
         FrozenImmediateVisitReport as ConcreteReport,
         ImmediateVisitExecutor as ConcreteExecutor,
     )
-    from ln_church_agent.immediate_visit_journal import (
+    from mayim_agent.immediate_visit_journal import (
         ImmediateVisitJournal as ConcreteJournal,
     )
 
@@ -118,17 +118,17 @@ def test_new_public_worker_exports_and_previous_public_apis_import():
     assert FrozenImmediateVisitReport is ConcreteReport
     assert ImmediateVisitJournal is ConcreteJournal
     assert all(isinstance(cls, type) for cls in (
-        AgentTaskClient, AgentTaskV2Client, LnChurchClient, Payment402Client,
+        AgentTaskClient, AgentTaskV2Client, MagClient, Payment402Client,
     ))
 
 
 def test_inspect_import_does_not_initialize_new_worker_or_parser():
     script = """
 import sys
-import ln_church_agent.integrations.mcp_inspect
-assert not any(name.startswith('ln_church_agent.immediate_visit')
+import mayim_agent.integrations.mcp_inspect
+assert not any(name.startswith('mayim_agent.immediate_visit')
                for name in sys.modules)
-assert not any(name.startswith('ln_church_agent._vendor.justhtml')
+assert not any(name.startswith('mayim_agent._vendor.justhtml')
                for name in sys.modules)
 """
     result = subprocess.run(
@@ -139,7 +139,7 @@ assert not any(name.startswith('ln_church_agent._vendor.justhtml')
 
 
 def test_vendor_license_and_compatibility_provenance_are_package_resources():
-    package = "ln_church_agent._vendor.justhtml"
+    package = "mayim_agent._vendor.justhtml"
     license_bytes = pkgutil.get_data(package, "LICENSE")
     assert hashlib.sha256(license_bytes).hexdigest() == (
         "fc806f290894e4f219467135fb21f33048f8d5a817f0f8284246d72da29d572e"
@@ -156,13 +156,12 @@ def test_distribution_metadata_keeps_python_extras_entry_points(monkeypatch):
     monkeypatch.setattr(setuptools, "setup", lambda **values: captured.update(values))
     monkeypatch.chdir(ROOT)
     runpy.run_path(str(ROOT / "setup.py"), run_name="__main__")
-    assert captured["version"] == "1.18.17"
+    assert captured["version"] == "2.0.0"
     assert captured["python_requires"] == ">=3.8.1"
     assert captured["entry_points"] == {"console_scripts": [
-        "ln-church-agent=ln_church_agent.cli:main",
-        "lnc-agent=ln_church_agent.cli:main",
-        "ln-church-agent-mcp=ln_church_agent.integrations.mcp_inspect:main",
-        "ln-church-agent-respond-mcp=ln_church_agent.integrations.mcp_structured_response:main",
+        "mayim-agent=mayim_agent.cli:main",
+        "mayim-agent-mcp=mayim_agent.integrations.mcp_inspect:main",
+        "mayim-agent-respond-mcp=mayim_agent.integrations.mcp_structured_response:main",
     ]}
     assert captured["extras_require"] == {
         "langchain": ["langchain-core>=0.1.0"],
@@ -178,7 +177,7 @@ def test_distribution_metadata_keeps_python_extras_entry_points(monkeypatch):
             "x402[svm]>=1.0.0,<3.0.0",
         ],
     }
-    assert "ln_church_agent._vendor.justhtml" in captured["packages"]
+    assert "mayim_agent._vendor.justhtml" in captured["packages"]
     manifest = json.loads((ROOT / "server.json").read_text(encoding="utf-8"))
-    assert manifest["version"] == "1.18.17"
-    assert manifest["packages"][0]["version"] == "1.18.17"
+    assert manifest["version"] == "2.0.0"
+    assert manifest["packages"][0]["version"] == "2.0.0"

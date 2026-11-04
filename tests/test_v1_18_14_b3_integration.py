@@ -13,15 +13,15 @@ from pathlib import Path
 import pytest
 import requests
 
-from ln_church_agent import structured_response_contract as c
-from ln_church_agent.structured_response_client import StructuredResponseClient
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent.structured_response_models import StructuredResponseTask
-from ln_church_agent.structured_response_transport import (
+from mayim_agent import structured_response_contract as c
+from mayim_agent.structured_response_client import StructuredResponseClient
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent.structured_response_models import StructuredResponseTask
+from mayim_agent.structured_response_transport import (
     StructuredResponseError, StructuredResponseTransport,
 )
-from ln_church_agent.immediate_visit_transport import ImmediateVisitRawResponse
-from ln_church_agent.task_journal import JournalError
+from mayim_agent.immediate_visit_transport import ImmediateVisitRawResponse
+from mayim_agent.task_journal import JournalError
 
 
 class LocalExchange:
@@ -223,7 +223,7 @@ def test_actual_b3_python_and_mcp_flow(venue, tmp_path, monkeypatch):
     abandoned=client.claim(custom_id,'sdk-isolated',wallet(21),'custom-abandon',journal_directory=tmp_path)
     assert client.abandon(journal=abandoned.journal,idempotency_key='abandon-key')['state']=='abandoned'
     # MCP invokes the same actual API/client with an independently saved journal.
-    from ln_church_agent.integrations import mcp_structured_response as m
+    from mayim_agent.integrations import mcp_structured_response as m
     monkeypatch.setattr(m,'StructuredResponseClient',lambda:StructuredResponseClient(transport=transport))
     monkeypatch.setattr(m,'_directory',lambda:tmp_path)
     class Registry:

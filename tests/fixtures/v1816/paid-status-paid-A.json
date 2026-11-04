@@ -1,0 +1,30 @@
+{
+  "schema_version": "ln_church.task_submission_status.paid_service_trial.v3_1",
+  "task_id": "task_f19ae7e9aea006ccc946a2baf23e56fc",
+  "execution_id": "exec_524a0fd1aff33737f43fd0987479022a",
+  "submission_id": "sub_44444444444444444444444444444444",
+  "terms_digest": "7b3b9702a3f89d51cfbe552eef11bb18acfae028a5a523e2869fe68f3a92ecb1",
+  "report_sha256": "ece762ede5830f08fca1b24b019d7c957009df52b1a2bbce4c809372fb75a2fd",
+  "received_at": "2026-10-13T12:00:00.000Z",
+  "verification_deadline": "2026-10-13T13:00:00.000Z",
+  "purchase_verification": {
+    "state": "VERIFIED",
+    "reason": null,
+    "transaction_hash": "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "transaction_url": "https://basescan.org/tx/0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "verified_at": "2026-10-13T12:00:00.000Z"
+  },
+  "evaluation": {
+    "state": "APPROVED",
+    "approved_amount_atomic": "20000",
+    "evaluated_at": "2026-10-13T12:00:00.000Z"
+  },
+  "payout": {
+    "state": "pending",
+    "transaction_hash": null,
+    "transaction_url": null,
+    "confirmed_paid_amount_atomic": "0",
+    "paid_confirmed_at": null
+  },
+  "updated_at": "2026-10-13T12:00:00.000Z"
+}

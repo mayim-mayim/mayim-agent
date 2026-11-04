@@ -6,9 +6,9 @@ import json
 import sys
 from unittest.mock import patch
 
-from ln_church_agent import AgentTaskClient
-from ln_church_agent.access_quota import AccessQuotaPolicy
-from ln_church_agent.task_transport import TaskTransport
+from mayim_agent import AgentTaskClient
+from mayim_agent.access_quota import AccessQuotaPolicy
+from mayim_agent.task_transport import TaskTransport
 
 
 def query_for(case):
@@ -43,9 +43,9 @@ class Replay:
 
 
 def run_cli(client, kwargs=None, json_mode=False):
-    from ln_church_agent.cli import main
+    from mayim_agent.cli import main
     kwargs = kwargs or {}
-    argv = ['ln-church-agent', 'task', 'discover']
+    argv = ['mayim-agent', 'task', 'discover']
     for name in ('limit', 'cursor'):
         if name in kwargs:
             argv += ['--' + name, str(kwargs[name])]
@@ -53,7 +53,7 @@ def run_cli(client, kwargs=None, json_mode=False):
         argv += ['--json']
     out, err = io.StringIO(), io.StringIO()
     code = 0
-    with patch('ln_church_agent.task_client.AgentTaskClient', lambda: client), \
+    with patch('mayim_agent.task_client.AgentTaskClient', lambda: client), \
             patch.object(sys, 'argv', argv), contextlib.redirect_stdout(out), \
             contextlib.redirect_stderr(err):
         try:

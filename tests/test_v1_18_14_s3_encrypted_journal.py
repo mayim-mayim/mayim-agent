@@ -8,14 +8,14 @@ import sys
 
 import pytest
 
-from ln_church_agent import structured_response_contract as c
-from ln_church_agent._structured_response_crypto import KEY_FILE_ENV, STORAGE_SCHEMA
-from ln_church_agent.immediate_visit_journal import _read, _write
-from ln_church_agent.structured_response_client import StructuredResponseClient
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent.structured_response_models import FrozenStructuredResponseReport
-from ln_church_agent.structured_response_transport import StructuredResponseTransport
-from ln_church_agent.task_journal import JournalError
+from mayim_agent import structured_response_contract as c
+from mayim_agent._structured_response_crypto import KEY_FILE_ENV, STORAGE_SCHEMA
+from mayim_agent.immediate_visit_journal import _read, _write
+from mayim_agent.structured_response_client import StructuredResponseClient
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent.structured_response_models import FrozenStructuredResponseReport
+from mayim_agent.structured_response_transport import StructuredResponseTransport
+from mayim_agent.task_journal import JournalError
 from test_v1_18_14_final_contract import supported_task
 from test_v1_18_14_structured_response_prepack import ADDRESS, TOKEN, claim, raw
 
@@ -60,8 +60,8 @@ def test_ciphertext_only_and_another_process_keeps_original_state(tmp_path):
     assert 'credential' not in stored and 'claim_token' not in stored
     expected = snapshot(journal)
     script = '''import json,sys,hashlib
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent import structured_response_contract as c
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent import structured_response_contract as c
 j=StructuredResponseJournal.open(sys.argv[1],sys.argv[2])
 print(json.dumps(dict(logical_sha256=c.digest(j._load()),token_sha256=hashlib.sha256(j.load_claim()._claim_token_value().encode()).hexdigest(),report_sha256=j.load_report().report_sha256,claim_request_sha256=hashlib.sha256(j.claim_request()[2]).hexdigest())))
 '''
@@ -154,7 +154,7 @@ def test_encryption_failure_cannot_replace_legacy_bytes(tmp_path, monkeypatch):
     journal, _ = prepared(tmp_path)
     _write(journal.path,journal._load(),maximum_bytes=2*1024*1024)
     legacy=journal.path.read_bytes()
-    from ln_church_agent import _structured_response_crypto as crypto
+    from mayim_agent import _structured_response_crypto as crypto
     def fail(*args,**kwargs): raise ValueError('never surface a cipher diagnostic')
     monkeypatch.setattr(crypto.AES,'new',fail)
     with pytest.raises(JournalError) as caught: StructuredResponseJournal.open(tmp_path,journal.handle)
@@ -167,7 +167,7 @@ def test_migration_persistence_failure_retains_original_journal(tmp_path, monkey
     journal, _ = prepared(tmp_path)
     _write(journal.path,journal._load(),maximum_bytes=2*1024*1024)
     legacy=journal.path.read_bytes()
-    from ln_church_agent import immediate_visit_journal as private_io
+    from mayim_agent import immediate_visit_journal as private_io
     def fail(*args,**kwargs): raise OSError('never surface a storage diagnostic')
     monkeypatch.setattr(private_io.os,'replace',fail)
     with pytest.raises(JournalError) as caught: StructuredResponseJournal.open(tmp_path,journal.handle)
@@ -188,15 +188,15 @@ def test_writes_refresh_nonce_without_changing_saved_report(tmp_path):
 
 
 def test_actual_s2_wheel_journal_is_migrated_without_binding_change(tmp_path):
-    site=os.environ.get('LN_CHURCH_S2_WHEEL_SITE')
+    site=os.environ.get('MAG_S2_WHEEL_SITE')
     if not site: pytest.skip('Historical fixed S2 wheel site is not configured.')
     journal, frozen=prepared(tmp_path)
     logical=journal._load()
     script='''import json,sys
 from pathlib import Path
-from ln_church_agent.immediate_visit_journal import _write
-from ln_church_agent.structured_response_journal import StructuredResponseJournal
-from ln_church_agent import structured_response_contract as c
+from mayim_agent.immediate_visit_journal import _write
+from mayim_agent.structured_response_journal import StructuredResponseJournal
+from mayim_agent import structured_response_contract as c
 request=json.load(sys.stdin)
 path=Path(request['directory'])/(request['handle']+'.structured-response.json')
 _write(path,request['logical'],maximum_bytes=2*1024*1024)
@@ -219,7 +219,7 @@ print(json.dumps(dict(logical_sha256=c.digest(j._load()),sdk_import_path=c.__fil
 
 def test_mcp_key_failure_is_explicit_recoverable_and_secret_free(tmp_path, monkeypatch):
     journal, _ = prepared(tmp_path)
-    from ln_church_agent.integrations import mcp_structured_response as m
+    from mayim_agent.integrations import mcp_structured_response as m
     class Registry:
         def __init__(self):self.tools={}
         def tool(self):

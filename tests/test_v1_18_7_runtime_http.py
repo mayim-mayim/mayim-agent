@@ -15,13 +15,13 @@ from test_v1_18_5_paid_service_trial_contract import wire
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2
 from test_v1_18_5_paid_service_trial_accepted_address import address_lane
 from test_v1_18_6_issue21_claim_recovery import Server
-from ln_church_agent import paid_service_trial_network as net
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent import paid_service_trial_journal as j
-from ln_church_agent.network_fetch import _parse_immediate_visit_head
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialTransportError
-from ln_church_agent.task_journal import JournalPersistenceError
+from mayim_agent import paid_service_trial_network as net
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent import paid_service_trial_journal as j
+from mayim_agent.network_fetch import _parse_immediate_visit_head
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_transport import PaidServiceTrialTransport, PaidServiceTrialTransportError
+from mayim_agent.task_journal import JournalPersistenceError
 
 
 def b64(value):return base64.b64encode(json.dumps(value).encode()).decode()

@@ -8,17 +8,17 @@ from types import SimpleNamespace
 import pytest
 from eth_account import Account
 
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.crypto.evm import LocalKeyAdapter
-from ln_church_agent.paid_service_trial_models import (
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.crypto.evm import LocalKeyAdapter
+from mayim_agent.paid_service_trial_models import (
     PaidServiceTrialClaim, PaidServiceTrialTask, PurchaseTerms,
     PaidServiceTrialSubmissionStatus, FrozenPaidServiceTrialReport,
 )
-from ln_church_agent.paid_service_trial_transport import (
+from mayim_agent.paid_service_trial_transport import (
     PaidServiceTrialTransport, PaidServiceTrialRawResponse, PaidServiceTrialAPIError,
     PaidServiceTrialTransportError,
 )
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
 
 
 @pytest.fixture

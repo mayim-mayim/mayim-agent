@@ -8,19 +8,19 @@ import sys
 
 import pytest
 
-from ln_church_agent import (
+from mayim_agent import (
     ScheduledExecutionContext as PublicScheduledExecutionContext,
     ScheduledHTTPGetBatchExecutor as PublicScheduledHTTPGetBatchExecutor,
     ScheduledHttpGetBatchExecutor as PublicScheduledHttpGetBatchExecutor,
 )
-from ln_church_agent.network_fetch import FetchResponse, NetworkFetchError
-from ln_church_agent.scheduled_http_get_batch import (
+from mayim_agent.network_fetch import FetchResponse, NetworkFetchError
+from mayim_agent.scheduled_http_get_batch import (
     ScheduledExecutionContext,
     ScheduledExecutionError,
     ScheduledHTTPGetBatchExecutor,
 )
-from ln_church_agent.task_contract import jcs_canonical_bytes
-from ln_church_agent.task_journal import TaskJournal
+from mayim_agent.task_contract import jcs_canonical_bytes
+from mayim_agent.task_journal import TaskJournal
 
 
 TASK_ID = "task_scheduled_batch"

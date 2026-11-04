@@ -4,9 +4,9 @@ import json
 
 import pytest
 from pydantic import ValidationError
-from ln_church_agent import TaskDiscoveryCandidate, TaskDiscoveryPage
-from ln_church_agent.access_quota import AccessQuotaError
-from ln_church_agent.task_transport import TaskError
+from mayim_agent import TaskDiscoveryCandidate, TaskDiscoveryPage
+from mayim_agent.access_quota import AccessQuotaError
+from mayim_agent.task_transport import TaskError
 from wire_inputs import FIXTURES, QUOTA
 from wire_support import Replay, query_for, run_cli
 

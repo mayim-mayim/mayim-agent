@@ -11,7 +11,7 @@ import sys
 
 import pytest
 
-from ln_church_agent.network_fetch import (
+from mayim_agent.network_fetch import (
     ControlledHTTPSConnector,
     FetchScope,
     IANA_IPV6_SNAPSHOT_PROVENANCE,
@@ -29,7 +29,7 @@ from ln_church_agent.network_fetch import (
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURE_PATH = (
     ROOT
-    / "ln_church_agent"
+    / "mayim_agent"
     / "contracts"
     / "v18-scheduled-http-get-batch-contract-v1.json"
 )
@@ -202,7 +202,7 @@ def test_canonical_url_secret_is_slotted_redacted_and_transport_only(
         raise ValueError(parsed)
     except ValueError as error:
         observations.extend((str(error), repr(error)))
-    logger = logging.getLogger("ln_church_agent.v18.secret_surface")
+    logger = logging.getLogger("mayim_agent.v18.secret_surface")
     with caplog.at_level(logging.INFO):
         logger.info("parsed signed URL: %r", parsed)
     print(parsed)

@@ -12,16 +12,16 @@ import httpx
 import pytest
 import requests
 
-from ln_church_agent.challenges import parse_challenge_from_response
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.exceptions import PaymentChallengeError, PaymentExecutionError
-from ln_church_agent.models import (
+from mayim_agent.challenges import parse_challenge_from_response
+from mayim_agent.client import Payment402Client
+from mayim_agent.exceptions import PaymentChallengeError, PaymentExecutionError
+from mayim_agent.models import (
     ChallengeSource,
     ExecutionContext,
     ParsedChallenge,
     TrustDecision,
 )
-from ln_church_agent.payment_contract import compute_requirement_hash
+from mayim_agent.payment_contract import compute_requirement_hash
 
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "agent-server-l402-contract-v1.json"
@@ -248,7 +248,7 @@ def test_actual_server_response_to_wallet_to_exact_server_credential_shape():
     selected = fixture["response"]["body"]["accepted_payments"][0]
 
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=[first, success]
+        "mayim_agent.client.requests.request", side_effect=[first, success]
     ) as transport:
         result = client.execute_detailed(
             request["method"], request["url"], headers=request["headers"]
@@ -315,7 +315,7 @@ def test_untrusted_receipt_claims_are_allowlisted_and_never_disclose_secrets():
     client, wallet = _client(fixture)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_requests_response(fixture), success],
     ):
         result = client.execute_detailed(
@@ -406,7 +406,7 @@ def test_integration_receipt_hashes_hostile_executor_proof_without_wire_leak():
     client, wallet = _client(fixture)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_requests_response(fixture), _success_response(fixture)],
     ), patch.object(
         client,
@@ -446,7 +446,7 @@ def test_canonical_field_tampering_is_rejected_before_wallet(field, replacement)
     client, wallet = _client(fixture)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture, body=tampered),
     ):
         with pytest.raises((PaymentChallengeError, PaymentExecutionError)):
@@ -467,7 +467,7 @@ def test_policy_hash_is_rechecked_after_trust_evaluator_before_wallet():
 
     client, wallet = _client(fixture, trust_evaluators=[mutate_after_policy])
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture),
     ):
         with pytest.raises(
@@ -487,7 +487,7 @@ def test_second_402_after_payment_never_calls_wallet_twice():
     client, wallet = _client(fixture)
     response = _requests_response(fixture)
     with patch(
-        "ln_church_agent.client.requests.request", side_effect=[response, response]
+        "mayim_agent.client.requests.request", side_effect=[response, response]
     ):
         with pytest.raises(PaymentExecutionError, match="ambiguous_payment_result"):
             client.execute_detailed(
@@ -522,7 +522,7 @@ def test_concurrent_duplicate_operation_calls_wallet_once():
             request["method"], request["url"], headers=request["headers"], context=context
         )
 
-    with patch("ln_church_agent.client.requests.request", side_effect=transport):
+    with patch("mayim_agent.client.requests.request", side_effect=transport):
         with ThreadPoolExecutor(max_workers=2) as pool:
             futures = [pool.submit(execute) for _ in range(2)]
             outcomes = []
@@ -544,7 +544,7 @@ def test_wallet_timeout_is_ambiguous_and_explicitly_recoverable():
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture),
     ):
         with pytest.raises(PaymentExecutionError, match="ambiguous_payment_result"):
@@ -569,7 +569,7 @@ def test_header_body_invoice_mismatch_is_rejected_before_wallet():
     headers["WWW-Authenticate"] = 'Payment invoice="<fetch-via-hateoas>"'
     client, wallet = _client(fixture)
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture, headers=headers),
     ):
         with pytest.raises((PaymentChallengeError, PaymentExecutionError)):
@@ -590,7 +590,7 @@ def test_server_x402_summary_split_view_is_rejected_before_wallet():
     client, wallet = _client(fixture)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture, headers=headers),
     ):
         with pytest.raises((PaymentChallengeError, PaymentExecutionError)):
@@ -610,7 +610,7 @@ def test_server_incompatible_macaroon_grammar_is_rejected_before_wallet(macaroon
     client, wallet = _client(fixture)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture, body=body),
     ):
         with pytest.raises((PaymentChallengeError, PaymentExecutionError)):
@@ -653,7 +653,7 @@ def test_synchronized_body_and_www_macaroon_attack_fails_before_wallet(variant):
     body, headers = _credential_views_with_macaroon(fixture, attacked)
     client, wallet = _client(fixture)
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture, body=body, headers=headers),
     ):
         with pytest.raises((PaymentChallengeError, PaymentExecutionError)):
@@ -689,7 +689,7 @@ def test_pinned_sync_response_uses_logical_url_for_canonical_redirect_binding():
     client._navigation_resolver = lambda _host, _port: ("93.184.216.34",)
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[redirect, challenged, delivered],
     ) as transport:
         result = client.execute_detailed(
@@ -764,7 +764,7 @@ def test_pinned_async_response_uses_logical_url_for_canonical_redirect_binding()
 )
 def test_explicit_invalid_or_conflicting_idempotency_key_fails_before_transport(headers):
     client = Payment402Client(base_url="https://provider.test")
-    with patch("ln_church_agent.client.requests.request") as transport:
+    with patch("mayim_agent.client.requests.request") as transport:
         with pytest.raises(PaymentExecutionError, match="Idempotency-Key"):
             client.execute_detailed("GET", "/api", headers=headers)
     transport.assert_not_called()
@@ -777,7 +777,7 @@ def test_policy_rejection_does_not_register_payment_identity():
     client.policy.allowed_schemes = ["exact"]
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         return_value=_requests_response(fixture),
     ):
         with pytest.raises(PaymentExecutionError, match="restricted"):
@@ -836,7 +836,7 @@ def test_paid_retry_transport_failure_is_recoverable_without_second_reservation_
     context = ExecutionContext()
 
     with patch(
-        "ln_church_agent.client.requests.request",
+        "mayim_agent.client.requests.request",
         side_effect=[_requests_response(fixture), requests.ReadTimeout("lost")],
     ):
         with pytest.raises(PaymentExecutionError, match="ambiguous_payment_result"):

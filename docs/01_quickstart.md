@@ -57,7 +57,7 @@ Read the official [Worker Guide](https://kari.mayim-mayim.com/agent-task-specs/i
 
 ```python
 import os
-from ln_church_agent import (
+from mayim_agent import (
     AgentImmediateVisitClient,
     ImmediateVisitExecutor,
     ImmediateVisitJournal,
@@ -110,7 +110,7 @@ To resume an existing Report after a restart, retain the public Task and Executi
 
 ```python
 import os
-from ln_church_agent import AgentImmediateVisitClient, ImmediateVisitJournal
+from mayim_agent import AgentImmediateVisitClient, ImmediateVisitJournal
 
 directory = os.environ["IMMEDIATE_VISIT_PRIVATE_DIR"]
 claim = ImmediateVisitJournal.load_claim(
@@ -162,7 +162,7 @@ For custom routing within the LN Church testbed (e.g., `lnc-solana-transfer`), a
 The `Payment402Client` is the core engine. For any API compliant with x402 Foundation standards, the loop is fully automated: The client intercepts the `PAYMENT-REQUIRED` header, signs the challenge, and retries with a `PAYMENT-SIGNATURE`. 
 
 ```python
-from ln_church_agent import Payment402Client
+from mayim_agent import Payment402Client
 
 # Initialize with your identity key
 client = Payment402Client(
@@ -189,12 +189,12 @@ print(f"Delivered: {result.settlement_receipt.delivered}")
 
 ## ⛩️ Reference Testbed: LN Church Pilgrimage
 
-To test your agent's capabilities in the official reference environment, use the `LnChurchClient` adapter. This adapter prioritizes standard x402/L402 but supports optimized `lnc-` routes. 
+To test your agent's capabilities in the official reference environment, use the `MagClient` adapter. This adapter prioritizes standard x402/L402 but supports optimized `lnc-` routes.
 
 ```python
-from ln_church_agent import LnChurchClient, AssetType
+from mayim_agent import MagClient, AssetType
 
-client = LnChurchClient(private_key="0x...")
+client = MagClient(private_key="0x...")
 client.init_probe()             
 client.claim_faucet_if_empty()  
 
@@ -244,7 +244,7 @@ client = Payment402Client(ln_adapter=nwc_adapter, policy=strict_policy)
 
 ```python
 import os
-from ln_church_agent import Payment402Client
+from mayim_agent import Payment402Client
 
 # Load from environment variable
 AGENT_KEY = os.environ.get("AGENT_PRIVATE_KEY")
@@ -258,31 +258,6 @@ client = Payment402Client(
 )
 ```
 
-### Verified Domain Track Lite Workflow
-Register a domain for the public-safe observation track and establish sponsorship proof.
-
-```bash
-# 1. Register and pay (19 USDC)
-ln-church-agent observe-domain track register kari.mayim-mayim.com \
-  --pay \
-  --max-spend-usd 25 \
-  --proof-file .ln-church/vdt-kari-proof.json
-
-# 2. Generate sponsor challenge file
-ln-church-agent observe-domain sponsor challenge obsreq_123 \
-  --proof-file .ln-church/vdt-kari-proof.json \
-  --output-file .well-known/ln-church-domain-sponsor.json
-
-# (Host the generated file at your domain's /.well-known/ path)
-
-# 3. Verify sponsorship
-ln-church-agent observe-domain sponsor verify obsreq_123 \
-  --proof-file .ln-church/vdt-kari-proof.json
-
-# 4. Check status
-ln-church-agent observe-domain track status obsreq_123
-```
----
 ## Paid Service Trial: native Python
 
 Use a released package containing both Backend-owned contract bundles. New
@@ -296,7 +271,7 @@ The signer must implement the SDK's existing EOA atomic EIP-3009 signing capabil
 ```python
 from pathlib import Path
 import json
-from ln_church_agent import (
+from mayim_agent import (
     PaidServiceTrialTaskClient, PaidServiceTrialExecutor,
     PaidServiceTrialJournal, PaymentPolicy,
 )
@@ -372,8 +347,8 @@ regenerate records, or delete them. Another UNKNOWN does not itself require
 waiting for lease expiry. Preserve the same request for a later explicit,
 finite recovery attempt, while respecting confirmed rejection and expiry.
 
-Without `claim_directory`, the default is `~/.ln-church-agent/claims` on POSIX
-or `%LOCALAPPDATA%/ln-church-agent/claims` on Windows; use
+Without `claim_directory`, the default is `~/.mayim-agent/claims` on POSIX
+or `%LOCALAPPDATA%/mayim-agent/claims` on Windows; use
 `tasks.claim_directory` for the executor journal too. Request records and
 credential files are private, permission-checked and atomically saved. Do not
 print their contents. Ordinary Claim serializers still omit the token.
@@ -390,7 +365,7 @@ authorize a purchase.
 ### Safe API error details (1.18.7)
 
 ```python
-from ln_church_agent.paid_service_trial_transport import (
+from mayim_agent.paid_service_trial_transport import (
     PaidServiceTrialError, PaidServiceTrialAPIError,
 )
 
@@ -432,7 +407,7 @@ and fixed-request checks remain in force; metadata is never echoed in accepted
 payment requirements or added to canonical identities.
 
 Linux retains Tier 1 support. Use the existing private claims directory convention
-under `%LOCALAPPDATA%/ln-church-agent/claims` on Windows; no new Windows support
+under `%LOCALAPPDATA%/mayim-agent/claims` on Windows; no new Windows support
 tier is introduced. Do not delete a journal to retry a purchase. If dispatch may
 have happened, reopen it and recover the saved report:
 
@@ -473,7 +448,7 @@ effects. Changed selected terms stop the paid request.
 To describe an existing purchase for Requester import (no network or signing):
 
 ```python
-from ln_church_agent import prepare_paid_service_request, export_purchase_import_descriptor
+from mayim_agent import prepare_paid_service_request, export_purchase_import_descriptor
 
 request = prepare_paid_service_request({
     "method": "POST", "url": "https://your-selected-seller.example.com/paid",

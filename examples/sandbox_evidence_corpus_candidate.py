@@ -1,5 +1,5 @@
 import json
-from ln_church_agent.evidence import build_sandbox_evidence_from_response, merge_sandbox_report_result, build_sandbox_corpus_candidate
+from mayim_agent.evidence import build_sandbox_evidence_from_response, merge_sandbox_report_result, build_sandbox_corpus_candidate
 
 def main():
     print("==================================================")

@@ -8,11 +8,14 @@ if os.path.exists(readme_path):
         long_description = f.read()
 
 setup(
-    name="ln-church-agent",
-    version="1.18.17",
-    packages=find_packages(include=['ln_church_agent', 'ln_church_agent.*']),
+    name="mayim-agent",
+    version="2.0.0",
+    packages=find_packages(include=['mayim_agent', 'mayim_agent.*']),
     package_data={
-        "ln_church_agent": [
+        "mayim_agent": [
+            "contracts/mag-activity-map/*",
+            "contracts/mag-task-packs/*/*/*", "contracts/mag-task-packs/*/*/*/*",
+            "contracts/mag-task-packs/*/*/requester-registration/*",
             "contracts/v1816-scheduled-v1_1/*",
             "contracts/v1816-scheduled-v1_1/requester-registration/SKILL.md",
             "contracts/v1816-immediate-visit-v3_1/*",
@@ -36,7 +39,7 @@ setup(
             "contracts/v189-endpoint-choice-reason/*",
             "contracts/v183-immediate-visit/requester-registration/SKILL.md",
         ],
-        "ln_church_agent._vendor.justhtml": [
+        "mayim_agent._vendor.justhtml": [
             "LICENSE", "UPSTREAM.md", "compatibility.patch", "py.typed",
         ],
     },
@@ -47,6 +50,8 @@ setup(
         "eth-hash[pycryptodome]>=0.3.1",
         "httpx>=0.25.0",
         "bolt11>=2.1.0,<2.1.1",
+        # bolt11 2.1.0 uses ConstBitStream, removed in bitstring 5.
+        "bitstring>=3.1.9,<5.0.0",
     ],
     extras_require={
         "langchain": ["langchain-core>=0.1.0"],
@@ -70,23 +75,22 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "ln-church-agent=ln_church_agent.cli:main",
-            "lnc-agent=ln_church_agent.cli:main",
-            "ln-church-agent-mcp=ln_church_agent.integrations.mcp_inspect:main",
-            "ln-church-agent-respond-mcp=ln_church_agent.integrations.mcp_structured_response:main",
+            "mayim-agent=mayim_agent.cli:main",
+            "mayim-agent-mcp=mayim_agent.integrations.mcp_inspect:main",
+            "mayim-agent-respond-mcp=mayim_agent.integrations.mcp_structured_response:main",
         ]
     },
-    author="LN Church",
+    author="mAG",
     description="Deterministic runtime for AI agents to inspect HTTP 402 services, complete rewarded tasks, execute bounded paid actions, and recover safely across L402, x402, and MPP.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://kari.mayim-mayim.com/",
     license="MIT",
     project_urls={
-        "Source": "https://github.com/mayim-mayim/ln-church-agent",
-        "Documentation": "https://github.com/mayim-mayim/ln-church-agent/blob/main/docs/01_quickstart.md",
-        "Issues": "https://github.com/mayim-mayim/ln-church-agent/issues",
-        "Changelog": "https://github.com/mayim-mayim/ln-church-agent/blob/main/CHANGELOG.md",
+        "Source": "https://github.com/mayim-mayim/mayim-agent",
+        "Documentation": "https://github.com/mayim-mayim/mayim-agent/blob/main/docs/01_quickstart.md",
+        "Issues": "https://github.com/mayim-mayim/mayim-agent/issues",
+        "Changelog": "https://github.com/mayim-mayim/mayim-agent/blob/main/CHANGELOG.md",
     },
     keywords="ai-agents http-402 x402 l402 mpp agentic-commerce usdc python-sdk mcp lightning-network",
     classifiers=[

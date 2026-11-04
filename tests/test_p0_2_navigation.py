@@ -1,7 +1,7 @@
 import pytest
 
-from ln_church_agent.exceptions import NavigationGuardrailError
-from ln_church_agent.navigation import (
+from mayim_agent.exceptions import NavigationGuardrailError
+from mayim_agent.navigation import (
     canonicalize_http_target,
     validate_redirect_target,
 )

@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.agent_task_claim_response.v1_1"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "task_type": {
+      "const": "payment_surface_discovery.v1"
+    },
+    "task_definition_version": {
+      "const": "1.1.0"
+    },
+    "task_definition_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "activity_map_policy_id": {
+      "const": "mag.activity-map.public.v1"
+    },
+    "activity_map_epoch": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "terms_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "manifest_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "status": {
+      "const": "CLAIMED"
+    },
+    "claim_token": {
+      "type": "string"
+    },
+    "lease_duration_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "lease_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reward_address": {
+      "type": "string",
+      "pattern": "^0x[0-9a-fA-F]{40}$"
+    },
+    "reward_address_control_verified": {
+      "const": false
+    },
+    "reward": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "network": {
+          "const": "eip155:8453"
+        },
+        "asset": {
+          "const": "USDC"
+        },
+        "asset_address": {
+          "type": "string",
+          "pattern": "^0x[0-9a-fA-F]{40}$"
+        },
+        "amount_atomic": {
+          "const": "10000"
+        }
+      },
+      "required": [
+        "network",
+        "asset",
+        "asset_address",
+        "amount_atomic"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_id",
+    "task_type",
+    "task_definition_version",
+    "task_definition_digest",
+    "activity_map_policy_id",
+    "activity_map_epoch",
+    "terms_digest",
+    "manifest_url",
+    "manifest_sha256",
+    "status",
+    "claim_token",
+    "lease_duration_seconds",
+    "lease_expires_at",
+    "reward_address",
+    "reward_address_control_verified",
+    "reward"
+  ]
+}

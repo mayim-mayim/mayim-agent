@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "registration_intent_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+    },
+    "payment_state": {
+      "type": "string"
+    },
+    "business_commit_state": {
+      "type": "string"
+    },
+    "registration_terms_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  },
+  "required": [
+    "registration_intent_id",
+    "payment_state",
+    "business_commit_state",
+    "registration_terms_sha256"
+  ]
+}

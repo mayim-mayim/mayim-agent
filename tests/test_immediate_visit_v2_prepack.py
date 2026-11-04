@@ -1,12 +1,12 @@
 """Role-UA adapter checks with explicitly non-normative synthetic pack data."""
 import json
 import pytest
-from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-from ln_church_agent.immediate_visit_models import ImmediateVisitClaimCredential, ImmediateVisitTaskPage, FrozenImmediateVisitReport
-from ln_church_agent.immediate_visit_transport import ImmediateVisitTransport, ImmediateVisitAPIError
-from ln_church_agent.immediate_visit_journal import ImmediateVisitJournal
-from ln_church_agent.immediate_visit import ImmediateVisitExecutor
-from ln_church_agent import immediate_visit_versions as v
+from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+from mayim_agent.immediate_visit_models import ImmediateVisitClaimCredential, ImmediateVisitTaskPage, FrozenImmediateVisitReport
+from mayim_agent.immediate_visit_transport import ImmediateVisitTransport, ImmediateVisitAPIError
+from mayim_agent.immediate_visit_journal import ImmediateVisitJournal
+from mayim_agent.immediate_visit import ImmediateVisitExecutor
+from mayim_agent import immediate_visit_versions as v
 from test_v1_18_3_immediate_visit_client import Exchange,raw
 from test_v1_18_3_immediate_visit_contract import task_wire,claim_wire,report_wire,TASK,ADDRESS,ENDPOINT
 from test_v1_18_3_immediate_visit_transport import Harness

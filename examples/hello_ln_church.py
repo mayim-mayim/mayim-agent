@@ -1,7 +1,7 @@
 """
-Canonical First Success Path for ln-church-agent
+Canonical First Success Path for mayim-agent
 ------------------------------------------------
-This is the official starting point for using the ln-church-agent SDK.
+This is the official starting point for using the mayim-agent SDK.
 It demonstrates the "Probe -> Pay -> Execute" autonomous loop using 
 the LN Church public endpoint as your first testbed.
 
@@ -11,7 +11,7 @@ challenges, secures funds (via Faucet), and completes the execution.
 
 import os
 import sys
-from ln_church_agent import LnChurchClient, AssetType
+from mayim_agent import MagClient, AssetType
 
 def main():
     # [0] Setup & Identity
@@ -32,7 +32,7 @@ def main():
     try:
         # [1] Initialize
         print("[1] Initializing Agent Identity...")
-        client = LnChurchClient(private_key=private_key)
+        client = MagClient(private_key=private_key)
         print(f"    Agent ID: {client.agent_id}\n")
 
         # [2] Probe

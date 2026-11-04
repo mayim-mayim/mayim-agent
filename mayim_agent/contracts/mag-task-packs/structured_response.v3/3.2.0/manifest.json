@@ -1,0 +1,170 @@
+{
+  "schema_version": "ln_church.agent_task_source_bundle_manifest.v1",
+  "task_type": "structured_response.v3",
+  "task_definition_version": "3.2.0",
+  "task_definition_digest": "66c00c3deed3a39ac7ba7b0f66f911d75ed6f41ce1b419f6e77242541bf6d643",
+  "descriptor": {
+    "schema_version": "ln_church.task_definition_source_bundle.v1",
+    "source_repository": "mayim-mayim/LN_Church",
+    "specification_repository": "mayim-mayim/LN_Church_Development-Charter",
+    "specification_commit": "2577fd74cbdf8a40e0a1172f188fd021fd71f9fe",
+    "architecture_commit": "0575445002fde1d500575c06d08285587ccbff7a",
+    "task_type": "structured_response.v3",
+    "task_definition_version": "3.2.0",
+    "source_bundle_entries": [
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/SKILL.md",
+        "mode": "100644",
+        "blob": "b2bd17c5ec73a1f06a28ec0918dcd6ab8c6b103f",
+        "sha256": "dcbc20aa1dd77e1ec97daafd9bc7a910857d7089881b133e5448de7dbe3d3fab"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/abandon.schema.json",
+        "mode": "100644",
+        "blob": "ef6d03b8833a645dd20bf3d95075d0663b52d2ce",
+        "sha256": "c65be99554487da06395640c890443a0963a93c552653111416350ac74a9121b"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/abandon_response.schema.json",
+        "mode": "100644",
+        "blob": "b524353c7bfc41dc48ed65df5ca56768ac2786e8",
+        "sha256": "d7d9b2cf514549e860cd7a65ccd63184f8eacceec9f6056854c5ee4e37c8eaaf"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/aps-answer.schema.json",
+        "mode": "100644",
+        "blob": "a5b50c58a52dec120daba49f480195d64187ab50",
+        "sha256": "0f3fe960e419122c01214279c2e92286dfbd7651bda1bad24f080869e6054ff1"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/claim.schema.json",
+        "mode": "100644",
+        "blob": "9af64988d3dd741d00941ca950b9e9bc33422ab5",
+        "sha256": "5326e8511229c1d460d01933d1a82b41a352c9265215d792c3254627dd639c5d"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/claim_request.schema.json",
+        "mode": "100644",
+        "blob": "1e63e89734a834a555a6cbaf30752ea71b483ee9",
+        "sha256": "3b3b255bdcdd4846518ec5ff9e760df1ee52b8e821098e4495034870cf3d4098"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/completion.schema.json",
+        "mode": "100644",
+        "blob": "a8c96a6291d878eec4651311f6800431669872fb",
+        "sha256": "c434f9ff7ab3f53320b0e4a580d349daa39e76ce645d00a26e10054f932ed465"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/context.schema.json",
+        "mode": "100644",
+        "blob": "3d9850ca830312b3d7232f4d10be78b7bd4edafe",
+        "sha256": "3d8bc61ecc596966fcfafaaaff5fa6b23cb4066d19728f406256ecbd7c75464e"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/definition.json",
+        "mode": "100644",
+        "blob": "69f56f42762023973c96f4ec2f5f2c9e81de3efd",
+        "sha256": "569f4fd501e8cbd5b1bf007fc619e0ad0a3180259839c33315a6dab7643246c0"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/economic-terms.schema.json",
+        "mode": "100644",
+        "blob": "fd2273e021162065fe9bdbdef332878eb29f99bd",
+        "sha256": "34d925a38dae01c9b8fb1f42fdbf6a8dc962af1d34d3e1c49e935913003511ce"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/error.schema.json",
+        "mode": "100644",
+        "blob": "0604aff43c3436acc65ed3b34a5e578252cc055c",
+        "sha256": "d3a64b24045bf65b231efd031eecd7268df922ac36256c6f9f64092b93748a3f"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/evaluation-profile.json",
+        "mode": "100644",
+        "blob": "39ab170b94207283ce62b0781c3ba84184075d10",
+        "sha256": "c7189863ec8f276bf0b7d30dc92e9fd08a8ceb03ba07eb170ac44b185498b11c"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/examples.json",
+        "mode": "100644",
+        "blob": "df547e75bb2cde0e1fdc8def10ceeaa4a59e8b4e",
+        "sha256": "20ce6b782f0222848273596a2f946e6ceec96c27b615a4fe5b3968ddbe691a02"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/page.schema.json",
+        "mode": "100644",
+        "blob": "35944aa4a9a897b26ca451386d3852d3c2341cfc",
+        "sha256": "22ee9b70abe3109fd053de2a2c8c289a3257a1ddfab5b1fa0df572d7f729c911"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/question-bank.json",
+        "mode": "100644",
+        "blob": "522fe94c0bdc3180d6439aa6c69c2f6e22989240",
+        "sha256": "c98157b3ee1de54639074000a1d54608934162eb976d92ce2afb14793ed43bde"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/receipt.schema.json",
+        "mode": "100644",
+        "blob": "5a8fb0c09e1c8e8e447dccd102ff910b71411cb3",
+        "sha256": "dd0aa57d4390f21f60766277e822e31570e2517c8c69ed02d64ec93ee361f2cc"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/registration.schema.json",
+        "mode": "100644",
+        "blob": "e2c77ffd76b9c63a5d2b50e95e18fa98dc82ceaa",
+        "sha256": "2fbd5d69bfb01692309437616f85f7f09b42c3f35e52440b68fef668a6c378d1"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/requester-contract.json",
+        "mode": "100644",
+        "blob": "e73b1d764ce4491c9e6711282cd3c54578c6759c",
+        "sha256": "b76a0c113ae7125ed180932fa6a5e3db8f90e1d973eb144218c5807edef0b6d5"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/requester-guide.md",
+        "mode": "100644",
+        "blob": "9d0ebbd7b172c2e7077b8333863612b127ada361",
+        "sha256": "d609e1552ea8886c3a45e80d01c05ac143df8b7fa247108263a817a5d0821c1c"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/status.schema.json",
+        "mode": "100644",
+        "blob": "f941b3fb219bf8a85642fdff14976b8546c8358f",
+        "sha256": "f918d694da13511d286c2ba2022635ca0f5ee9df0872ea3d765c95c772f726e7"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/task.schema.json",
+        "mode": "100644",
+        "blob": "2f896f179e11b43a606a3dd1b609c87e2714bd8d",
+        "sha256": "e5cffcc1e35108fa31ec479a5bbe7267d0e7d3a740c6b9e859c75526c6513471"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/terms.schema.json",
+        "mode": "100644",
+        "blob": "1dded7767441b1edb520cc447b45fbff5f2bb5f9",
+        "sha256": "3365be90dedbc249697bdb5d7e0a22f89d55b09eedd8ab03192d7fc37513f55d"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/v3-registration-template.csv",
+        "mode": "100644",
+        "blob": "7ad0b2948a13cf7429bfec5adcc44b9dd6b23f2e",
+        "sha256": "c34ad60a87f34b787cbef37c6c21b6a5d946b8cc87eb1e0f924c1a48ec580b30"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/validation-rules.json",
+        "mode": "100644",
+        "blob": "bf7fc746a60fbc7a28d58589f08cefc2bc7111a0",
+        "sha256": "b3eb7fb3778dfef0dc649a0ba0f3812a81c75be0a36d41337d98f678cbd7aeb1"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.2.0/wire-contract.json",
+        "mode": "100644",
+        "blob": "ea70977cceef8f47c194e5e09172bd6c7d58ebd6",
+        "sha256": "b3df1da1607e91d920e8b6c69cc8ab2eb25dbe9ccc214a75a810d3b47b3cb869"
+      }
+    ],
+    "answer_contract_specification_commit": "045b5d4d09222c5efab5bfbedce9b13e06a80455",
+    "answer_contract_architecture_commit": "9157a28069f619ebe97e782ebb80f663c2a77f43",
+    "activity_map_policy_id": "mag.activity-map.public.v1"
+  }
+}

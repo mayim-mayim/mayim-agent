@@ -1,0 +1,24 @@
+{
+  "schema_version": "ln_church.task_offer_create_response.paid_service_trial.v3_1",
+  "registration_intent_id": "0d86fce6-a6f6-4939-80fa-75482b31f54b",
+  "task_id": "task_f19ae7e9aea006ccc946a2baf23e56fc",
+  "task_type": "paid_service_trial.v3",
+  "status": "OPEN",
+  "task_url": "https://kari.mayim-mayim.com/agent-taskboard.html?task_id=task_f19ae7e9aea006ccc946a2baf23e56fc&view=results",
+  "summary_url": "https://kari.mayim-mayim.com/api/agent/task-offers/task_f19ae7e9aea006ccc946a2baf23e56fc/summary",
+  "results_url": "https://kari.mayim-mayim.com/api/agent/task-offers/task_f19ae7e9aea006ccc946a2baf23e56fc/execution-summaries",
+  "published_at": "2026-10-13T12:00:00.000Z",
+  "listing_ends_at": "2026-10-20T12:00:00.000Z",
+  "plan_id": "C40",
+  "registration_amount_atomic": "1000000",
+  "capacity_total": 40,
+  "repeat_policy": "ALLOW_REPEAT",
+  "economic_terms_revision": "paid-A",
+  "terms_digest": "7b3b9702a3f89d51cfbe552eef11bb18acfae028a5a523e2869fe68f3a92ecb1",
+  "reward": {
+    "network": "eip155:8453",
+    "asset": "USDC",
+    "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+    "amount_atomic": "20000"
+  }
+}

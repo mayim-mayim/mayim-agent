@@ -1,0 +1,771 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://kari.mayim-mayim.com/agent-api-schemas/mag-activity-map.v1.schema.json",
+  "$comment": "Fixed c1 oracle 2577fd74. Source completeness and known zero are distinct. Client hashes exact uncompressed UTF-8 bytes; catalog pages expand one level into the complete immutable part set.",
+  "$defs": {
+    "window": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "timezone": {
+          "const": "Asia/Tokyo"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "timezone"
+      ],
+      "additionalProperties": false
+    },
+    "part": {
+      "type": "object",
+      "properties": {
+        "part_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "part_id",
+        "sha256",
+        "bytes"
+      ],
+      "additionalProperties": false
+    },
+    "agent": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]+_[a-f0-9]{64}$"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string",
+          "pattern": "^0x[a-f0-9]{40}$"
+        }
+      },
+      "required": [
+        "id",
+        "namespace",
+        "address"
+      ],
+      "additionalProperties": true
+    },
+    "site": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]+_[a-f0-9]{64}$"
+        },
+        "origin": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "origin",
+        "host"
+      ],
+      "additionalProperties": true
+    },
+    "relation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]+_[a-f0-9]{64}$"
+        },
+        "agent_id": {
+          "type": "string",
+          "pattern": "^[a-z]+_[a-f0-9]{64}$"
+        },
+        "site_id": {
+          "type": "string",
+          "pattern": "^[a-z]+_[a-f0-9]{64}$"
+        },
+        "meaning": {
+          "enum": [
+            "visit_report",
+            "paid_service_report",
+            "research_response",
+            "discovery_report"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "agent_id",
+        "site_id",
+        "meaning"
+      ],
+      "additionalProperties": true
+    },
+    "activity": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.activity.v1"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]+_[a-f0-9]{64}$"
+        },
+        "kind": {
+          "enum": [
+            "choice",
+            "visit",
+            "paid_service",
+            "structured",
+            "research",
+            "discovery",
+            "scheduled"
+          ]
+        },
+        "received_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "agent": {
+          "$ref": "#/$defs/agent"
+        },
+        "sites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "site": {
+                "$ref": "#/$defs/site"
+              },
+              "relation_id": {
+                "type": "string",
+                "pattern": "^[a-z]+_[a-f0-9]{64}$"
+              },
+              "kind": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "site",
+              "relation_id",
+              "kind"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "state": {
+          "type": "object",
+          "properties": {
+            "answer": {
+              "type": "string"
+            },
+            "evaluation": {
+              "type": "string"
+            },
+            "payout": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "answer",
+            "evaluation",
+            "payout"
+          ],
+          "additionalProperties": false
+        },
+        "source": {
+          "type": "object",
+          "properties": {
+            "task_type": {
+              "type": "string"
+            },
+            "task_url": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "task_type",
+            "task_url"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "id",
+        "kind",
+        "received_at",
+        "agent",
+        "sites",
+        "state",
+        "source"
+      ],
+      "additionalProperties": true
+    },
+    "manifest": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.manifest.v1"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "period": {
+          "const": "30d"
+        },
+        "window": {
+          "$ref": "#/$defs/window"
+        },
+        "windows": {
+          "type": "object",
+          "properties": {
+            "today": {
+              "$ref": "#/$defs/window"
+            },
+            "7d": {
+              "$ref": "#/$defs/window"
+            },
+            "30d": {
+              "$ref": "#/$defs/window"
+            }
+          },
+          "required": [
+            "today",
+            "7d",
+            "30d"
+          ],
+          "additionalProperties": false
+        },
+        "cutoff": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "policy_id": {
+          "const": "mag.activity-map.public.v1"
+        },
+        "source_coverage": {
+          "type": "object"
+        },
+        "coverage_complete": {
+          "type": "boolean"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/part"
+          }
+        },
+        "parts_format": {
+          "const": "one-level-catalog"
+        },
+        "uncompressed_encoding": {
+          "const": "UTF-8"
+        },
+        "hash_algorithm": {
+          "const": "SHA-256"
+        },
+        "total_known": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "generation",
+        "period",
+        "window",
+        "windows",
+        "cutoff",
+        "policy_id",
+        "source_coverage",
+        "coverage_complete",
+        "parts",
+        "parts_format",
+        "uncompressed_encoding",
+        "hash_algorithm",
+        "total_known"
+      ],
+      "additionalProperties": false
+    },
+    "part_catalog": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.part-catalog.v1"
+        },
+        "parts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/part"
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "parts"
+      ],
+      "additionalProperties": false
+    },
+    "page": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.page.v1"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "condition_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "window": {
+          "$ref": "#/$defs/window"
+        },
+        "source_coverage": {
+          "type": "object"
+        },
+        "obtained_distinct": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "total_known": {
+          "type": [
+            "integer",
+            "object",
+            "null"
+          ]
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "coverage_complete": {
+          "type": "boolean"
+        },
+        "kind": {
+          "enum": [
+            "agents",
+            "sites",
+            "relations",
+            "activities"
+          ]
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/agent"
+              },
+              {
+                "$ref": "#/$defs/site"
+              },
+              {
+                "$ref": "#/$defs/relation"
+              },
+              {
+                "$ref": "#/$defs/activity"
+              }
+            ]
+          }
+        },
+        "relation_scope": {
+          "enum": [
+            "none_in_condition",
+            "obtained_unshown",
+            "unknown"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "generation",
+        "condition_digest",
+        "window",
+        "source_coverage",
+        "obtained_distinct",
+        "total_known",
+        "next_cursor",
+        "coverage_complete",
+        "kind",
+        "items"
+      ],
+      "additionalProperties": false
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.summary.v1"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "condition_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "window": {
+          "$ref": "#/$defs/window"
+        },
+        "source_coverage": {
+          "type": "object"
+        },
+        "obtained_distinct": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "total_known": {
+          "type": [
+            "integer",
+            "object",
+            "null"
+          ]
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "coverage_complete": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "schema_version",
+        "generation",
+        "condition_digest",
+        "window",
+        "source_coverage",
+        "obtained_distinct",
+        "total_known",
+        "next_cursor",
+        "coverage_complete"
+      ],
+      "additionalProperties": false
+    },
+    "detail": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.detail.v1"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "condition_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "window": {
+          "$ref": "#/$defs/window"
+        },
+        "source_coverage": {
+          "type": "object"
+        },
+        "obtained_distinct": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "object"
+            }
+          ]
+        },
+        "total_known": {
+          "type": [
+            "integer",
+            "object",
+            "null"
+          ]
+        },
+        "next_cursor": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "item": {
+          "$ref": "#/$defs/activity"
+        }
+      },
+      "required": [
+        "schema_version",
+        "generation",
+        "condition_digest",
+        "window",
+        "source_coverage",
+        "obtained_distinct",
+        "total_known",
+        "next_cursor",
+        "item"
+      ],
+      "additionalProperties": false
+    },
+    "purchase": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.purchase.v1"
+        },
+        "purchase_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "confirmed_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "expires_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "state": {
+          "enum": [
+            "PAYMENT_PENDING",
+            "ACQUIRING",
+            "REPLACEMENT_REQUIRED",
+            "COMPLETE",
+            "UNAVAILABLE",
+            "EXPIRED_UNCONFIRMED"
+          ]
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "replacement": {
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "payment_challenge": {
+          "type": "object"
+        },
+        "instruction_for_agents": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "schema_version",
+        "purchase_id",
+        "operation_id",
+        "generation",
+        "manifest_sha256",
+        "confirmed_at",
+        "expires_at",
+        "state",
+        "reason",
+        "actions"
+      ],
+      "additionalProperties": false
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": "mag.activity-map.error.v1"
+        },
+        "error_code": {
+          "type": "string"
+        },
+        "retryable": {
+          "type": "boolean"
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "manifest": {
+          "type": "string"
+        },
+        "purchase": {
+          "$ref": "#/$defs/purchase"
+        }
+      },
+      "required": [
+        "schema_version",
+        "error_code",
+        "retryable",
+        "actions"
+      ],
+      "additionalProperties": false
+    },
+    "purchase_request": {
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "period": {
+          "const": "30d"
+        },
+        "scheme": {
+          "type": "string"
+        },
+        "asset": {
+          "type": "string"
+        },
+        "agentId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "operation_id",
+        "generation",
+        "manifest_sha256",
+        "period"
+      ],
+      "additionalProperties": false
+    },
+    "recovery_request": {
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        }
+      },
+      "required": [
+        "operation_id"
+      ],
+      "additionalProperties": false
+    },
+    "complete_request": {
+      "type": "object",
+      "properties": {
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "generation",
+        "manifest_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "replacement_request": {
+      "type": "object",
+      "properties": {
+        "generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "decision": {
+          "enum": [
+            "accept",
+            "decline"
+          ]
+        },
+        "replacement_generation": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "manifest_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "generation",
+        "decision"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

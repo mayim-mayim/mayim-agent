@@ -7,10 +7,10 @@ import pytest
 
 from test_v1_18_5_paid_service_trial_contract import wire, FakeTaskTransport, report_for, status_for
 from test_v1_18_5_paid_service_trial_purchase import lane
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_transport import PaidServiceTrialTransportError, PaidServiceTrialAPIError
-from ln_church_agent.task_journal import JournalError
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_transport import PaidServiceTrialTransportError, PaidServiceTrialAPIError
+from mayim_agent.task_journal import JournalError
 
 
 class Crash(BaseException):pass
@@ -80,7 +80,7 @@ def test_conflict_preserves_first_report_and_locator(wire,lane):
 
 def test_changed_report_does_not_create_new_submission(wire,lane):
     result=lane.executor.execute(wire.credential,journal=lane.journal)
-    from ln_church_agent.paid_service_trial_models import FrozenPaidServiceTrialReport
+    from mayim_agent.paid_service_trial_models import FrozenPaidServiceTrialReport
     bad=json.loads(result.report.to_bytes());bad['submission_id']='sub_'+'b'*32
     with pytest.raises(JournalError):lane.client.complete_task(wire.credential,FrozenPaidServiceTrialReport.from_dict(bad),journal=lane.journal)
     assert len(lane.transport.posts)==1
@@ -88,7 +88,7 @@ def test_changed_report_does_not_create_new_submission(wire,lane):
 
 @pytest.mark.parametrize('state',['MISMATCH','PAYMENT_ALREADY_USED','INCONCLUSIVE'])
 def test_final_evaluation_cannot_revive_or_repurchase(wire,lane,state):
-    from ln_church_agent.paid_service_trial_models import PaidServiceTrialSubmissionStatus
+    from mayim_agent.paid_service_trial_models import PaidServiceTrialSubmissionStatus
     result=lane.executor.execute(wire.credential,journal=lane.journal)
     final=status_for(result.report)
     final['purchase_verification']['state']=state
@@ -109,7 +109,7 @@ def test_missing_corrupt_or_mismatched_history_fails_before_network(wire,lane,tm
     elif damage=='credential_missing':lane.journal.credential_path.unlink()
     elif damage=='corrupt':lane.journal.path.write_text('{}')
     else:
-        from ln_church_agent.immediate_visit_journal import _read,_write
+        from mayim_agent.immediate_visit_journal import _read,_write
         data=_read(lane.journal.credential_path);data['claim_token']='A'*43;_write(lane.journal.credential_path,data)
     with pytest.raises(JournalError):PaidServiceTrialJournal(tmp_path,wire.credential)
     assert lane.http.paid==1

@@ -8,18 +8,18 @@ import pytest
 from eth_account import Account
 
 from test_v1_18_5_paid_service_trial_contract import wire, FakeTaskTransport
-from ln_church_agent import paid_service_trial_contract as c
-from ln_church_agent.models import PaymentPolicy
-from ln_church_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor as _export_purchase_import_descriptor
+from mayim_agent import paid_service_trial_contract as c
+from mayim_agent.models import PaymentPolicy
+from mayim_agent.paid_service_trial import PaidServiceTrialExecutor, export_purchase_import_descriptor as _export_purchase_import_descriptor
 from functools import partial
 export_purchase_import_descriptor = partial(_export_purchase_import_descriptor, version='v1')
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
-from ln_church_agent.paid_service_trial_journal import PaidServiceTrialJournal
-from ln_church_agent.paid_service_trial_models import PurchaseTerms
-from ln_church_agent.paid_service_trial_network import (
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+from mayim_agent.paid_service_trial_models import PurchaseTerms
+from mayim_agent.paid_service_trial_network import (
     PaidTrialHTTPResponse, BaseSealedBlockGuard, current_terms, normalize_requirements, PaidServiceTrialHTTPS,
 )
-from ln_church_agent.task_journal import JournalPersistenceError
+from mayim_agent.task_journal import JournalPersistenceError
 
 
 class FakeHTTP:
@@ -143,7 +143,7 @@ def test_storage_fault_before_dispatch_no_spend(wire,lane,monkeypatch,method):
 
 
 def test_disk_fsync_fault_before_dispatch(wire,lane,monkeypatch):
-    from ln_church_agent import immediate_visit_journal
+    from mayim_agent import immediate_visit_journal
     monkeypatch.setattr(immediate_visit_journal.os,'fsync',lambda fd:(_ for _ in ()).throw(OSError('private')))
     with pytest.raises(JournalPersistenceError):lane.executor.execute(wire.credential,journal=lane.journal)
     assert lane.http.paid==0
@@ -191,7 +191,7 @@ def test_no_default_payout_cooldown_or_wallet_fence(wire,lane,tmp_path):
     first=lane.executor.execute(wire.credential,journal=lane.journal)
     # Existing server response is sufficient for a different explicit Claim;
     # payout status does not become a client admission condition.
-    from ln_church_agent.paid_service_trial_models import PaidServiceTrialClaim
+    from mayim_agent.paid_service_trial_models import PaidServiceTrialClaim
     claim=PaidServiceTrialClaim.model_validate(dict(wire.claim,execution_id='next-execution'))
     lane.policy.max_spend_per_session_usd=.002
     next_journal=PaidServiceTrialJournal(tmp_path,claim)

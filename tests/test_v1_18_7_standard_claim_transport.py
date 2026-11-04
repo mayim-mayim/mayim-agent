@@ -14,9 +14,9 @@ from eth_account import Account
 from test_v1_18_5_paid_service_trial_contract import wire
 from test_v1_18_5_paid_service_trial_http_v2_contract import wire_v2
 from test_v1_18_5_paid_service_trial_accepted_address import address_lane, run_and_check
-from ln_church_agent import paid_service_trial_transport as t
-from ln_church_agent import paid_service_trial_journal as j
-from ln_church_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent import paid_service_trial_transport as t
+from mayim_agent import paid_service_trial_journal as j
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
 
 
 @pytest.fixture(autouse=True)

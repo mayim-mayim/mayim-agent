@@ -2,9 +2,9 @@ import pytest
 import asyncio
 from unittest.mock import AsyncMock, patch, MagicMock
 
-from ln_church_agent.client import Payment402Client
-from ln_church_agent.exceptions import NavigationGuardrailError, PaymentExecutionError
-from ln_church_agent.models import ExecutionContext
+from mayim_agent.client import Payment402Client
+from mayim_agent.exceptions import NavigationGuardrailError, PaymentExecutionError
+from mayim_agent.models import ExecutionContext
 
 # ==========================================
 # 1. Canonical NextAction の維持確認

@@ -3,11 +3,11 @@ import json
 
 import pytest
 
-from ln_church_agent.immediate_visit_client import AgentImmediateVisitClient
-from ln_church_agent.immediate_visit_contract import PUBLIC_API_ORIGIN, task_status_path
-from ln_church_agent.immediate_visit_journal import ImmediateVisitJournal
-from ln_church_agent.immediate_visit_models import FrozenImmediateVisitReport, ImmediateVisitClaimCredential
-from ln_church_agent.immediate_visit_transport import (
+from mayim_agent.immediate_visit_client import AgentImmediateVisitClient
+from mayim_agent.immediate_visit_contract import PUBLIC_API_ORIGIN, task_status_path
+from mayim_agent.immediate_visit_journal import ImmediateVisitJournal
+from mayim_agent.immediate_visit_models import FrozenImmediateVisitReport, ImmediateVisitClaimCredential
+from mayim_agent.immediate_visit_transport import (
     ImmediateVisitRawResponse, ImmediateVisitTransport, ImmediateVisitTransportError,
     ImmediateVisitAPIError,
 )
@@ -346,7 +346,7 @@ def test_rejected_abandonment_preserves_accepted_report_and_status_recovery(tmp_
 
 @pytest.mark.parametrize("capacity", [50, 500, 5000])
 def test_v17_capacity_snapshot_retained_and_claim_has_no_local_capacity_fence(capacity):
-    from ln_church_agent.task_client import AgentTaskClient
+    from mayim_agent.task_client import AgentTaskClient
     from test_v1_17_0_task_venue_sdk import _task, _claim_response, _FakeTransport
     # Deliberately noncoherent samples; SDK-A12 requires field-local retention.
     wire = _task(capacity_total=capacity, capacity_remaining=capacity+1,
@@ -364,8 +364,8 @@ def test_v17_capacity_snapshot_retained_and_claim_has_no_local_capacity_fence(ca
 
 def test_definitely_unaccepted_correction_reuses_one_target_get(tmp_path,monkeypatch):
     from types import SimpleNamespace
-    import ln_church_agent.immediate_visit as executor_module
-    from ln_church_agent.immediate_visit import ImmediateVisitExecutor
+    import mayim_agent.immediate_visit as executor_module
+    from mayim_agent.immediate_visit import ImmediateVisitExecutor
     target_calls = []
     def target(url):
         target_calls.append(url)

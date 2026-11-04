@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ln-church:agent-task-spec:payment_surface_discovery.v1:1.1.0:result",
+  "title": "Durable Deterministic Payment Surface Discovery Evaluation Decision",
+  "description": "Exact evaluator decision stored on the private AgentTaskExecution. Settlement state is stored separately. A rejection requires positive authoritative evidence for one of the four fixed reasons.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "status",
+    "reason_code",
+    "evaluator_id",
+    "evaluator_version",
+    "decided_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ln_church.task_evaluation_decision.v1"
+    },
+    "status": {
+      "enum": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED"
+      ]
+    },
+    "reason_code": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        null,
+        "observation_not_found",
+        "claim_task_or_observation_binding_mismatch",
+        "declared_agent_id_mismatch",
+        "proven_observation_reuse"
+      ]
+    },
+    "evaluator_id": {
+      "const": "ln_church.payment_surface_discovery.read_only.v1"
+    },
+    "evaluator_version": {
+      "const": "1.0.0"
+    },
+    "decided_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "REJECTED"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "reason_code": {
+            "enum": [
+              "observation_not_found",
+              "claim_task_or_observation_binding_mismatch",
+              "declared_agent_id_mismatch",
+              "proven_observation_reuse"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "reason_code": {
+            "const": null
+          }
+        }
+      }
+    }
+  ]
+}

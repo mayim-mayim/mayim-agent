@@ -1,0 +1,47 @@
+{
+  "schema_version": "ln_church.task_offer_create_request.paid_service_trial.v3_1",
+  "task_type": "paid_service_trial.v3",
+  "task_definition_version": "3.1.0",
+  "economic_terms": {
+    "economic_terms_revision": "paid-B",
+    "plan_id": "new_label~B",
+    "registration_amount_atomic": "2000000",
+    "capacity_total": 2,
+    "reward": {
+      "network": "eip155:8453",
+      "asset": "USDC",
+      "asset_address": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "amount_atomic": "30000"
+    }
+  },
+  "plan_id": "new_label~B",
+  "repeat_policy": "ALLOW_REPEAT",
+  "sample_operation_ref": "pi3_22222222-2222-4222-8222-222222222222",
+  "sample_attachment_token": "[REDACTED_SYNTHETIC]",
+  "request": {
+    "schema_version": "ln_church.paid_service_request.v2",
+    "method": "GET",
+    "url": "https://seller.example/data",
+    "content_type": null,
+    "body": null,
+    "body_sha256": null
+  },
+  "request_digest": "a966629c740f1e8021663d848c2e331d5381826cabab07be3cbdfe6855fb8217",
+  "purchase_terms": {
+    "x402_version": 2,
+    "authorization_method": "EIP-3009",
+    "requirements": {
+      "scheme": "exact",
+      "network": "eip155:8453",
+      "asset": "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913",
+      "amount": "10000",
+      "payTo": "0x0000000000000000000000000000000000000005",
+      "maxTimeoutSeconds": 300,
+      "extra": {
+        "name": "USD Coin",
+        "version": "2"
+      }
+    }
+  },
+  "purchase_terms_digest": "5154f6686596085ae1d6b2d712dd4b06a1b2dd50b658c8b52aae5cec726055a4"
+}

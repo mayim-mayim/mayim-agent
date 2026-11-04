@@ -1,11 +1,48 @@
 # Paid Service Trial: request, payment and result boundaries
 
-## Unreleased 1.18.15: seven-day listing contracts
+## mAG 2.0: explicitly select Paid 3.2
 
-This source work targets Immediate v3, Paid Service Trial v3, and URL Choice &
-Reason v2. Version 1.18.15 is candidate metadata, not a published SDK release.
-The DC-fixed producer packs are bundled. Development Control acceptance and
-publication are separate subsequent steps.
+Use `PaidServiceTrialTaskClient(version="v3_2")` for the fixed 3.2.0 Task
+schema. Its definition digest is
+`8c44c115574b593274869091d418f4a6e4e086e55893450bf6e91a2b0a6242af`.
+Task and Claim validation preserve `activity_map_policy_id`,
+`activity_map_epoch`, the saved economic conditions and their digest.
+Missing or unknown fields and modified snapshots are rejected.
+
+```python
+from mayim_agent.paid_service_trial_client import PaidServiceTrialTaskClient
+from mayim_agent.paid_service_trial_contract import version_of
+from mayim_agent.paid_service_trial_journal import PaidServiceTrialJournal
+
+# Explicitly discover the new version. No automatic Claim or payment.
+with PaidServiceTrialTaskClient(version="v3_2", claim_directory=private_directory) as worker:
+    page = worker.list_tasks()
+
+# Resume the original operation after restarting; use its saved version.
+claim = PaidServiceTrialJournal.load_claim(private_directory, task_id, execution_id)
+journal = PaidServiceTrialJournal(private_directory, claim)
+report = journal.load_report()
+if report is not None:
+    with PaidServiceTrialTaskClient(version=version_of(claim),
+                                   claim_directory=private_directory) as worker:
+        status = worker.recover_completion(claim, report, journal=journal)
+```
+
+The existing Paid purchase helper accepts the new Claim and applies the same
+local PaymentPolicy. The purchase request and payment checksum domains remain
+unchanged. A recovery operation never replaces the purchase, nonce, key or
+Claim. Current offers do not change an earlier Claim's reward or conditions.
+
+Requester support retains existing-purchase sample descriptors and signed
+registration read recovery through `OfferRegistrationClient`; there is no new
+Paid registration payment wrapper. Catalog and APS requester flows remain
+outside the respondent SDK. These are separate from Graph acquisition tools.
+
+The package is a private candidate. DC acceptance, independent testing and
+publication remain separate steps. Existing client defaults remain unchanged;
+select the new version explicitly.
+
+## Existing v3 seven-day listing contracts
 
 New offers remain open for new Claims for 7 days (168 hours), unless their slots
 are consumed earlier. Existing Claim deadlines are unchanged. Existing offers,
@@ -23,7 +60,7 @@ session; reservations and confirmed spend continue to share the existing ledger.
 Purchase cost is the full fixed amount; reward if approved is 0.02 USDC. Purchase
 cost may exceed the reward. LN Church does not advance or reimburse that cost.
 
-New clients select the new versions by default. Old versions remain available
+The pre-existing default selects v3 (definition 3.0.0). Old versions remain available
 through explicit `version=` selection. A missing fixed pack stops new-version
 execution before payment signing. The HTTP request schema inside Paid v3 remains
 `ln_church.paid_service_request.v2`.

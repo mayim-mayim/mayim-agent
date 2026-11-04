@@ -17,9 +17,9 @@ import time
 from urllib.parse import urlencode, urlsplit
 from urllib.request import build_opener, ProxyHandler, Request
 
-from ln_church_agent import AgentTaskClient, TaskDiscoveryPage
-from ln_church_agent.access_quota import AccessQuotaPolicy
-from ln_church_agent.task_transport import TaskTransport
+from mayim_agent import AgentTaskClient, TaskDiscoveryPage
+from mayim_agent.access_quota import AccessQuotaPolicy
+from mayim_agent.task_transport import TaskTransport
 from wire_support import run_cli
 from formal_identities import IDENTITIES
 
@@ -110,10 +110,10 @@ def main():
             for t in result['trace']['requests']:
                 assert t['status'] == 200 and t['execution'].startswith('actual TaskGet handler')
                 assert [d['operation'] for d in t['db']] == ['Get','Query']
-            result['version'] = importlib.metadata.version('ln-church-agent')
+            result['version'] = importlib.metadata.version('mayim-agent')
             assert result['version'] == '1.18.15'
             result['modules'] = {n:str(Path(m.__file__).resolve()) for n,m in sys.modules.items()
-                if (n == 'ln_church_agent' or n.startswith('ln_church_agent.')) and getattr(m,'__file__',None)}
+                if (n == 'mayim_agent' or n.startswith('mayim_agent.')) and getattr(m,'__file__',None)}
             result['result'] = 'IMPLEMENTATION_SELF_CHECK_PASS'
             result['boundary'] = 'Actual TaskGet/Choice2.0 and2.1 over loopback; in-memory stores and synthetic provider finality. Test exchange maps fixed public path/query only. No __wire replay, public HTTP, provider, Claim, signing or purchase.'
         finally:

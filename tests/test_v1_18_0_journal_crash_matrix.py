@@ -6,8 +6,8 @@ import textwrap
 
 import pytest
 
-from ln_church_agent.task_contract import jcs_canonical_bytes
-from ln_church_agent.task_journal import JournalError, TaskJournal
+from mayim_agent.task_contract import jcs_canonical_bytes
+from mayim_agent.task_journal import JournalError, TaskJournal
 
 
 TASK_ID = "task_crash_matrix"
@@ -169,7 +169,7 @@ def test_real_process_exit_during_atomic_update_leaves_old_or_new_valid(stage, t
         """
         import os
         import sys
-        from ln_church_agent.task_journal import TaskJournal
+        from mayim_agent.task_journal import TaskJournal
 
         path, stage = sys.argv[1:]
         def crash(current):
@@ -282,7 +282,7 @@ def test_real_process_exit_during_dispatch_or_atomic_ack_is_old_or_new_valid(
         """
         import os
         import sys
-        from ln_church_agent.task_journal import TaskJournal
+        from mayim_agent.task_journal import TaskJournal
 
         path, operation, stage = sys.argv[1:]
         def crash(current):

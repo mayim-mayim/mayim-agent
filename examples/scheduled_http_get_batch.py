@@ -2,7 +2,7 @@
 
 The CLI is the supported private-file entrypoint::
 
-    ln-church-agent task run-scheduled-http-get-batch \
+    mayim-agent task run-scheduled-http-get-batch \
         --credential-file ./claims/TASK_ID.v2.json \
         --journal-file ./claims/TASK_ID.scheduled-journal.json
 
@@ -17,7 +17,7 @@ through argv, a model prompt, logs, or the journal.
 from pathlib import Path
 from typing import Union
 
-from ln_church_agent import (
+from mayim_agent import (
     AgentTaskV2Client,
     ScheduledCompletionAcknowledgement,
     ScheduledHTTPGetBatchExecutor,

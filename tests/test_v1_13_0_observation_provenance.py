@@ -1,8 +1,8 @@
 import pytest
 import asyncio
 from unittest.mock import patch, MagicMock
-from ln_church_agent.client import LnChurchClient, SURFACE_PREFLIGHT_SCHEMA_VERSION
-from ln_church_agent.models import (
+from mayim_agent.client import MagClient, SURFACE_PREFLIGHT_SCHEMA_VERSION
+from mayim_agent.models import (
     build_observation_provenance,
     build_protocol_role_observation,
     build_verification_cost_vector,
@@ -45,10 +45,10 @@ def test_build_protocol_role_observation_normalization():
     assert flags["receipt_observed"] is False    # default
     assert len(flags) == 13
 
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
+@patch("mayim_agent.client.MagClient.execute_request")
 def test_submit_external_observation_with_v13_fields(mock_exec):
     """P0-1 & P1-5: submit_external_observation() に protocol_roles / cost_vector が入ること"""
-    client = LnChurchClient(private_key="0x" + "1" * 64)
+    client = MagClient(private_key="0x" + "1" * 64)
     mock_exec.return_value = {"status": "accepted"}
 
     roles = [build_protocol_role_observation("agent_interop", "MCP", {"detected": True})]
@@ -73,36 +73,10 @@ def test_submit_external_observation_with_v13_fields(mock_exec):
     assert "proof_id" not in payload["protocol_roles"][0]
     assert "signature" not in payload["verification_cost_vector"]
 
-@patch("ln_church_agent.client.LnChurchClient.execute_request_async")
-def test_async_submissions_with_v13_fields(mock_exec_async):
-    """P0-1 & P1-5: Asyncメソッドにもv13_fieldsが入り、後方互換性も維持されること"""
-    client = LnChurchClient(private_key="0x" + "1" * 64)
-    mock_exec_async.return_value = {"status": "accepted"}
-
-    async def run():
-        # A. Optional fieldsを指定した場合
-        await client.submit_external_observation_async(
-            target_url="https://api.example.com",
-            verification_cost_vector=build_verification_cost_vector()
-        )
-        payload_a = mock_exec_async.call_args.kwargs["payload"]
-        assert "verification_cost_vector" in payload_a
-        assert "protocol_roles" not in payload_a
-        
-        # B. 指定しない場合（後方互換性）
-        await client.submit_goal_attempt_observation_async(
-            goal={"goal_text": "test"},
-            attempt={"attempt_mode": "free"}
-        )
-        payload_b = mock_exec_async.call_args.kwargs["payload"]
-        assert "verification_cost_vector" not in payload_b
-        assert "protocol_roles" not in payload_b
-
-    asyncio.run(run())
 
 def test_secret_stripping_removes_proof_id_and_nonce():
     """P0-2 & P1-5: proof_id, nonce, signature 等が正確に削除されること"""
-    client = LnChurchClient(private_key="0x" + "1" * 64)
+    client = MagClient(private_key="0x" + "1" * 64)
     
     dirty_data = {
         "proof_reference": "safe_hash_ref_123", # これは残るべき
@@ -128,40 +102,22 @@ def test_secret_stripping_removes_proof_id_and_nonce():
     assert "raw_signature" not in clean_data
     assert "proof_id" not in clean_data.get("nested", {})
 
-@patch("ln_church_agent.client.LnChurchClient.ensure_reporter_verification")
-@patch("ln_church_agent.client.LnChurchClient.execute_request")
-def test_no_auto_identity_verification_hooks(mock_exec, mock_verify):
-    """P2: v1.12.0制約の維持 (hook回避)"""
-    client = LnChurchClient(private_key="0x" + "1" * 64)
-    mock_exec.return_value = {"status": "accepted"}
 
-    client.submit_goal_attempt_observation(goal={"goal_text": "Test"}, attempt={"attempt_mode": "free"})
-    
-    mock_exec.assert_called_once()
-    mock_verify.assert_not_called()
 
-@patch("requests.get")
-def test_surface_preflight_accepts_v13_additive_fields(mock_get):
-    """P2: v1.12.0制約の維持 (Surface Preflight 後方互換とRead-Only制約)"""
-    client = LnChurchClient(private_key="0x" + "1"*64)
-    mock_res = MagicMock()
-    mock_res.status_code = 200
-    
-    mock_res.json.return_value = {
-        "schema_version": SURFACE_PREFLIGHT_SCHEMA_VERSION,
-        "not_a_recommendation": True,
-        "not_a_verdict": True,
-        "surface": {"known": True},
-        "guardrails": {
-            "final_authority": "local_runtime",
-            "this_read_model_does_not_execute_payments": True,  
-            "this_read_model_does_not_prove_settlement": True   
-        },
-        "observation_provenance": build_observation_provenance({"self_reported": 1})
-    }
-    mock_get.return_value = mock_res
 
-    res = client.get_surface_preflight(surface_key="surface_0123456789abcdef01234567")
-    
-    assert res["surface"]["known"] is True
-    assert "observation_provenance" in res
+@patch('mayim_agent.client.MagClient.execute_request_async')
+def test_async_submissions_with_v13_fields(mock_exec_async):
+    """P0-1 & P1-5: Asyncメソッドにもv13_fieldsが入り、後方互換性も維持されること"""
+    client = MagClient(private_key='0x' + '1' * 64)
+    mock_exec_async.return_value = {'status': 'accepted'}
+
+    async def run():
+        await client.submit_external_observation_async(target_url='https://api.example.com', verification_cost_vector=build_verification_cost_vector())
+        payload_a = mock_exec_async.call_args.kwargs['payload']
+        assert 'verification_cost_vector' in payload_a
+        assert 'protocol_roles' not in payload_a
+        await client.submit_external_observation_async(target_url='https://api.example.com')
+        payload_b = mock_exec_async.call_args.kwargs['payload']
+        assert 'verification_cost_vector' not in payload_b
+        assert 'protocol_roles' not in payload_b
+    asyncio.run(run())

@@ -1,18 +1,18 @@
 import os
 import requests
-from ln_church_agent import LnChurchClient
+from mayim_agent import MagClient
 
 # 1. 開発憲章に基づく固定エージェントID
 AGENT_ID = "111cc402c411947b0175a7502ac1ea119e1f1a7deadc0de11feba5e402402000"
 PRIVATE_KEY = "0x0000000000000000000000000000000000000000000000000000000000000001"
-BASE_URL = os.environ.get("LN_CHURCH_API_URL", "https://kari.mayim-mayim.com")
+BASE_URL = os.environ.get("MAG_API_URL", "https://kari.mayim-mayim.com")
 
 def main():
     print("==================================================")
     print(" 🎟️  Sponsored Access (Grant Token) Example")
     print("==================================================\n")
 
-    client = LnChurchClient(
+    client = MagClient(
         agent_id=AGENT_ID,
         private_key=PRIVATE_KEY,
         base_url=BASE_URL

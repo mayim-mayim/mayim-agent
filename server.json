@@ -1,18 +1,18 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.mayim-mayim/ln-church-agent-mcp",
-  "title": "LN Church Agent MCP",
+  "name": "io.github.mayim-mayim/mayim-agent-mcp",
+  "title": "mAG Agent SDK MCP",
   "description": "Inspect-only HTTP 402 surface classifier. Keyless, no wallet, no signing, no payments.",
-  "version": "1.18.17",
+  "version": "2.0.0",
   "repository": {
-    "url": "https://github.com/mayim-mayim/ln-church-agent",
+    "url": "https://github.com/mayim-mayim/mayim-agent",
     "source": "github"
   },
   "packages": [
     {
       "registryType": "pypi",
-      "identifier": "ln-church-agent",
-      "version": "1.18.17",
+      "identifier": "mayim-agent",
+      "version": "2.0.0",
       "transport": {
         "type": "stdio"
       }
