@@ -1,6 +1,8 @@
 # mAG Agent SDK
 
-`mayim-agent` **2.0.0** uses `import mayim_agent` and `MagClient`.
+<!-- mcp-name: io.github.mayim-mayim/mayim-agent-mcp -->
+
+`mayim-agent` **2.0.1** uses `import mayim_agent` and `MagClient`.
 Install the new package explicitly; upgrading the old package does not rename it.
 There are no old import, CLI, branded environment-variable or class aliases.
 See [the 2.0 migration guide](docs/migration-2.0.md) before resuming an existing worker.
