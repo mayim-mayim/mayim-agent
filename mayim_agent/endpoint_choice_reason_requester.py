@@ -4,11 +4,13 @@ import copy
 import hashlib
 import re
 import time
-from typing import Optional, Tuple, Literal
+from typing import Optional, Tuple, Literal, Union
 from pydantic import Field, model_validator, field_validator
 
 from . import endpoint_choice_reason_contract as c
-from .endpoint_choice_reason_models import _Frozen, EndpointChoiceResultRow
+from .endpoint_choice_reason_models import (
+    _Frozen, EndpointChoiceResultRow, EndpointChoiceRowV23, EndpointChoiceRowV24, EndpointChoiceRowV25,
+)
 from .endpoint_choice_reason_transport import EndpointChoiceTransport, EndpointChoiceError, public_boundary
 from .paid_service_trial_contract import decode_base64_object
 
@@ -18,10 +20,13 @@ def prepare_registration(value):
     failed = False
     try:
         if isinstance(value, bytes): value = c.decode_json_object(value, 65536)
-        economic = type(value) is dict and value.get('task_definition_version') in ('2.3.0','2.4.0')
+        economic = type(value) is dict and value.get('task_definition_version') in ('2.3.0', '2.4.0', '2.5.0')
         extra = {'schema_version', 'task_definition_version', 'economic_terms'} if economic else set()
-        if type(value) is dict and value.get('task_definition_version') == '2.4.0':
-            extra |= {'activity_map_policy_id','activity_map_epoch'}
+        definition = value.get('task_definition_version') if economic else None
+        if definition in ('2.4.0', '2.5.0'):
+            extra |= {'activity_map_policy_id', 'activity_map_epoch'}
+        if definition == '2.5.0':
+            extra.add('answer_review_policy_id')
         if type(value) is not dict or set(value) - extra != {'task_type', 'plan_id', 'question', 'candidates', 'correct_candidate_ids', 'reveal_correct_set_after_answer'}:
             raise ValueError
         if value['task_type'] not in ('endpoint_choice_reason.v1', 'endpoint_choice_reason.v2') or (not economic and value['plan_id'] not in c.PLANS) or type(value['reveal_correct_set_after_answer']) is not bool:
@@ -182,7 +187,7 @@ class _OwnerCandidate(_Frozen):
 
 class _OwnerRegistration(_Frozen):
     task_type: Literal['endpoint_choice_reason.v1', 'endpoint_choice_reason.v2']
-    plan_id: Literal['C5', 'C55', 'C555']
+    plan_id: str
     question: str
     candidates: Tuple[_OwnerCandidate, ...] = Field(repr=False, exclude=True)
     correct_candidate_ids: Tuple[str, ...] = Field(repr=False, exclude=True)
@@ -196,6 +201,8 @@ class _OwnerRegistration(_Frozen):
         return tuple(value)
     @model_validator(mode='after')
     def _check(self):
+        from ._contract_schema import validate_plan_label
+        validate_plan_label(self.plan_id, maximum=128)
         c.text_value(self.question, 4096)
         ids = [x.candidate_id for x in self.candidates]
         if not 1 <= len(ids) <= 10 or len(set(ids)) != len(ids) or len({x.url for x in self.candidates}) != len(ids):
@@ -213,7 +220,7 @@ class EndpointChoiceRequesterResults(_Frozen):
     schema_version: Literal['ln_church.offer_results_read_response.v1']
     task_id: str
     registration: _OwnerRegistration = Field(repr=False, exclude=True)
-    items: Tuple[EndpointChoiceResultRow, ...] = Field(repr=False, exclude=True)
+    items: Tuple[Union[EndpointChoiceRowV25, EndpointChoiceResultRow, EndpointChoiceRowV24, EndpointChoiceRowV23], ...] = Field(repr=False, exclude=True)
     next_cursor: Optional[str]
     intake_closed_at: Optional[str]
     projected_at: str

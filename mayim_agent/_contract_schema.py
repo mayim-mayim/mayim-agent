@@ -131,10 +131,14 @@ def load_economic_pack(family):
 
 def validate_economic_wire(family, kind, value):
     from .task_v2_contract import decode_json_object
-    if is_activity_tuple(value) and not family.endswith('_mag'):
+    if family in ('choice', 'structured'):
+        suffix = '.v2_5' if family == 'choice' else '.v3_3'
+        if value.get('schema_version', '').endswith(suffix):
+            family += '_review'
+    if is_activity_tuple(value) and family in ('immediate', 'paid', 'choice', 'structured', 'scheduled'):
         family += '_mag'
     resources = load_economic_pack(family)['resources']
-    if (family[:-4] if family.endswith('_mag') else family) in ('paid', 'choice'):
+    if family in ('paid', 'paid_mag', 'choice', 'choice_mag', 'choice_review'):
         root = decode_json_object(resources['wire-contract.json'], 2097152)
         schema = root['$defs'][kind]
     else:
@@ -280,6 +284,23 @@ ECONOMIC_PACKS = {'scheduled': {'directory': 'v1816-scheduled-v1_1',
 
 # DC fixed intake f28c313f; never rewrite an older pack.
 ECONOMIC_PACKS.update({'immediate_mag': {'directory': 'mag-task-packs/immediate_http_visit.v3/3.2.0', 'manifest_sha256': '6db46db661a8500abe64b94f491d42b7735f5c82ed47d33fa101e0892e7a24f4', 'digest': 'c5ee14364f743649221176cdf2e1a32af13484f1eb5a153d1cdc02b44371f018', 'task_type': 'immediate_http_visit.v3', 'definition': '3.2.0'}, 'choice_mag': {'directory': 'mag-task-packs/endpoint_choice_reason.v2/2.4.0', 'manifest_sha256': 'ed56f5a19303d4ad819d6840aad6bc07f72dbc993978d51795463c8b7f18bc3a', 'digest': 'f79bcaf58e48857fcd5f9b95c09f522fa150b1f4dbe5a7be05c2ea4fed79fe7c', 'task_type': 'endpoint_choice_reason.v2', 'definition': '2.4.0'}, 'structured_mag': {'directory': 'mag-task-packs/structured_response.v3/3.2.0', 'manifest_sha256': '4cd1a2f969654ef0d9c61f45f2654f01576eb7c1ee8fddccc682d34881308af5', 'digest': '66c00c3deed3a39ac7ba7b0f66f911d75ed6f41ce1b419f6e77242541bf6d643', 'task_type': 'structured_response.v3', 'definition': '3.2.0'}, 'paid_mag': {'directory': 'mag-task-packs/paid_service_trial.v3/3.2.0', 'manifest_sha256': 'e952ea3c413b7c4f018f9bdf5171278fc777693e40e494b2d43b76376280136a', 'digest': '8c44c115574b593274869091d418f4a6e4e086e55893450bf6e91a2b0a6242af', 'task_type': 'paid_service_trial.v3', 'definition': '3.2.0'}})
+
+
+# Public pack bytes from the fixed Hondo C3 tree.
+ECONOMIC_PACKS.update({
+    'choice_review': {
+        'directory': 'mag-task-packs/endpoint_choice_reason.v2/2.5.0',
+        'task_type': 'endpoint_choice_reason.v2', 'definition': '2.5.0',
+        'digest': '6a621ed898bec7c3e2b8ebd6421f5116679ff8073d44a2526acdb5a69430f9a9',
+        'manifest_sha256': '5db4da12213547e54f1c5e88ff15cf21f726b8951b8728aad7e83dd3d29b614f',
+    },
+    'structured_review': {
+        'directory': 'mag-task-packs/structured_response.v3/3.3.0',
+        'task_type': 'structured_response.v3', 'definition': '3.3.0',
+        'digest': 'df35f66cc269f71154059e11207dc9d1656dea17f55f113bdf53e2a38e459d51',
+        'manifest_sha256': 'c5282829ac12b72123e8fe52bbaa3a5b9ba1fa28b4570ee662c4f72909e3ce9a',
+    },
+})
 
 
 def is_activity_tuple(value):

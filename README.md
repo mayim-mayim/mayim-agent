@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.mayim-mayim/mayim-agent-mcp -->
 
-`mayim-agent` **2.0.1** uses `import mayim_agent` and `MagClient`.
+`mayim-agent` **2.0.2** uses `import mayim_agent` and `MagClient`.
 Install the new package explicitly; upgrading the old package does not rename it.
 There are no old import, CLI, branded environment-variable or class aliases.
 See [the 2.0 migration guide](docs/migration-2.0.md) before resuming an existing worker.
@@ -31,6 +31,25 @@ Completion/status and original-operation recovery. Read
 before registration payment or Claim. Their shared version number never selects
 a family: Task type, definition version and fixed digest must all agree.
 
+
+## Choice 2.5.0 and Structured 3.3.0 public review conditions
+
+Select `version="v2_5"` for URL Choice & Reason or
+`definition_version="3.3.0"` for Structured Response, including APS and
+Profile Tasks. Use the definition shown on the Task and reopen saved
+operations with their original version, IDs and bytes.
+
+The review budget is 10% of each Task's registration fee. For APS, the base
+fee is excluded. New Claims may pause and reopen or close with unfilled slots.
+Accepted Claims keep their original deadlines and reward rights. The public
+reward eligibility and exclusion reason are separate from quality and payout.
+
+For a new Choice purchase, confirm the returned registration contract from
+`OfferRegistrationClient.get_economic_offers("choice")`. Review
+`quote.answer_review_notice` before signing. For Template Survey, APS and
+custom Structured purchases, use the official requester guides bundled with
+the corresponding definition. The Structured responder uses the public review
+policy even when a Profile Task is outside the Activity Map.
 
 ## Saved economic conditions
 

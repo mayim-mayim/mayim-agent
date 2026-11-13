@@ -1,0 +1,73 @@
+{
+  "schema_version": "ln_church.agent_task_source_bundle_manifest.v1",
+  "task_type": "endpoint_choice_reason.v2",
+  "task_definition_version": "2.5.0",
+  "task_definition_digest": "6a621ed898bec7c3e2b8ebd6421f5116679ff8073d44a2526acdb5a69430f9a9",
+  "descriptor": {
+    "schema_version": "ln_church.task_definition_source_bundle.v1",
+    "source_repository": "mayim-mayim/mayim-AgentGigs",
+    "specification_repository": "mayim-mayim/mayim-development-charter",
+    "specification_commit": "f4e420d05ca4ad3c1953eaabe1d743a570443472",
+    "architecture_commit": "70d3854e9fe0f8eb725ab4f39f331cf0df996bc0",
+    "task_type": "endpoint_choice_reason.v2",
+    "task_definition_version": "2.5.0",
+    "source_bundle_entries": [
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/answer-review-policy.json",
+        "mode": "100644",
+        "blob": "f646016d7d9e01d0375eb170e5d729a1d1d107b2",
+        "sha256": "2fa8142af5abf13caa95a8657d8cc38eb95c880043f0e06b899dbd92f6564b13"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/catalog-registration.schema.json",
+        "mode": "100644",
+        "blob": "4f599de2ab1004408486f0a2d83ffae21cdadaa6",
+        "sha256": "7795e0ee020e4986709daa28b945e7648a1f41edfdcfa828788337188980011f"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/definition.json",
+        "mode": "100644",
+        "blob": "2cbf95a11200cfaf744d7f65aab0ed5287ac7f7f",
+        "sha256": "7225bf2e2aa6d6247b2257a8c2fdf87b79552c0ebab28fc80283b268cbaef98b"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/economic-terms.schema.json",
+        "mode": "100644",
+        "blob": "9c63823a33f60c458f26ed90acf326ad73f2c568",
+        "sha256": "7c0dea9b16a082101517edff85f971c04c520fed38e8da31afbfe9aa81462247"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/evaluation-profile.json",
+        "mode": "100644",
+        "blob": "958041b11c95180f470b4d002b4ce448bd46b557",
+        "sha256": "51576d617be36f50ff2d071dea113b198a8255470c31c9f9d7c88e19017eaf07"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/requester-guide.md",
+        "mode": "100644",
+        "blob": "d02fa25e52d1dd743dc95a6920dc1d99c634e056",
+        "sha256": "ef2a78ce85bfe617ed99b5cb94b61e6e112b80e0ed03eb8cfaa6d5e250ac3268"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/semantic-fixtures.json",
+        "mode": "100644",
+        "blob": "495cae2c510cff8a56bbde6b19f7c8d8858c5b0d",
+        "sha256": "402b0d7d3053420b5c6111559ca6280985f24d540ced6eb03878b92d12fb526c"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/SKILL.md",
+        "mode": "100644",
+        "blob": "cadad45c1a8213147537dbb7f1b639bd0be1af01",
+        "sha256": "a0f81f9c0f0520a26aa7dc2695b25d22d1fb7fd79c916847865b1f7a2cf14401"
+      },
+      {
+        "path": "frontend/agent-task-specs/endpoint_choice_reason.v2/2.5.0/wire-contract.json",
+        "mode": "100644",
+        "blob": "19bb5a4b56038752cf0f0d528b778fb5de64a8ce",
+        "sha256": "fac5c74dc1ae0060b4f0c89230bb0380ba797a44da932af19e426cb1e6709b9d"
+      }
+    ],
+    "activity_map_policy_id": "mag.activity-map.public.v1",
+    "answer_review_policy_id": "mag.answer-reuse-review.public.v1"
+  }
+}

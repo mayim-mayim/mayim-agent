@@ -66,8 +66,8 @@ class AgentEndpointChoiceReasonClient:
         self._open(); c.validate_task_id(task_id)
         payload = self._transport.get_task(task_id, timeout_seconds=timeout_seconds)
         from .task_dispatch import ReadOnlyTask, tuple_of
-        expected = ('endpoint_choice_reason.v2' if self.version in ('v2_1', 'v2_3', 'v2_4') else 'endpoint_choice_reason.' + self.version,
-                    {'v1':'1.0.0','v2':'2.0.0','v2_1':'2.1.0','v2_3':'2.3.0','v2_4':'2.4.0'}[self.version], c.schema('agent_task',self.version))
+        expected = ('endpoint_choice_reason.v2' if self.version in ('v2_1', *c.CHOICE_ECONOMIC_PACKS) else 'endpoint_choice_reason.' + self.version,
+                    c.CHOICE_DEFINITIONS[self.version], c.schema('agent_task',self.version))
         if tuple_of(payload) != expected:
             value = ReadOnlyTask.from_payload(payload)
         else:
@@ -151,7 +151,7 @@ class AgentEndpointChoiceReasonClient:
                 raise EndpointChoiceError('RESPONSE_BINDING_INVALID', request_bytes_sent=True)
             if result.correct_candidate_ids is not None and not set(result.correct_candidate_ids) <= {x.candidate_id for x in claim.candidates}:
                 raise EndpointChoiceError('RESPONSE_BINDING_INVALID', request_bytes_sent=True)
-            if c.version_of(claim) in ('v2_3','v2_4') and result.evaluation.state != 'PENDING':
+            if c.version_of(claim) in c.CHOICE_ECONOMIC_PACKS and result.evaluation.state != 'PENDING':
                 base = claim.reward.correct_amount_atomic if result.evaluation.is_correct else claim.reward.incorrect_amount_atomic
                 if result.evaluation.base_amount_atomic != base:
                     raise EndpointChoiceError('RESPONSE_BINDING_INVALID', request_bytes_sent=True)

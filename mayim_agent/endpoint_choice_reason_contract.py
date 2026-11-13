@@ -125,10 +125,17 @@ def cursor(value):
     return value
 
 
+CHOICE_DEFINITIONS = {
+    'v1': '1.0.0', 'v2': '2.0.0', 'v2_1': '2.1.0',
+    'v2_3': '2.3.0', 'v2_4': '2.4.0', 'v2_5': '2.5.0',
+}
+CHOICE_ECONOMIC_PACKS = {'v2_3': 'choice', 'v2_4': 'choice_mag', 'v2_5': 'choice_review'}
+
+
 def load_contract_pack(version='v1'):
-    if validate_version(version) in ('v2_3','v2_4'):
+    if validate_version(version) in CHOICE_ECONOMIC_PACKS:
         from ._contract_schema import load_economic_pack
-        return load_economic_pack('choice_mag' if version=='v2_4' else 'choice')
+        return load_economic_pack(CHOICE_ECONOMIC_PACKS[version])
     if validate_version(version) == 'v2_1':
         return _load_v21_pack()
     if validate_version(version) == 'v2':
@@ -162,7 +169,7 @@ def require_definition(value, version="v1"):
 
 
 def validate_version(version):
-    if version not in ('v1', 'v2', 'v2_1', 'v2_3', 'v2_4'):
+    if version not in CHOICE_DEFINITIONS:
         raise ValueError('Unsupported endpoint choice version.')
     return version
 
@@ -172,6 +179,8 @@ def version_of(value):
         raise ValueError('Unsupported endpoint choice tuple.')
     definition = value.get('task_definition_version') if isinstance(value, dict) else getattr(value, 'task_definition_version', None)
     namespace = value.get('schema_version', '') if isinstance(value, dict) else getattr(value, 'schema_version', '')
+    if kind == 'endpoint_choice_reason.v2' and (definition == '2.5.0' or namespace.endswith('.v2_5')):
+        return 'v2_5'
     if kind == 'endpoint_choice_reason.v2' and (definition == '2.4.0' or namespace.endswith('.v2_4')):
         return 'v2_4'
     if kind == 'endpoint_choice_reason.v2' and (definition == '2.3.0' or namespace.endswith('.v2_3')):
@@ -238,14 +247,16 @@ def _load_v21_pack():
     return dict(manifest=manifest,resources=resources,source=V21_PACK_SOURCE)
 
 def evaluation_profile(version):
-    if validate_version(version) not in ('v2_1', 'v2_3', 'v2_4'):
+    if validate_version(version) not in ('v2_1', *CHOICE_ECONOMIC_PACKS):
         return PROFILE_ID
     profile = decode_json_object(load_contract_pack(version)['resources']['evaluation-profile.json'],2097152)
     return profile['profile_id']
 
 
 def terms_fields(version):
-    if validate_version(version) == 'v2_4':
+    if validate_version(version) == 'v2_5':
+        return terms_fields('v2_4') + ('answer_review_policy_id',)
+    if version == 'v2_4':
         return terms_fields('v2_3') + ('activity_map_policy_id','activity_map_epoch')
     if validate_version(version) == 'v2_3':
         return TERMS_FIELDS + ('economic_policy_id', 'capacity_profile_id', 'evaluation_profile_digest', 'economic_terms_revision', 'creator_amount_atomic')

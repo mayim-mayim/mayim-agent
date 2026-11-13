@@ -121,7 +121,7 @@ class StructuredResponseClaimCredential(_View):
         if p['schema_version'] != c.schema('agent_task_claim_response', version):
             raise ValueError('Invalid Claim tuple.')
         c.require_identity(p)
-        if version in ('3.1.0', '3.2.0'):
+        if version in c.STRUCTURED_ECONOMIC_PACKS:
             terms = p['terms_snapshot']
             c.validate_economics(terms)
             if (c.digest(terms) != p['terms_digest']
@@ -216,7 +216,7 @@ class StructuredResponseCompletionReceipt(_View):
         fields = {'schema_version','task_id','execution_id','submission_id','report_sha256',
                   'received_at','evaluation_deadline','state'}
         version = c.version_of(p)
-        if version in ('3.1.0', '3.2.0'):
+        if version in c.STRUCTURED_ECONOMIC_PACKS:
             from ._contract_schema import validate_economic_revision
             fields |= {'economic_terms_revision','terms_digest'}
             validate_economic_revision(p['economic_terms_revision'])
@@ -237,6 +237,23 @@ class StructuredResponseCompletionReceipt(_View):
 
 
 class StructuredResponseSubmissionStatus(StructuredResponseCompletionReceipt):
+    def model_dump(self, **kwargs):
+        value = super().model_dump(**kwargs)
+        if c.version_of(value) == '3.3.0':
+            for section, fields in {
+                'quality': ('state', 'required_values', 'Q', 'Q_fraction', 'amount_atomic'),
+                'content': ('state', 'items'),
+                'entitlement': ('state', 'kind', 'amount_atomic', 'entitlement_id', 'terminal_revision', 'approved_at'),
+                'payout': ('state', 'transaction_hash', 'paid_confirmed_at'),
+            }.items():
+                value[section] = {key: value[section][key] for key in fields if key in value[section]}
+            value['content']['items'] = [
+                {key: item[key] for key in ('item_id', 'propositions', 'quality', 'reason', 'state', 'value')
+                 if key in item}
+                for item in value['content'].get('items', [])
+            ]
+        return value
+
     def _validate(self, p):
         c.validate_wire('status', p)
         version = c.version_of(p)
@@ -244,7 +261,7 @@ class StructuredResponseSubmissionStatus(StructuredResponseCompletionReceipt):
                                    'received_at','evaluation_deadline')}
         receipt['state'] = 'accepted'
         receipt['schema_version'] = c.schema('task_completion_receipt', version)
-        if version in ('3.1.0', '3.2.0'):
+        if version in c.STRUCTURED_ECONOMIC_PACKS:
             receipt.update({k:p[k] for k in ('economic_terms_revision','terms_digest')})
         super()._validate(receipt)
         if p['schema_version'] != c.schema('task_submission_status', version):
@@ -257,11 +274,14 @@ class StructuredResponseSubmissionStatus(StructuredResponseCompletionReceipt):
         amount = p['entitlement']['amount_atomic']
         if amount is not None and (type(amount) is not str or not amount.isascii() or not amount.isdecimal()):
             raise ValueError('Invalid atomic entitlement amount.')
+        if version == '3.3.0':
+            from .task_activity_conditions import validate_reward_eligibility
+            validate_reward_eligibility(p, p['entitlement']['state'] == 'FINAL', amount)
         original = FrozenStructuredResponseReport.from_report(p['report'])
         if (original.report_sha256 != p['report_sha256']
                 or c.version_of(original.report) != version
                 or any(original.report[k] != p[k] for k in ('task_id','execution_id','submission_id','context_id'))
-                or version in ('3.1.0', '3.2.0') and original.report['terms_digest'] != p['terms_digest']):
+                or version in c.STRUCTURED_ECONOMIC_PACKS and original.report['terms_digest'] != p['terms_digest']):
             raise ValueError('Invalid original submission binding.')
 
     @property

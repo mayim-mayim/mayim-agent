@@ -161,9 +161,9 @@ class StructuredResponseClient:
     def _bound(self,cls,payload,claim,report):
         value=_model(cls,payload)
         if (not value.matches(report) or c.parse_timestamp(value.received_at)>=c.parse_timestamp(claim.report_deadline)
-                or claim.task_definition_version in ('3.1.0', '3.2.0') and value.economic_terms_revision!=claim.economic_terms_revision):
+                or claim.task_definition_version in c.STRUCTURED_ECONOMIC_PACKS and value.economic_terms_revision!=claim.economic_terms_revision):
             raise StructuredResponseError('RESPONSE_BINDING_INVALID',request_bytes_sent=True)
-        if claim.task_definition_version in ('3.1.0', '3.2.0') and isinstance(value, StructuredResponseSubmissionStatus):
+        if claim.task_definition_version in c.STRUCTURED_ECONOMIC_PACKS and isinstance(value, StructuredResponseSubmissionStatus):
             try:
                 c.validate_saved_entitlement(value.model_dump(), claim.terms_snapshot)
             except ValueError:

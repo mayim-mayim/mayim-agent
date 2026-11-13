@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "ln_church.task_completion_receipt.structured_response.v3_3"
+        },
+        "task_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+        },
+        "execution_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+        },
+        "submission_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._~-]{1,128}$"
+        },
+        "report_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "received_at": {
+          "type": "string"
+        },
+        "evaluation_deadline": {
+          "type": "string"
+        },
+        "state": {
+          "const": "accepted"
+        },
+        "economic_terms_revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._~-]+$"
+        },
+        "terms_digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "schema_version",
+        "task_id",
+        "execution_id",
+        "submission_id",
+        "report_sha256",
+        "received_at",
+        "evaluation_deadline",
+        "state",
+        "economic_terms_revision",
+        "terms_digest"
+      ]
+    }
+  },
+  "$ref": "#/$defs/receipt"
+}

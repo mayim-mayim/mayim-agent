@@ -1,0 +1,11 @@
+{
+  "answer_review_policy_id": "mag.answer-reuse-review.public.v1",
+  "review_budget_basis": "task_registration_fee",
+  "review_budget_percent": 10,
+  "recruitment": [
+    "OPEN",
+    "PAUSED",
+    "CLOSED"
+  ],
+  "exclusion_reason": "SUSPECTED_REUSE"
+}

@@ -54,7 +54,7 @@ def register_tools(mcp):
     def structured_response_list_tasks(limit:int=25,cursor:Optional[str]=None,definition_version:str='3.0.0')->Dict[str,Any]:
         """Read available structured response Tasks. Does not Claim or submit.
 
-        For Structured 3.0.0/3.1.0/3.2.0, read the selected Task detail and
+        For Structured 3.0.0/3.1.0/3.2.0/3.3.0, read the selected Task detail and
         https://kari.mayim-mayim.com/SKILL.md#structured-claim-guidance before
         an explicit Claim. Tuple support does not establish personal eligibility.
         """
@@ -64,7 +64,7 @@ def register_tools(mcp):
     def structured_response_get_task(task_id:str,definition_version:str='3.0.0')->Dict[str,Any]:
         """Read question, types, quality, reward, participation and visibility.
 
-        For Structured 3.0.0/3.1.0/3.2.0, review this Task's concrete conditions and
+        For Structured 3.0.0/3.1.0/3.2.0/3.3.0, review this Task's concrete conditions and
         https://kari.mayim-mayim.com/SKILL.md#structured-claim-guidance before
         an explicit Claim. supported/read_only/update_required indicate tuple
         support, not personal eligibility; the Agent must review the detail.
@@ -78,7 +78,7 @@ def register_tools(mcp):
     def structured_response_claim(task_id:str,agent_id:str,reward_address:str,idempotency_key:str,definition_version:str='3.0.0')->Dict[str,Any]:
         """Explicitly Claim once, saving the original key/request before dispatch. No wallet signature.
 
-        For Structured 3.0.0/3.1.0/3.2.0, first review the selected Task detail,
+        For Structured 3.0.0/3.1.0/3.2.0/3.3.0, first review the selected Task detail,
         retained acceptance history for the same reward address, and
         https://kari.mayim-mayim.com/SKILL.md#structured-claim-guidance.
         Tuple support is not eligibility; insufficient information remains
@@ -90,7 +90,7 @@ def register_tools(mcp):
     def structured_response_recover_claim(journal_handle:str)->Dict[str,Any]:
         """Read the saved Claim binding. A miss never makes a new Claim.
 
-        For Structured 3.0.0/3.1.0/3.2.0, consult the selected Task detail and
+        For Structured 3.0.0/3.1.0/3.2.0/3.3.0, consult the selected Task detail and
         https://kari.mayim-mayim.com/SKILL.md#structured-claim-guidance for
         state-specific recovery, including a known successful Claim. Keep the
         original Task, request and key. This tool does not expose or execute
@@ -119,7 +119,7 @@ def register_tools(mcp):
 
     @mcp.tool()
     def structured_response_get_submission_status(journal_handle:str)->Dict[str,Any]:
-        """Read acceptance, quality, content, entitlement and payout separately, including after Claim expiry."""
+        """Read acceptance, quality, content, reward eligibility, entitlement and payout, including after Claim expiry."""
         return _call(lambda c:c.get_submission_status(journal=_journal(journal_handle)))
 
     @mcp.tool()

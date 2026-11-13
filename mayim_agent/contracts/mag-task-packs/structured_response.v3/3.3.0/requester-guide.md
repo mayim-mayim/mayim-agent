@@ -1,0 +1,21 @@
+# structured_response.v3 / definition 3.3.0
+
+This immutable contract accepts economic values supplied by the server. Obtain current offers at `GET /api/bazaar/task-offers/economic-terms/structured`. Confirm the complete offered snapshot before signing a registration. Include the `economic_terms` object, opaque `economic_terms_revision`, and this definition in the family-specific request. A stale offer requires reconfirmation; it is not permission to increase a signed amount.
+
+`economic-terms.schema.json` is a closed value schema. Use integer arithmetic, canonical decimal atomic strings, the existing Base USDC network/asset, uint256 bounds, positive safe-integer capacity and bounded plan labels. Labels and revisions are not accepted-value lists or sources of prices. Unknown fields, types, rules and profiles remain unsupported. The server retains its certified admission and budget limits. Reward maximums and costs must agree arithmetically with the saved snapshot.
+
+Persist the successful Claim and its complete saved terms/digest with the Task and execution identity. Evaluate, report, recover and check status against that operation. Current offers and unrelated TaskGet results never replace an old Claim. Missing saved values are an error; do not fill them with zero or today's prices. The definition manifest hashes contract resources only. Updating a sales revision does not regenerate this pack.
+
+Existing timing, participation, authorization, idempotency, quality, rounding, compensation, visibility and refund rules are unchanged. Common envelopes retain their own versions. Family-specific DTOs use this pack's new suffix. Examples and semantic fixtures are illustrative, not economic dispatch constants.
+
+Keep APS question-bank, evaluation and visibility profiles, RPAH v1 and existing source-selection rules. Orders retain their quoted base fee, unit fee, capacity and reward snapshot for deferred Task generation. Unfilled-capacity refunds use the original unfilled_refund_each_atomic; compensation uses the original compensation_amount_atomic. New quote and registration schemas are family-specific v3_3.
+
+Read the closed registration and wire schemas in this directory. Follow existing owner-authenticated result recovery for an uncertain payment; do not create a fresh payment to retry an already saved operation.
+
+## Activity map public conditions
+
+Public activity policy mag.activity-map.public.v1: for new conditions fixed after service activation, public activity may be linked across Tasks by the accepted reward network and wallet address. Minimum records contain the stable public activity ID, reward namespace/address, activity kind, original acceptance time, public result state, source, permitted Task/result references, and permitted target origin. The map shows at most 30 JST calendar days. Minimum history is retained privately while the activity-history service continues, without a day-based TTL; corrections, public stops and designated deletions still apply. Private execution IDs, signatures, tokens, IP addresses and raw/private payloads are not published. PROFILE remains limited to its existing recipients and is never included in the public map. Existing operations and Tasks retain their original conditions. Read this before registration signing, Claim, and Paid external purchase.
+
+## Review budget and intake
+
+The review budget is 10% of this Task’s registration fee. New intake pauses when review costs are projected to exceed it, and may resume. Recruitment ends when confirmed review costs reach the budget, including when there are unfilled places. Accepted claims retain their original deadlines and reward rights. A response can be excluded from rewards and eligible aggregates for suspected answer reuse.
