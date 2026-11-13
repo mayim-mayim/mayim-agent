@@ -59,8 +59,12 @@ PACK_SOURCE = {'commit': '235bc8de9ce60d32e467d2c1476cf9a6eeb6ab0e',
  'tree': 'db40a399648ff494c5e2298b25e03ccd9addc5cb'}
 
 
+STRUCTURED_WIRE_VERSIONS = {'3.0.0': 'v3', '3.1.0': 'v3_1', '3.2.0': 'v3_2', '3.3.0': 'v3_3'}
+STRUCTURED_ECONOMIC_PACKS = {'3.1.0': 'structured', '3.2.0': 'structured_mag', '3.3.0': 'structured_review'}
+
+
 def validate_version(version):
-    if version not in ('3.0.0', '3.1.0', '3.2.0'):
+    if version not in STRUCTURED_WIRE_VERSIONS:
         raise ValueError('Unsupported structured response version.')
     return version
 
@@ -68,16 +72,15 @@ def validate_version(version):
 def version_of(value):
     """Select a wire contract by its namespace, checking the version if present."""
     namespace = value.get('schema_version', '')
-    version = ('3.2.0' if namespace.endswith('.structured_response.v3_2') else
-               '3.1.0' if namespace.endswith('.structured_response.v3_1') else
-               '3.0.0' if namespace.endswith('.structured_response.v3') else None)
+    version = next((definition for definition, suffix in STRUCTURED_WIRE_VERSIONS.items()
+                    if namespace.endswith('.structured_response.' + suffix)), None)
     if version is None or value.get('task_definition_version', version) != version:
         raise ValueError('Invalid structured response version binding.')
     return version
 
 
 def schema(kind, version=TASK_DEFINITION_VERSION):
-    return 'ln_church.' + kind + '.structured_response.' + {'3.0.0':'v3','3.1.0':'v3_1','3.2.0':'v3_2'}[validate_version(version)]
+    return 'ln_church.' + kind + '.structured_response.' + STRUCTURED_WIRE_VERSIONS[validate_version(version)]
 
 
 def canonical_bytes(value, maximum=MAX_REPORT_BYTES):
@@ -93,7 +96,7 @@ def digest(value):
 
 def validate_wire(kind, value):
     from ._contract_schema import validate, validate_economic_wire
-    if version_of(value) in ('3.1.0', '3.2.0'):
+    if version_of(value) in STRUCTURED_ECONOMIC_PACKS:
         return validate_economic_wire('structured', kind, value)
     resources = load_contract_pack()['resources']
     definition = decode_json_object(resources[kind + '.schema.json'], 2097152)
@@ -109,7 +112,7 @@ _TERM_FIELDS = ('task_type', 'task_definition_version', 'task_definition_digest'
 
 def validate_terms(value):
     terms = terms_snapshot(value)
-    if value.get('task_definition_version') in ('3.1.0', '3.2.0'):
+    if value.get('task_definition_version') in STRUCTURED_ECONOMIC_PACKS:
         validate_economics(terms)
     if digest(terms) != value['terms_digest']:
         raise ValueError('Invalid structured response terms digest.')
@@ -117,9 +120,12 @@ def validate_terms(value):
 
 def terms_snapshot(value):
     fields = _TERM_FIELDS + (('economic_terms_revision', 'unfilled_refund_each_atomic')
-                            if value.get('task_definition_version') in ('3.1.0', '3.2.0') else ())
-    if value.get('task_definition_version') == '3.2.0':
-        fields += ('activity_map_policy_id','activity_map_epoch')
+                            if value.get('task_definition_version') in STRUCTURED_ECONOMIC_PACKS else ())
+    version = value.get('task_definition_version')
+    if version == '3.2.0' or version == '3.3.0' and value.get('aps_kind') != 'PROFILE':
+        fields += ('activity_map_policy_id', 'activity_map_epoch')
+    if version == '3.3.0':
+        fields += ('answer_review_policy_id',)
     return {key: value[key] for key in fields if key in value}
 
 
@@ -158,7 +164,10 @@ def validate_saved_entitlement(status, terms):
         if quality['state'] == 'REJECTED' or amount != terms['reward']['compensation_amount_atomic']:
             raise ValueError('Invalid saved compensation amount.')
     elif kind == 'REJECTED':
-        if quality['state'] != 'REJECTED' or amount != '0':
+        reuse_rejected = (terms['task_definition_version'] == '3.3.0'
+                          and status['reward_exclusion_reason'] == 'SUSPECTED_REUSE'
+                          and quality['state'] == 'PASSED')
+        if (quality['state'] != 'REJECTED' and not reuse_rejected) or amount != '0':
             raise ValueError('Invalid rejected entitlement.')
     elif kind == 'NORMAL':
         values = quality['required_values']
@@ -248,9 +257,9 @@ def validate_participation(value):
 
 
 def load_contract_pack(version=TASK_DEFINITION_VERSION):
-    if validate_version(version) in ('3.1.0', '3.2.0'):
+    if validate_version(version) in STRUCTURED_ECONOMIC_PACKS:
         from ._contract_schema import load_economic_pack
-        return load_economic_pack('structured_mag' if version == '3.2.0' else 'structured')
+        return load_economic_pack(STRUCTURED_ECONOMIC_PACKS[version])
     if not PACK_SHA256 or PACK_SOURCE is None:
         raise ValueError('DC-fixed Backend structured response pack has not been received.')
     root = Path(__file__).parent / 'contracts' / PACK_DIRECTORY
@@ -300,7 +309,7 @@ def require_identity(value):
 
 def load_answer_contract(version=TASK_DEFINITION_VERSION):
     """Select only bundled, hash-pinned correction or self-contained 3.1 bytes."""
-    if validate_version(version) in ('3.1.0', '3.2.0'):
+    if validate_version(version) in STRUCTURED_ECONOMIC_PACKS:
         resources = load_contract_pack(version)['resources']
     else:
         from .structured_response_correction import load_correction

@@ -14,3 +14,20 @@ ACTIVITY_MAP_NOTICE = (
     "Manifest information, endpoint paths/queries, credentials, private execution IDs "
     "and raw reports are excluded. Existing operations retain their original conditions."
 )
+
+
+ANSWER_REVIEW_POLICY_ID = 'mag.answer-reuse-review.public.v1'
+ANSWER_REVIEW_NOTICE = (
+    'Each Task has a review budget of 10% of its registration fee. APS base fees are excluded. '
+    'New Claims can pause and resume, or close with unfilled slots when actual review costs reach '
+    'the budget. Accepted Claims keep their original deadlines and reward rights. Responses '
+    'excluded for suspected reuse receive no reward and do not contribute to the aggregates.'
+)
+
+
+def validate_reward_eligibility(value, final, amount):
+    expected = ('ELIGIBLE' if int(amount) > 0 else 'INELIGIBLE') if final else 'PENDING'
+    if (value['reward_eligibility'] != expected
+            or value['reward_exclusion_reason'] not in (None, 'SUSPECTED_REUSE')
+            or value['reward_exclusion_reason'] is not None and expected != 'INELIGIBLE'):
+        raise ValueError('Invalid public reward eligibility.')

@@ -1,0 +1,177 @@
+{
+  "schema_version": "ln_church.agent_task_source_bundle_manifest.v1",
+  "task_type": "structured_response.v3",
+  "task_definition_version": "3.3.0",
+  "task_definition_digest": "df35f66cc269f71154059e11207dc9d1656dea17f55f113bdf53e2a38e459d51",
+  "descriptor": {
+    "schema_version": "ln_church.task_definition_source_bundle.v1",
+    "source_repository": "mayim-mayim/mayim-AgentGigs",
+    "specification_repository": "mayim-mayim/mayim-development-charter",
+    "specification_commit": "f4e420d05ca4ad3c1953eaabe1d743a570443472",
+    "architecture_commit": "70d3854e9fe0f8eb725ab4f39f331cf0df996bc0",
+    "task_type": "structured_response.v3",
+    "task_definition_version": "3.3.0",
+    "source_bundle_entries": [
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/abandon_response.schema.json",
+        "mode": "100644",
+        "blob": "4c3b050fc3f138a875874a75ac9cc3fc12e3825b",
+        "sha256": "ffea19a7597bad0782f39c4c6236e2ec71fb08a001b4f862c7404b21818ac9ad"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/abandon.schema.json",
+        "mode": "100644",
+        "blob": "45c2f45737e20e7a1e75c28576e8e43741238044",
+        "sha256": "a6035896e16a2e9003547bd54731debcc8ad04394e0b66930df8f63289349d94"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/answer-review-policy.json",
+        "mode": "100644",
+        "blob": "f646016d7d9e01d0375eb170e5d729a1d1d107b2",
+        "sha256": "2fa8142af5abf13caa95a8657d8cc38eb95c880043f0e06b899dbd92f6564b13"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/aps-answer.schema.json",
+        "mode": "100644",
+        "blob": "a5b50c58a52dec120daba49f480195d64187ab50",
+        "sha256": "0f3fe960e419122c01214279c2e92286dfbd7651bda1bad24f080869e6054ff1"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/claim_request.schema.json",
+        "mode": "100644",
+        "blob": "450f99319470bb7dfe1221048bd857f4b11fda99",
+        "sha256": "cdbbad5ce6c9ace144b5501804015bc6eace7857616ffa4a9c130a33b3054349"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/claim.schema.json",
+        "mode": "100644",
+        "blob": "a7cdb0c4e9a664d9e1a0a7e8dae2bb21d76ccb94",
+        "sha256": "f4743d551051a46444f4445a737824764b3a3b156b2c3584170f35263a59337e"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/completion.schema.json",
+        "mode": "100644",
+        "blob": "752679bd6edec7bddf15cb431bb77ffbeacc86a7",
+        "sha256": "fe0241b353288c3f8e119a765b8c5f8aa22ca1f77e3cd3db1a6d6ed7593d6523"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/context.schema.json",
+        "mode": "100644",
+        "blob": "3948dfd4f690074a8450bbade28468e6b2bb0ae9",
+        "sha256": "1caf2c2e15965240165c13783e96d5c1f65f8131badc0deaf11434def494f580"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/definition.json",
+        "mode": "100644",
+        "blob": "6b303adb6a115a21fbc2c51f10bfbef3de8af80c",
+        "sha256": "6b8652dbef8e94897c3478ffd4d5eb8432c053eda78b0336f63154b76e5d4cd5"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/economic-terms.schema.json",
+        "mode": "100644",
+        "blob": "fd2273e021162065fe9bdbdef332878eb29f99bd",
+        "sha256": "34d925a38dae01c9b8fb1f42fdbf6a8dc962af1d34d3e1c49e935913003511ce"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/error.schema.json",
+        "mode": "100644",
+        "blob": "33090fd28fc54dd7638744edcdd5f52aff576818",
+        "sha256": "27bd1e715fa289d45445a64aebbe7cdf98fa517827d6d74f3c306421b0249ae0"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/evaluation-profile.json",
+        "mode": "100644",
+        "blob": "39ab170b94207283ce62b0781c3ba84184075d10",
+        "sha256": "c7189863ec8f276bf0b7d30dc92e9fd08a8ceb03ba07eb170ac44b185498b11c"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/examples.json",
+        "mode": "100644",
+        "blob": "df547e75bb2cde0e1fdc8def10ceeaa4a59e8b4e",
+        "sha256": "20ce6b782f0222848273596a2f946e6ceec96c27b615a4fe5b3968ddbe691a02"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/page.schema.json",
+        "mode": "100644",
+        "blob": "0d02ecc7fd9163b1eb9bded442dc1bc208580bae",
+        "sha256": "073c7ebabdb6a2c3a9664b49e9d08754a3e3f500bbd5aafb76b69f4dde98c146"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/question-bank.json",
+        "mode": "100644",
+        "blob": "522fe94c0bdc3180d6439aa6c69c2f6e22989240",
+        "sha256": "c98157b3ee1de54639074000a1d54608934162eb976d92ce2afb14793ed43bde"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/receipt.schema.json",
+        "mode": "100644",
+        "blob": "7590859814677ab8cf0452c402c0ce2bd1474aaf",
+        "sha256": "98867d024365bc91470b899c9e2c986df765e8b3940d8a15d632b292e96667b8"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/registration.schema.json",
+        "mode": "100644",
+        "blob": "7efb1730248ab2dbcc9ac9d4ef0a74b9b19bc66f",
+        "sha256": "60676e12a4c5d9da6fbecffc1cafe19191d9b8502901707b5af373e74b985671"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/requester-contract.json",
+        "mode": "100644",
+        "blob": "5e1442142034a113a28a9ecabcc438bf82bd7aff",
+        "sha256": "f67839707150bd0c11e00dfa628c236708d4cb025f71eb45d8315107408bf855"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/requester-guide.md",
+        "mode": "100644",
+        "blob": "3818429744f322d7f914752ed51a6a592b673bcd",
+        "sha256": "af1291b7a2208444ecbe755e3cf65b48d9189e60d5588cfc0558578596b6a8a8"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/SKILL.md",
+        "mode": "100644",
+        "blob": "243fa15a820a57f895c10375cf349152919fbf93",
+        "sha256": "74634ff65f865e88050998154aeea3b32fd201801ac0f6d8594e46a5c41f2543"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/status.schema.json",
+        "mode": "100644",
+        "blob": "8618e4397e3bafb02e0747b22ce4752e56921a0e",
+        "sha256": "f9d45a22327224ae0cea78a64d6abc1f92c7e05c05b234397990cd70ad185dcc"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/task.schema.json",
+        "mode": "100644",
+        "blob": "afe5b8e4fa5b31b82a0aaf4f09ce434f976385f6",
+        "sha256": "2b8c105a4aabdd58aefc8b43617a3cc3b1a646d83d755131a1ff5ffe906f9d95"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/terms.schema.json",
+        "mode": "100644",
+        "blob": "088c810cc4e49e5ebef29ff312ab0705d82b62b2",
+        "sha256": "f589eb98cff211bd4318654c3ca88885908a7a6e332ee73abc18d08724f0a0b3"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/v3-registration-template.csv",
+        "mode": "100644",
+        "blob": "7ad0b2948a13cf7429bfec5adcc44b9dd6b23f2e",
+        "sha256": "c34ad60a87f34b787cbef37c6c21b6a5d946b8cc87eb1e0f924c1a48ec580b30"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/validation-rules.json",
+        "mode": "100644",
+        "blob": "850a352030ccc95a2fa0ace5297617bd6a057140",
+        "sha256": "36b1c4e961bf2ea394b61069f7e7d8ec6baa2ee25e17adc1ac911b91dcd09d2c"
+      },
+      {
+        "path": "frontend/agent-task-specs/structured_response.v3/3.3.0/wire-contract.json",
+        "mode": "100644",
+        "blob": "077f25e83c0c4e08295f627a4ba3847c5cde6ca1",
+        "sha256": "367b6f0665b5f8eda76ee85735e8d2e82c0d8d9c0e8a2e1d5c22ea86deff2d08"
+      }
+    ],
+    "answer_contract_specification_commit": "045b5d4d09222c5efab5bfbedce9b13e06a80455",
+    "answer_contract_architecture_commit": "9157a28069f619ebe97e782ebb80f663c2a77f43",
+    "activity_map_policy_id": "mag.activity-map.public.v1",
+    "answer_review_policy_id": "mag.answer-reuse-review.public.v1"
+  }
+}

@@ -172,6 +172,12 @@ class RegistrationQuote(_Private):
         from .task_activity_conditions import ACTIVITY_MAP_NOTICE
         return ACTIVITY_MAP_NOTICE
 
+    @property
+    def answer_review_notice(self):
+        from .task_activity_conditions import ANSWER_REVIEW_NOTICE
+        request = c.decode_json_object(self._body, 65536)
+        return ANSWER_REVIEW_NOTICE if 'answer_review_policy_id' in request else None
+
     def _signed_operation(self, header):
         return SignedRegistration(self._body, header)
     @boundary
@@ -245,7 +251,7 @@ def _success(value, task_type, operation_ref, request=None):
         return copy.deepcopy(value)
     if task_type == 'paid_service_trial.v3':
         return _paid_read_success(value, operation_ref)
-    economic = type(value) is dict and value.get('schema_version', '').endswith(('.v3_1', '.v2_3', '.v3_2', '.v2_4'))
+    economic = type(value) is dict and value.get('schema_version', '').endswith(('.v3_1', '.v2_3', '.v3_2', '.v2_4', '.v2_5'))
     if economic:
         return _economic_success(value, task_type, operation_ref, request)
     if request is not None and 'economic_terms' in request:
@@ -387,7 +393,7 @@ class OfferRegistrationClient:
     def get_economic_offers(self, family, *, timeout_seconds=20.0):
         from ._contract_schema import ECONOMIC_PACKS
         from .task_economic_terms import validate_offers
-        if family not in ECONOMIC_PACKS:
+        if family not in ECONOMIC_PACKS or family.endswith('_review'):
             raise ValueError('Unsupported economic family.')
         code, _, value = self._send(PATH+'/economic-terms/'+family, b'', timeout_seconds, method='GET')
         if code != 200:
@@ -491,6 +497,7 @@ class OfferRegistrationClient:
             recovery_pack = {
                 'ln_church.task_offer_create_response.endpoint_choice_reason.v2_3': 'choice',
                 'ln_church.task_offer_create_response.endpoint_choice_reason.v2_4': 'choice_mag',
+                'ln_church.task_offer_create_response.endpoint_choice_reason.v2_5': 'choice_review',
             }.get(result.get('schema_version'))
             if recovery_pack is not None:
                 from ._contract_schema import validate_economic_wire
@@ -510,15 +517,20 @@ def _economic_success(value, task_type, operation_ref, request):
     validate_atomic_amount(value['registration_amount_atomic'])
     validate_economic_revision(value['economic_terms_revision'])
     c.validate_sha256(value['terms_digest'])
-    from .endpoint_choice_reason_models import EndpointChoiceRewardV23
+    from .endpoint_choice_reason_models import EndpointChoiceRewardV23, EndpointChoiceRewardV24
     from .immediate_visit_models import ImmediateVisitRewardV31
-    (EndpointChoiceRewardV23 if family_name == 'choice' else ImmediateVisitRewardV31).model_validate(value['reward'])
+    version = value['schema_version'].rsplit('.', 1)[-1]
+    reward_model = ImmediateVisitRewardV31
+    if family_name == 'choice':
+        reward_model = EndpointChoiceRewardV24 if version in ('v2_4', 'v2_5') else EndpointChoiceRewardV23
+    reward_model.model_validate(value['reward'])
     task_id = c.validate_task_id(value['task_id'])
     links = dict(task_url=c.PUBLIC_API_ORIGIN+c.task_detail_path(task_id),
                  summary_url=c.PUBLIC_API_ORIGIN+'/api/agent/task-offers/'+task_id+'/summary',
                  results_url=c.PUBLIC_API_ORIGIN+(c.task_detail_path(task_id)+'/results' if family_name == 'choice' else '/agent-taskboard.html?task_id='+task_id+'&view=results'))
     if family_name == 'choice':
-        links['manifest_url'] = c.PUBLIC_API_ORIGIN+'/agent-task-specs/endpoint_choice_reason.v2/'+('2.4.0' if value['schema_version'].endswith('.v2_4') else '2.3.0')+'/manifest.json'
+        definition = c.CHOICE_DEFINITIONS[version]
+        links['manifest_url'] = c.PUBLIC_API_ORIGIN + '/agent-task-specs/endpoint_choice_reason.v2/' + definition + '/manifest.json'
     if any(value[k] != v for k,v in links.items()) or c.parse_timestamp(value['listing_ends_at'])-c.parse_timestamp(value['published_at']) != timedelta(hours=168):
         raise ValueError('Invalid economic registration links/window.')
     if request is not None:
@@ -528,6 +540,10 @@ def _economic_success(value, task_type, operation_ref, request):
         terms = request.get('economic_terms')
         if terms is None or any(value[k] != terms[k] for k in ('plan_id','economic_terms_revision','registration_amount_atomic','capacity_total')) or any(value['reward'][k] != v for k,v in terms['reward'].items()):
             raise ValueError('Cross-bound registration conditions.')
+        if family_name == 'choice' and (
+                definition != request['task_definition_version']
+                or value.get('answer_review_policy_id') != request.get('answer_review_policy_id')):
+            raise ValueError('Cross-bound Choice review policy.')
         if family_name == 'immediate' and value['repeat_policy'] != request['repeat_policy']:
             raise ValueError('Cross-bound repeat policy.')
     return copy.deepcopy(value)

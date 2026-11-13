@@ -29,10 +29,22 @@ def validate_offers(family, value):
         raise ValueError('Invalid economic offers envelope.')
     if activity:
         from ._contract_schema import validate_economic_revision
+        from .task_activity_conditions import ANSWER_REVIEW_POLICY_ID
         contract = value['registration_contract']
-        if family not in ('immediate','paid','choice','structured','scheduled') or type(contract) is not dict or set(contract) != {'task_definition_version','activity_map_policy_id','activity_map_epoch'}:
-            raise ValueError('Invalid Activity Map registration contract.')
-        if contract['task_definition_version'] != ('2.4.0' if family == 'choice' else '1.2.0' if family == 'scheduled' else '3.2.0') or contract['activity_map_policy_id'] != 'mag.activity-map.public.v1':
+        previous = {'immediate': '3.2.0', 'paid': '3.2.0', 'choice': '2.4.0',
+                    'structured': '3.2.0', 'scheduled': '1.2.0'}
+        current = {'choice': '2.5.0', 'structured': '3.3.0'}
+        if type(contract) is not dict or family not in previous:
+            raise ValueError('Invalid registration contract.')
+        version = contract.get('task_definition_version')
+        required = {'task_definition_version', 'activity_map_policy_id', 'activity_map_epoch'}
+        if family in current and version == current[family]:
+            required.add('answer_review_policy_id')
+            if contract.get('answer_review_policy_id') != ANSWER_REVIEW_POLICY_ID:
+                raise ValueError('Invalid public review policy.')
+        elif version != previous[family]:
+            raise ValueError('Invalid registration definition.')
+        if set(contract) != required or contract['activity_map_policy_id'] != 'mag.activity-map.public.v1':
             raise ValueError('Invalid Activity Map registration contract.')
         validate_economic_revision(contract['activity_map_epoch'])
     for offer in value['offers']:

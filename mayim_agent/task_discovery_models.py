@@ -26,6 +26,8 @@ from .task_contract import (
 # Pins come from the existing immutable manifests, not a discovery response.
 # Discovery does not load packs or rebuild digests from the public summary.
 _TUPLES = {
+    ('endpoint_choice_reason.v2', '2.5.0'): ('ln_church.agent_task.endpoint_choice_reason.v2_5', '6a621ed898bec7c3e2b8ebd6421f5116679ff8073d44a2526acdb5a69430f9a9'),
+    ('structured_response.v3', '3.3.0'): ('ln_church.agent_task.structured_response.v3_3', 'df35f66cc269f71154059e11207dc9d1656dea17f55f113bdf53e2a38e459d51'),
     ('scheduled_http_get_batch.v1', '1.2.0'): ('ln_church.agent_task.v2_2', '2ebfcca188270ef17660944150c3673b5b157e199cedc02e1abcacc300a0cb11'),
     ('payment_surface_discovery.v1', '1.1.0'): ('ln_church.agent_task.v1_1', '2fd692c9fe2c0b8ce62597dbe8f604bdd1afb2e19dd91d147571c7d93ce415b2'),
     ('paid_service_trial.v3', '3.2.0'): ('ln_church.agent_task.paid_service_trial.v3_2', '8c44c115574b593274869091d418f4a6e4e086e55893450bf6e91a2b0a6242af'),
@@ -141,7 +143,7 @@ class TaskDiscoveryCandidate(_DiscoveryResponse):
     task_definition_digest: str
     title: str
     summary: str
-    recruitment_state: Literal["candidate"]
+    recruitment_state: Literal["candidate", "OPEN"]
     capacity_available: int = Field(gt=0)
     claim_before: str
     scheduled_at: Optional[str]
@@ -182,6 +184,9 @@ class TaskDiscoveryCandidate(_DiscoveryResponse):
         if _TUPLES.get((self.task_type, self.task_definition_version)) != (
                 self.task_schema_version, self.task_definition_digest):
             raise ValueError("Invalid discovery tuple.")
+        review = self.task_definition_version in ('2.5.0', '3.3.0')
+        if self.recruitment_state != ('OPEN' if review else 'candidate'):
+            raise ValueError("Invalid discovery recruitment state.")
         scheduled = self.task_type == "scheduled_http_get_batch.v1"
         if scheduled != (self.scheduled_at is not None):
             raise ValueError("Invalid discovery execution schedule.")

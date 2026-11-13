@@ -81,7 +81,7 @@ class StructuredResponseJournal:
                 if getattr(claim,k) != getattr(task,k):
                     raise JournalError('JOURNAL_STATE_CONFLICT')
             claim_wire = claim.model_dump()
-            if claim.task_definition_version in ('3.1.0', '3.2.0') and (
+            if claim.task_definition_version in c.STRUCTURED_ECONOMIC_PACKS and (
                     claim_wire['terms_snapshot'] != c.terms_snapshot(task.model_dump())
                     or claim_wire['economic_terms_revision'] != task.economic_terms_revision):
                 raise JournalError('JOURNAL_STATE_CONFLICT')

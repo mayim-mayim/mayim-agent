@@ -21,7 +21,7 @@ class _Frozen(BaseModel):
             version = c.validate_version(schema.rsplit('.', 1)[-1])
             if hasattr(self, 'task_type') and c.version_of(self) != version:
                 raise ValueError('Mixed endpoint choice schema.')
-            if hasattr(self, 'task_definition_version') and self.task_definition_version != {'v1':'1.0.0', 'v2':'2.0.0', 'v2_1':'2.1.0', 'v2_3':'2.3.0', 'v2_4':'2.4.0'}[version]:
+            if hasattr(self, 'task_definition_version') and self.task_definition_version != c.CHOICE_DEFINITIONS[version]:
                 raise ValueError('Mixed endpoint choice definition.')
             if hasattr(self, 'tasks') and any(c.version_of(t) != version for t in self.tasks):
                 raise ValueError('Mixed endpoint choice page.')
@@ -43,6 +43,8 @@ class _Frozen(BaseModel):
             value = value.model_dump(mode='python')
         if not isinstance(value, dict):
             raise ValueError('Invalid endpoint choice wire value.')
+        if value.get('schema_version', '').endswith('.v2_5'):
+            cls = _V25_MODELS.get(cls, cls)
         if value.get('schema_version', '').endswith('.v2_4'):
             cls = globals().get('_V24_MODELS', {}).get(cls, cls)
         if value.get('schema_version', '').endswith('.v2_3'):
@@ -94,7 +96,7 @@ class EndpointChoiceReward(_Frozen):
 class _Snapshot(_Frozen):
     task_id: str
     task_type: Literal['endpoint_choice_reason.v1', 'endpoint_choice_reason.v2']
-    task_definition_version: Literal['1.0.0', '2.0.0', '2.1.0', '2.3.0', '2.4.0']
+    task_definition_version: Literal['1.0.0', '2.0.0', '2.1.0', '2.3.0', '2.4.0', '2.5.0']
     task_definition_digest: str
     terms_digest: str
     question: str
@@ -242,10 +244,10 @@ class EndpointChoiceClaimCredential(_Snapshot):
 
 
 class EndpointChoiceCompletionReport(_Frozen):
-    schema_version: Literal['ln_church.task_completion.endpoint_choice_reason.v1', 'ln_church.task_completion.endpoint_choice_reason.v2', 'ln_church.task_completion.endpoint_choice_reason.v2_1', 'ln_church.task_completion.endpoint_choice_reason.v2_3', 'ln_church.task_completion.endpoint_choice_reason.v2_4']
+    schema_version: Literal['ln_church.task_completion.endpoint_choice_reason.v1', 'ln_church.task_completion.endpoint_choice_reason.v2', 'ln_church.task_completion.endpoint_choice_reason.v2_1', 'ln_church.task_completion.endpoint_choice_reason.v2_3', 'ln_church.task_completion.endpoint_choice_reason.v2_4', 'ln_church.task_completion.endpoint_choice_reason.v2_5']
     task_id: str
     task_type: Literal['endpoint_choice_reason.v1', 'endpoint_choice_reason.v2']
-    task_definition_version: Literal['1.0.0', '2.0.0', '2.1.0', '2.3.0', '2.4.0']
+    task_definition_version: Literal['1.0.0', '2.0.0', '2.1.0', '2.3.0', '2.4.0', '2.5.0']
     task_definition_digest: str
     terms_digest: str
     execution_id: str
@@ -405,7 +407,7 @@ class _ReceiptIdentity(_Frozen):
 
 
 class EndpointChoiceCompletionReceipt(_ReceiptIdentity):
-    schema_version: Literal['ln_church.task_completion_receipt.endpoint_choice_reason.v1', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2_1', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2_3', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2_4']
+    schema_version: Literal['ln_church.task_completion_receipt.endpoint_choice_reason.v1', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2_1', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2_3', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2_4', 'ln_church.task_completion_receipt.endpoint_choice_reason.v2_5']
     receipt_state: Literal['accepted']
     status_url: str
 
@@ -508,7 +510,7 @@ class EndpointChoicePublicResults(_Frozen):
 
 
 class EndpointChoiceAbandonment(_Frozen):
-    schema_version: Literal['ln_church.agent_task_abandon_response.endpoint_choice_reason.v1', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2_1', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2_3', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2_4']
+    schema_version: Literal['ln_church.agent_task_abandon_response.endpoint_choice_reason.v1', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2_1', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2_3', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2_4', 'ln_church.agent_task_abandon_response.endpoint_choice_reason.v2_5']
     task_id: str
     execution_id: str
     state: Literal['abandoned']
@@ -757,15 +759,15 @@ class EndpointChoiceRewardV24(EndpointChoiceReward):
         return self
 
 
-def _choice_terms_v24(p):
+def _choice_activity_terms(p, version):
     from ._contract_schema import validate_economic_wire, validate_atomic_amount, validate_economic_revision
-    validate_economic_wire('choice_mag', 'public_terms', p)
-    c.require_definition(p['task_definition_digest'], 'v2_4')
+    validate_economic_wire(c.CHOICE_ECONOMIC_PACKS[version], 'public_terms', p)
+    c.require_definition(p['task_definition_digest'], version)
     validate_economic_revision(p['economic_terms_revision'])
     validate_atomic_amount(p['registration_amount_atomic'])
     validate_atomic_amount(p['creator_amount_atomic'], allow_zero=True)
     EndpointChoiceRewardV24.model_validate(p['reward'])
-    profile = c.decode_json_object(c.load_contract_pack('v2_4')['resources']['evaluation-profile.json'], 2097152)
+    profile = c.decode_json_object(c.load_contract_pack(version)['resources']['evaluation-profile.json'], 2097152)
     if p['evaluation_profile_digest'] != c.digest(profile) or p['evaluation_profile_id'] != profile['profile_id']:
         raise ValueError('Invalid Choice profile binding.')
     return p
@@ -785,13 +787,14 @@ class EndpointChoiceTaskV24(EndpointChoiceV21Task):
     @model_validator(mode='after')
     def _terms(self):
         p = self.model_dump(mode='json')
-        terms = _choice_terms_v24({k:p[k] for k in c.terms_fields('v2_4')})
+        version = c.version_of(self)
+        terms = _choice_activity_terms({k: p[k] for k in c.terms_fields(version)}, version)
         if (c.digest(terms) != self.terms_digest
                 or self.capacity_total != self.capacity_reserved + self.capacity_quality_pending + self.capacity_consumed + self.capacity_available
                 or self.capacity_compensated > self.capacity_consumed
                 or c.parse_timestamp(self.listing_ends_at) - c.parse_timestamp(self.published_at) != timedelta(hours=168)
                 or (self.status == 'CLOSED') != (self.answer_acceptance_closed_at is not None)
-                or self.definition_url != c.PUBLIC_API_ORIGIN + '/agent-task-specs/endpoint_choice_reason.v2/2.4.0/SKILL.md'
+                or self.definition_url != c.PUBLIC_API_ORIGIN + '/agent-task-specs/endpoint_choice_reason.v2/' + self.task_definition_version + '/SKILL.md'
                 or self.results_url != c.PUBLIC_API_ORIGIN + c.task_detail_path(self.task_id) + '/results'
                 or not self.summary_url.startswith(c.PUBLIC_API_ORIGIN + '/')):
             raise ValueError('Invalid Choice Task binding.')
@@ -802,7 +805,7 @@ class EndpointChoiceTaskV24(EndpointChoiceV21Task):
     @model_validator(mode='after')
     def _v21(self):
         from ._contract_schema import validate_economic_wire
-        validate_economic_wire('choice_mag', 'task', self.model_dump(mode='json'))
+        validate_economic_wire(c.CHOICE_ECONOMIC_PACKS[c.version_of(self)], 'task', self.model_dump(mode='json'))
         return self
 
 
@@ -818,7 +821,7 @@ class EndpointChoiceClaimV24(EndpointChoiceClaimCredential):
 
     def __init__(self, **data):
         from ._contract_schema import validate_economic_wire
-        validate_economic_wire('choice_mag', 'claim', data)
+        validate_economic_wire(c.CHOICE_ECONOMIC_PACKS[c.version_of(data)], 'claim', data)
         super().__init__(**data)
 
     def model_dump(self, **kwargs):
@@ -830,7 +833,7 @@ class EndpointChoiceClaimV24(EndpointChoiceClaimCredential):
 
     @model_validator(mode='after')
     def _economic(self):
-        terms = _choice_terms_v24(self.terms_snapshot)
+        terms = _choice_activity_terms(self.terms_snapshot, c.version_of(self))
         p = self.model_dump(mode='json')
         if (c.digest(terms) != self.terms_digest or any(p[k] != terms[k] for k in
                 ('task_type','task_definition_version','task_definition_digest','question','candidates',
@@ -847,7 +850,7 @@ class EndpointChoicePageV24(EndpointChoiceTaskPage):
 class EndpointChoiceEvaluationV24(EndpointChoiceV21Evaluation):
     @model_validator(mode='after')
     def _check(self):
-        from ._contract_schema import validate_atomic_amount, validate_floor_amount
+        from ._contract_schema import validate_atomic_amount
         if self.state == 'PENDING':
             if any(v is not None for k,v in self.model_dump().items() if k != 'state'):
                 raise ValueError('Premature evaluation facts.')
@@ -865,8 +868,12 @@ class EndpointChoiceEvaluationV24(EndpointChoiceV21Evaluation):
             expected = ('0','QUALITY_REJECTED') if q <= Decimal('0.30') else (('1','FULL_REWARD_LINE') if q >= Decimal('0.70') else (self.q,'SCORE_PROPORTIONAL'))
             if (self.applied_coefficient,self.reward_basis) != expected:
                 raise ValueError('Invalid quality outcome.')
-        validate_floor_amount(self.base_amount_atomic,self.applied_coefficient,self.approved_amount_atomic)
+        self._check_amount()
         return self
+
+    def _check_amount(self):
+        from ._contract_schema import validate_floor_amount
+        validate_floor_amount(self.base_amount_atomic, self.applied_coefficient, self.approved_amount_atomic)
 
 
 class EndpointChoiceStatusV24(EndpointChoiceSubmissionStatus):
@@ -888,6 +895,81 @@ _V24_MODELS = {EndpointChoiceTask: EndpointChoiceTaskV24,
     EndpointChoiceClaimCredential: EndpointChoiceClaimV24,
     EndpointChoiceSubmissionStatus: EndpointChoiceStatusV24,
     EndpointChoicePublicResults: EndpointChoiceResultsV24}
+
+
+class EndpointChoiceTaskV25(EndpointChoiceTaskV24):
+    schema_version: Literal['ln_church.agent_task.endpoint_choice_reason.v2_5']
+    task_definition_version: Literal['2.5.0']
+    answer_review_policy_id: Literal['mag.answer-reuse-review.public.v1']
+    recruitment_state: Literal['OPEN', 'PAUSED', 'CLOSED']
+    recruitment_reason: Optional[Literal['REVIEW_BUDGET_RESERVED', 'REVIEW_BUDGET_EXHAUSTED', 'REVIEW_COST_UNAVAILABLE']]
+
+
+class EndpointChoiceClaimV25(EndpointChoiceClaimV24):
+    schema_version: Literal['ln_church.agent_task_claim_response.endpoint_choice_reason.v2_5']
+    task_definition_version: Literal['2.5.0']
+    answer_review_policy_id: Literal['mag.answer-reuse-review.public.v1']
+
+
+class EndpointChoicePageV25(EndpointChoiceTaskPage):
+    schema_version: Literal['ln_church.agent_task_page.endpoint_choice_reason.v2_5']
+    tasks: Tuple[EndpointChoiceTaskV25, ...]
+
+
+class EndpointChoiceEvaluationV25(EndpointChoiceEvaluationV24):
+    def _check_amount(self):
+        # The outer public DTO distinguishes reuse exclusion from quality pay.
+        if self.state != 'GRADED' or self.approved_amount_atomic != '0':
+            super()._check_amount()
+
+
+def _reviewed_reward(result):
+    from .task_activity_conditions import validate_reward_eligibility
+    evaluation = result.evaluation
+    validate_reward_eligibility(
+        result.model_dump(), evaluation.state != 'PENDING', evaluation.approved_amount_atomic,
+    )
+    if evaluation.state == 'GRADED' and result.reward_exclusion_reason is None:
+        EndpointChoiceEvaluationV24._check_amount(evaluation)
+    if result.reward_exclusion_reason is not None and evaluation.state != 'GRADED':
+        raise ValueError('Invalid Choice reward exclusion.')
+
+
+class EndpointChoiceStatusV25(EndpointChoiceSubmissionStatus):
+    schema_version: Literal['ln_church.task_submission_status.endpoint_choice_reason.v2_5']
+    evaluation: EndpointChoiceEvaluationV25
+    reward_eligibility: Literal['ELIGIBLE', 'INELIGIBLE', 'PENDING']
+    reward_exclusion_reason: Optional[Literal['SUSPECTED_REUSE']]
+
+    @model_validator(mode='after')
+    def _review(self):
+        _reviewed_reward(self)
+        return self
+
+
+class EndpointChoiceRowV25(EndpointChoiceResultRow):
+    evaluation: EndpointChoiceEvaluationV25
+    reward_eligibility: Literal['ELIGIBLE', 'INELIGIBLE', 'PENDING']
+    reward_exclusion_reason: Optional[Literal['SUSPECTED_REUSE']]
+
+    @model_validator(mode='after')
+    def _review(self):
+        _reviewed_reward(self)
+        return self
+
+
+class EndpointChoiceResultsV25(EndpointChoicePublicResults):
+    schema_version: Literal['ln_church.task_results.endpoint_choice_reason.v2_5']
+    rows: Tuple[EndpointChoiceRowV25, ...]
+
+
+_V25_MODELS = {
+    EndpointChoiceTask: EndpointChoiceTaskV25,
+    EndpointChoiceTaskPage: EndpointChoicePageV25,
+    EndpointChoiceClaimCredential: EndpointChoiceClaimV25,
+    EndpointChoiceSubmissionStatus: EndpointChoiceStatusV25,
+    EndpointChoicePublicResults: EndpointChoiceResultsV25,
+}
 
 
 @dataclass(frozen=True)
