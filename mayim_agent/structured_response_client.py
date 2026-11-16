@@ -6,7 +6,8 @@ import time
 
 from . import structured_response_contract as c
 from .structured_response_models import (
-    StructuredResponseTask,StructuredResponseTaskPage,StructuredResponseClaimCredential,
+    StructuredResponseTask,StructuredResponseTaskPage,StructuredResponsePublicConditions,
+    StructuredResponseClaimCredential,
     StructuredResponseContext,FrozenStructuredResponseReport,StructuredResponseCompletionReceipt,
     StructuredResponseSubmissionStatus,StructuredResponseCompletionResult,
 )
@@ -18,6 +19,8 @@ def _model(cls,payload):
     invalid=False
     try:
         return cls.model_validate(payload)
+    except c.UnsupportedPublicConditionsTuple:
+        raise StructuredResponseError('UNSUPPORTED_TUPLE',request_bytes_sent=False) from None
     except Exception:
         invalid=True
     if invalid:
@@ -81,6 +84,13 @@ class StructuredResponseClient:
             raise StructuredResponseError('RESPONSE_BINDING_INVALID',request_bytes_sent=True)
         return task
 
+    def _get_public_conditions(self,task_id,*,timeout_seconds):
+        payload=self._transport.get_public_conditions(task_id,timeout_seconds=timeout_seconds)
+        conditions=_model(StructuredResponsePublicConditions,payload)
+        if conditions.task_id!=task_id or conditions.task_definition_version!=self._transport.definition_version:
+            raise StructuredResponseError('RESPONSE_BINDING_INVALID',request_bytes_sent=True)
+        return conditions
+
     @public_boundary
     def claim(self,task_id,agent_id,reward_address,idempotency_key,*,journal_directory,timeout_seconds=20.0):
         self._open()
@@ -89,14 +99,13 @@ class StructuredResponseClient:
             old=journal.load_claim()
             if old is not None:
                 return StructuredResponseClaim(old,journal)
-            task=journal.load_task()
-            if task is None:
-                task=self.get_task(task_id,timeout_seconds=timeout_seconds)
-                if not task.supported:
-                    raise StructuredResponseError('UNSUPPORTED_TUPLE',request_bytes_sent=False)
-                journal.save_task(task)
-            c.require_tuple(task.model_dump())
             task_id,key,body,started=journal.claim_request()
+            task=journal.load_task()
+            if not started and task is None:
+                conditions=self._get_public_conditions(task_id,timeout_seconds=timeout_seconds)
+                journal.save_conditions(conditions)
+            elif isinstance(task,StructuredResponseTask):
+                c.require_tuple(task.model_dump())
             journal.begin_claim()
             live_access=self._transport.access_quota.has_operation('POST',c.PUBLIC_API_ORIGIN+c.task_claim_path(task_id),
                 {'Content-Type':'application/json','Idempotency-Key':key},body)
@@ -128,7 +137,7 @@ class StructuredResponseClient:
         if claim is None or task is None:
             raise ValueError('Missing saved Claim.')
         result=_model(StructuredResponseContext,self._transport.get_context(claim.task_id,claim._claim_token_value(),timeout_seconds=timeout_seconds))
-        if (result.task_id!=claim.task_id or result.execution_id!=claim.execution_id or result.context_id!=task.model_dump().get('context_id')
+        if (result.task_id!=claim.task_id or result.execution_id!=claim.execution_id or result.context_id!=task.public_terms.get('context_id')
                 or c.version_of(result.model_dump())!=claim.task_definition_version):
             raise StructuredResponseError('RESPONSE_BINDING_INVALID',request_bytes_sent=True)
         return result
@@ -140,7 +149,7 @@ class StructuredResponseClient:
             task=journal.load_task();claim=journal.load_claim()
             if task is None or claim is None:
                 raise ValueError('Missing saved Claim.')
-            c.require_tuple(task.model_dump())
+            terms=task.public_terms
             saved=journal.load_report()
             if (saved is not None and not correction
                     and submission_id in (None, saved.report['submission_id'])
@@ -148,14 +157,14 @@ class StructuredResponseClient:
                     and c.canonical_bytes(dict(shared_assumptions=shared_assumptions,items=items))
                     ==c.canonical_bytes({k:saved.report[k] for k in ('shared_assumptions','items')})):
                 return journal.prepare_report(saved)
-            answer=c.validate_answer(shared_assumptions,items,task.items,task=task.model_dump())
+            answer=c.validate_answer(shared_assumptions,items,terms['items'],public_terms=terms)
             # Repeating an identical local preparation retains its original ID.
             if saved is not None and submission_id is None and not correction:
                 submission_id=saved.report['submission_id']
             submission_id=submission_id or 'sub_'+secrets.token_hex(16)
             payload={k:getattr(claim,k) for k in ('task_id','task_type','task_definition_version','task_definition_digest','terms_digest','execution_id')}
             payload.update(schema_version=c.schema('task_completion',claim.task_definition_version),submission_id=submission_id,
-                context_id=task.model_dump().get('context_id'),**answer)
+                context_id=terms.get('context_id'),**answer)
             return journal.prepare_report(FrozenStructuredResponseReport.from_report(payload),correction=correction)
 
     def _bound(self,cls,payload,claim,report):
@@ -234,7 +243,6 @@ class StructuredResponseClient:
                 if posts>=max_posts or self._clock()>=deadline:
                     break
                 # Mutation requires the fixed pack; read recovery remains possible after expiry.
-                c.require_tuple(task.model_dump())
                 journal.record_dispatch();posts+=1
                 try:
                     payload=self._transport.post_completion_bytes(claim.task_id,claim._claim_token_value(),report.report['submission_id'],report.canonical_bytes,timeout_seconds=remaining())

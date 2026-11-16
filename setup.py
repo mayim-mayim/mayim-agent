@@ -9,7 +9,7 @@ if os.path.exists(readme_path):
 
 setup(
     name="mayim-agent",
-    version="2.0.2",
+    version="2.0.3",
     packages=find_packages(include=['mayim_agent', 'mayim_agent.*']),
     package_data={
         "mayim_agent": [
