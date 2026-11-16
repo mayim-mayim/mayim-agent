@@ -23,15 +23,17 @@ class _View:
     __slots__ = ('_bytes',)
 
     def __init__(self, payload):
-        failed = False
+        failure = None
         try:
             owned = c.decode_json_object(c.canonical_bytes(payload, 4194304),4194304)
             self._validate(owned)
             object.__setattr__(self, '_bytes', c.canonical_bytes(owned,4194304))
+        except c.UnsupportedPublicConditionsTuple as exc:
+            failure = c.UnsupportedPublicConditionsTuple(str(exc))
         except Exception:
-            failed = True
-        if failed:
-            raise ValueError('Invalid structured response wire value.')
+            failure = ValueError('Invalid structured response wire value.')
+        if failure is not None:
+            raise failure
 
     def __setattr__(self, key, value):
         raise TypeError('Immutable structured response view.')
@@ -93,9 +95,33 @@ class StructuredResponseTask(_View):
     def update_required(self):
         return not self.supported
 
+    @property
+    def public_terms(self):
+        payload = self.model_dump()
+        c.require_tuple(payload)
+        c.validate_terms(payload)
+        return c.terms_snapshot(payload)
+
     def model_dump(self, **kwargs):
         # Preserve the read-only wire view; do not synthesize old-family fields.
         return super().model_dump(**kwargs)
+
+
+class StructuredResponsePublicConditions(_View):
+    """Pinned Task conditions with no recruitment or capacity snapshot."""
+
+    def _validate(self, payload):
+        c.validate_public_conditions(payload)
+        if _public(payload) != payload:
+            raise ValueError('Non-public data in public conditions.')
+
+    @property
+    def public_terms(self):
+        return self._private_payload()['public_terms']
+
+    @property
+    def context_id(self):
+        return self.public_terms['context_id']
 
 
 class StructuredResponseTaskPage(_View):
@@ -191,20 +217,19 @@ class FrozenStructuredResponseReport:
         return cls(canonical, hashlib.sha256(canonical).hexdigest())
 
     def validate_binding(self, task, claim, *, validate_answer=True):
-        c.require_tuple(task.model_dump())
-        c.validate_terms(task.model_dump())
+        terms = task.public_terms
         p = self.report
         for key in ('task_id','task_type','task_definition_version','task_definition_digest','terms_digest'):
             if p[key] != getattr(task,key) or p[key] != getattr(claim,key):
                 raise ValueError('Answer binding mismatch.')
-        if p['execution_id'] != claim.execution_id or p['context_id'] != task.model_dump().get('context_id'):
+        if p['execution_id'] != claim.execution_id or p['context_id'] != terms.get('context_id'):
             raise ValueError('Answer context binding mismatch.')
         claim_wire = claim.model_dump()
         if 'context_id' in claim_wire and claim_wire['context_id'] != p['context_id']:
             raise ValueError('Answer Claim context binding mismatch.')
         if validate_answer:
-            answer = c.validate_answer(p['shared_assumptions'], p['items'], task.items,
-                                       task=task.model_dump())
+            answer = c.validate_answer(p['shared_assumptions'], p['items'], terms['items'],
+                                       public_terms=terms)
             if answer['items'] != p['items']:
                 raise ValueError('Answer item order mismatch.')
         return self

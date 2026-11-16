@@ -24,6 +24,7 @@ from .immediate_visit_contract import parse_timestamp, positive_bound
 TASK_TYPE = 'structured_response.v3'
 TASK_DEFINITION_VERSION = '3.0.0'
 TASK_SCHEMA_VERSION = 'ln_church.agent_task.structured_response.v3'
+PUBLIC_CONDITIONS_SCHEMA = 'ln_church.agent_task_public_conditions.v1'
 MAX_REPORT_BYTES = 262144
 MAX_ITEM_BYTES = 8192
 MAX_RECOVERY_POSTS = 3
@@ -127,6 +128,74 @@ def terms_snapshot(value):
     if version == '3.3.0':
         fields += ('answer_review_policy_id',)
     return {key: value[key] for key in fields if key in value}
+
+
+class UnsupportedPublicConditionsTuple(ValueError):
+    """Conditions refer to a definition that the bundled packs do not support."""
+
+
+def validate_public_conditions(value):
+    """Validate the C2 conditions envelope against the pinned Structured pack."""
+    from ._contract_schema import validate
+
+    if value.get('schema_version') != PUBLIC_CONDITIONS_SCHEMA:
+        raise ValueError('Invalid public conditions schema.')
+    version = value.get('task_definition_version')
+    if type(version) is not str or version not in STRUCTURED_WIRE_VERSIONS:
+        raise UnsupportedPublicConditionsTuple('Unsupported structured response definition.')
+    economic = version in STRUCTURED_ECONOMIC_PACKS
+    fields = {'schema_version', 'task_id', 'task_type', 'task_schema_version',
+              'task_definition_version', 'task_definition_digest', 'terms_digest', 'public_terms'}
+    if economic:
+        fields.add('economic_terms_revision')
+    if set(value) != fields:
+        raise ValueError('Invalid public conditions fields.')
+    if value['task_schema_version'] != schema('agent_task', version):
+        raise UnsupportedPublicConditionsTuple('Unsupported structured response Task schema.')
+    validate_task_id(value['task_id'])
+    validate_sha256(value['task_definition_digest'])
+    validate_sha256(value['terms_digest'])
+    pack = pack_for(version)
+    if value['task_type'] != TASK_TYPE or value['task_definition_digest'] != pack['manifest']['task_definition_digest']:
+        raise UnsupportedPublicConditionsTuple('Unsupported structured response definition.')
+
+    terms = value['public_terms']
+    resources = pack['resources']
+    if economic:
+        definition = decode_json_object(resources['terms.schema.json'], 2097152)
+        validate(definition, terms, root=definition)
+        if value['economic_terms_revision'] != terms['economic_terms_revision']:
+            raise ValueError('Invalid public conditions revision.')
+        validate_economics(terms)
+    else:
+        # 3.0 ships Task fields for public terms instead of a terms schema.
+        task = decode_json_object(resources['task.schema.json'], 2097152)
+        validate({
+            'type': 'object', 'additionalProperties': False,
+            'properties': {key: task['properties'][key] for key in _TERM_FIELDS},
+            'required': [key for key in task['required'] if key in _TERM_FIELDS],
+        }, terms)
+    for key in ('task_type', 'task_definition_version', 'task_definition_digest'):
+        if terms[key] != value[key]:
+            raise ValueError('Invalid public conditions identity.')
+    if digest(terms) != value['terms_digest']:
+        raise ValueError('Invalid public conditions digest.')
+    validate_definition_items(terms['items'])
+    validate_participation(terms['participation'])
+    if terms['context_id'] is not None:
+        validate_opaque_id(terms['context_id'], 'context_id')
+    if 'evaluation_profile_digest' in terms:
+        profile = decode_json_object(resources['evaluation-profile.json'], 2097152)
+        if terms['evaluation_profile_digest'] != digest(profile):
+            raise ValueError('Invalid public conditions evaluation profile binding.')
+    if 'question_bank_version' in terms or 'question_bank_digest' in terms:
+        bank = decode_json_object(resources['question-bank.json'], 2097152)
+        if terms.get('question_bank_version') != bank['version'] or terms.get('question_bank_digest') != digest(bank):
+            raise ValueError('Invalid public conditions question bank binding.')
+    if terms.get('aps_kind') == 'BLIND':
+        context = terms.get('public_context') or {}
+        if 'target' in context or terms['participation'].get('source_task_id') is not None:
+            raise ValueError('Invalid blind public conditions.')
 
 
 def validate_economics(terms):
@@ -394,27 +463,25 @@ def validate_definition_items(items):
             check_fields(item['report_fields'])
 
 
-def _aps_report_items(task, definitions):
+def _aps_report_items(terms, definitions):
     """Select bound APS items from the fixed correction/3.1 applicability."""
-    if task is None:
+    if terms is None:
         return frozenset()
-    require_tuple(task)
-    validate_terms(task)
-    if definitions != task['items']:
+    if definitions != terms['items']:
         raise ValueError('Answer definition does not match saved terms.')
-    version = version_of(task)
+    version = terms['task_definition_version']
     rules = load_answer_contract(version)
     profiles = {(row['evaluation_profile_id'], kind): set(row['items'])
                 for row in rules['applicability'] for kind in row['aps_kinds']}
-    selected = profiles.get((task.get('evaluation_profile_id'), task.get('aps_kind')))
+    selected = profiles.get((terms.get('evaluation_profile_id'), terms.get('aps_kind')))
     if selected is None:
         return frozenset()
     pack = pack_for(version)
     bank = decode_json_object(pack['resources']['question-bank.json'], 2097152)
     profile = decode_json_object(pack['resources']['evaluation-profile.json'], 2097152)
-    if (task.get('question_bank_version') != bank['version']
-            or task.get('question_bank_digest') != digest(bank)
-            or task.get('evaluation_profile_digest') != digest(profile)):
+    if (terms.get('question_bank_version') != bank['version']
+            or terms.get('question_bank_digest') != digest(bank)
+            or terms.get('evaluation_profile_digest') != digest(profile)):
         raise ValueError('Invalid APS saved definition binding.')
     originals = {item['item_id']: item for item in bank['items']}
     matched = set()
@@ -434,7 +501,7 @@ def _aps_report_items(task, definitions):
     return frozenset(matched)
 
 
-def validate_answer(shared_assumptions, answers, definitions, *, task=None):
+def validate_answer(shared_assumptions, answers, definitions, *, task=None, public_terms=None):
     if type(shared_assumptions) is not dict or set(shared_assumptions) != {'must','volume','outcome'}:
         raise ValueError('Invalid shared assumptions.')
     for v in shared_assumptions.values():
@@ -442,7 +509,11 @@ def validate_answer(shared_assumptions, answers, definitions, *, task=None):
     if sum(len(v.encode('utf-8')) for v in shared_assumptions.values()) > 4096:
         raise ValueError('Shared assumptions exceed byte limit.')
     validate_definition_items(definitions)
-    aps_items = _aps_report_items(task, definitions)
+    if task is not None:
+        require_tuple(task)
+        validate_terms(task)
+        public_terms = terms_snapshot(task)
+    aps_items = _aps_report_items(public_terms, definitions)
     if type(answers) is not list or len(answers) > 22:
         raise ValueError('Invalid answer items.')
     by_id = {}

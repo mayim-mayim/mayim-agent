@@ -6,13 +6,22 @@ import re
 
 from . import structured_response_contract as c
 from .structured_response_models import (
-    StructuredResponseTask, StructuredResponseClaimCredential, FrozenStructuredResponseReport,
+    StructuredResponseTask, StructuredResponsePublicConditions, StructuredResponseClaimCredential,
+    FrozenStructuredResponseReport,
 )
 from .immediate_visit_journal import _read, _write, _private_boundary
 from .task_journal import _StableLock, _validate_journal_path, JournalError
 from ._structured_response_crypto import seal, unseal
 
 MAX_JOURNAL_BYTES = 2 * 1024 * 1024
+
+
+def _saved_task(payload):
+    if payload is None:
+        return None
+    if payload.get('schema_version') == c.PUBLIC_CONDITIONS_SCHEMA:
+        return StructuredResponsePublicConditions(payload)
+    return StructuredResponseTask(payload)
 
 
 class StructuredResponseJournal:
@@ -70,7 +79,7 @@ class StructuredResponseJournal:
             raise JournalError('JOURNAL_STATE_CONFLICT')
         if any(type(d[k]) is not bool for k in ('claim_started','completion_started','completion_unknown','accepted','abandoned')):
             raise JournalError('JOURNAL_INVALID')
-        task = StructuredResponseTask(d['task']) if d['task'] is not None else None
+        task = _saved_task(d['task'])
         claim = StructuredResponseClaimCredential(d['credential']) if d['credential'] is not None else None
         if task is not None and task.task_id != self.task_id:
             raise JournalError('JOURNAL_STATE_CONFLICT')
@@ -81,12 +90,13 @@ class StructuredResponseJournal:
                 if getattr(claim,k) != getattr(task,k):
                     raise JournalError('JOURNAL_STATE_CONFLICT')
             claim_wire = claim.model_dump()
+            terms = task.public_terms
             if claim.task_definition_version in c.STRUCTURED_ECONOMIC_PACKS and (
-                    claim_wire['terms_snapshot'] != c.terms_snapshot(task.model_dump())
-                    or claim_wire['economic_terms_revision'] != task.economic_terms_revision):
+                    claim_wire['terms_snapshot'] != terms
+                    or claim_wire['economic_terms_revision'] != terms['economic_terms_revision']):
                 raise JournalError('JOURNAL_STATE_CONFLICT')
             if ('context_id' in claim_wire
-                    and claim_wire['context_id'] != task.model_dump().get('context_id')):
+                    and claim_wire['context_id'] != terms.get('context_id')):
                 raise JournalError('JOURNAL_STATE_CONFLICT')
         if d['report'] is not None:
             if task is None or claim is None:
@@ -120,18 +130,27 @@ class StructuredResponseJournal:
     @_private_boundary
     def save_task(self,task):
         task = StructuredResponseTask.model_validate(task)
-        c.require_tuple(task.model_dump())
+        payload = task.model_dump()
+        c.require_tuple(payload)
+        self._save_task(payload)
+
+    @_private_boundary
+    def save_conditions(self,conditions):
+        conditions = StructuredResponsePublicConditions.model_validate(conditions)
+        self._save_task(conditions.model_dump())
+
+    def _save_task(self,payload):
         with _StableLock(self.lock_path):
             d = self._load()
-            if task.task_id != self.task_id or d['task'] is not None and d['task'] != task.model_dump():
+            if payload['task_id'] != self.task_id or d['task'] is not None and d['task'] != payload:
                 raise JournalError('JOURNAL_STATE_CONFLICT')
-            d['task'] = task.model_dump(); self._write(d)
+            d['task'] = payload; self._write(d)
 
     @_private_boundary
     def load_task(self):
         with _StableLock(self.lock_path):
             d = self._load()
-            return StructuredResponseTask(d['task']) if d['task'] else None
+            return _saved_task(d['task'])
 
     @_private_boundary
     def claim_request(self):
@@ -169,7 +188,7 @@ class StructuredResponseJournal:
             d=self._load()
             if d['abandoned'] or d['task'] is None or d['credential'] is None:
                 raise JournalError('JOURNAL_STATE_CONFLICT')
-            task=StructuredResponseTask(d['task'])
+            task=_saved_task(d['task'])
             claim=StructuredResponseClaimCredential(d['credential'])
             report=FrozenStructuredResponseReport.from_bytes(report.canonical_bytes).validate_binding(
                 task, claim, validate_answer=False)
@@ -210,7 +229,7 @@ class StructuredResponseJournal:
                 raise JournalError('JOURNAL_STATE_CONFLICT')
             if not (d['completion_started'] or d['completion_unknown'] or d['accepted']):
                 FrozenStructuredResponseReport.from_bytes(d['report'].encode()).validate_binding(
-                    StructuredResponseTask(d['task']), StructuredResponseClaimCredential(d['credential']))
+                    _saved_task(d['task']), StructuredResponseClaimCredential(d['credential']))
             d.update(completion_started=True,completion_unknown=True,rejection=None);self._write(d)
 
     @_private_boundary

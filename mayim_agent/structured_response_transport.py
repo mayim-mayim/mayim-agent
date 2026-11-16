@@ -137,5 +137,10 @@ class StructuredResponseTransport(ImmediateVisitTransport):
         query=urlencode(dict(task_type=c.TASK_TYPE,task_schema_version=c.schema('agent_task',self.definition_version)))
         return self._once('GET',c.task_detail_path(task_id),query=query,timeout_seconds=timeout_seconds)
 
+    def get_public_conditions(self,task_id,*,timeout_seconds=20.0):
+        query=urlencode(dict(view='conditions',task_type=c.TASK_TYPE,
+                             task_schema_version=c.schema('agent_task',self.definition_version)))
+        return self._once('GET',c.task_detail_path(task_id),query=query,timeout_seconds=timeout_seconds)
+
     def get_submission_status(self,task_id,submission_id,claim_token,*,timeout_seconds=20.0):
         return self._once('GET',c.task_status_path(task_id,submission_id),claim_token=claim_token,timeout_seconds=timeout_seconds)

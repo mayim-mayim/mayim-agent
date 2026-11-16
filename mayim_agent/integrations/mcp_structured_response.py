@@ -78,6 +78,8 @@ def register_tools(mcp):
     def structured_response_claim(task_id:str,agent_id:str,reward_address:str,idempotency_key:str,definition_version:str='3.0.0')->Dict[str,Any]:
         """Explicitly Claim once, saving the original key/request before dispatch. No wallet signature.
 
+        The first Claim saves verified public conditions independently of the
+        display counters. A conditions read failure prevents dispatch.
         For Structured 3.0.0/3.1.0/3.2.0/3.3.0, first review the selected Task detail,
         retained acceptance history for the same reward address, and
         https://kari.mayim-mayim.com/SKILL.md#structured-claim-guidance.
